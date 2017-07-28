@@ -1,0 +1,131 @@
+#*******************************************************************************
+# Copyright (c) 2017 Red Hat, Eurotech, Inc and others
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# Contributors:
+#     Red Hat, Inc. - initial implementation
+#     Eurotech - initial implementation of Kapua components
+#
+#******************************************************************************
+apiVersion: v1
+kind: Template
+metadata:
+  name: kura-simulator
+  annotations:
+    openshift.io/display-name: "Eclipse Kura™ simulator"
+    description: "An IoT gateway simulator, simulating Eclipse Kura™ instances"
+labels:
+  kapua: simulator
+parameters:
+- name: IMAGE_VERSION
+  description: The version of the image to use
+  value: latest
+- name: DOCKER_ACCOUNT
+  description: The docker hub account name to pull from
+  value: redhatiot
+- description: MQ Broker username
+  name: BROKER_USERNAME
+  value: "demo-gw2"
+  required: true
+- description: MQ Broker password
+  name: BROKER_PASSWORD
+  value: "RedHat123"
+  required: true
+- description: Number of Kura Simulators to run
+  name: KSIM_NUM_GATEWAYS
+  value: "1"
+  required: true
+- description: Kapua Account Name
+  name: KSIM_ACCOUNT_NAME
+  value: "Red-Hat"
+  required: true
+- description: Simulator Name Factory
+  name: KSIM_NAME_FACTORY
+#  value: "host:addr"
+- description: Simulator Name Custom Prefix
+  name: KSIM_BASE_NAME
+  value: "simulator-"
+
+objects:
+
+# Image streams
+
+# - apiVersion: v1
+#   kind: ImageStream
+#   metadata:
+#     name: kura-simulator
+#   spec:
+#     tags:
+#     - from:
+#         kind: DockerImage
+#         name: kura-simulator:${IMAGE_VERSION}
+#       name: ${IMAGE_VERSION}
+#       importPolicy:
+#         scheduled: true
+
+# Deployment configs
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: simulator
+  spec:
+    replicas: 1
+    selector:
+      app: simulator
+      deploymentconfig: simulator
+    strategy:
+      type: Recreate
+    template: 
+      metadata:
+        labels:
+          app: simulator
+          deploymentconfig: simulator          
+      spec:
+        containers:
+          - name: simulator
+            image: ${DOCKER_ACCOUNT}/kura-simulator:${IMAGE_VERSION}
+            imagePullPolicy: Always
+            restartPolicy: Always
+            dnsPolicy: ClusterFirst
+            env:
+              - name: KSIM_BROKER_PROTO
+                value: $(KAPUA_BROKER_PORT_1883_TCP_PROTO)
+              - name: KSIM_BROKER_HOST
+                value: $(KAPUA_BROKER_SERVICE_HOST)
+              - name: KSIM_BROKER_PORT
+                value: $(KAPUA_BROKER_PORT_1883_TCP_PORT)
+              - name: KSIM_BROKER_USER
+                value: ${BROKER_USERNAME}
+              - name: KSIM_BROKER_PASSWORD
+                value: ${BROKER_PASSWORD}
+              - name: KSIM_BASE_NAME
+                value: ${KSIM_BASE_NAME}
+              - name: KSIM_NAME_FACTORY
+                value: ${KSIM_NAME_FACTORY}
+              - name: KSIM_NUM_GATEWAYS
+                value: ${KSIM_NUM_GATEWAYS}
+              - name: KSIM_ACCOUNT_NAME
+                value: ${KSIM_ACCOUNT_NAME}
+              - name: KSIM_SIMULATION_CONFIGURATION
+                valueFrom:
+                  configMapKeyRef:
+                    name: data-simulator-config
+                    key: ksim.simulator.configuration
+    # triggers:
+    #   - type: ConfigChange
+    #   - type: ImageChange
+    #     imageChangeParams:
+    #       automatic: true
+    #       containerNames:
+    #         - simulator
+    #       from:
+    #         kind: ImageStreamTag
+    #         name: kura-simulator:${IMAGE_VERSION}
+    # paused: false
+    # revisionHistoryLimit: 2
+    # minReadySeconds: 0

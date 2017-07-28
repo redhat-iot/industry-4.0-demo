@@ -1,0 +1,59 @@
+{
+  "applications": {
+    "cloudera-demo": {
+      "scheduler": { "period": 1000 },
+      "topics": {
+        "facilities/facility-1/lines/line-1/machines/machine-1": {
+          "metrics": {
+            "speed"         : { "generator": "speed", "name": "value" },
+            "voltage"       : { "generator": "voltage", "name": "value" },
+            "current"       : { "generator": "current", "name": "value" },
+            "temp"          : { "generator": "temp", "name": "value" },
+            "noise"         : { "generator": "noise", "name": "value" },
+            "vibration"     : { "generator": "vibration", "name": "value" }
+          }
+        },
+        "facilities/facility-1/lines/line-1/machines/machine-2": {
+          "metrics": {
+            "speed"         : { "generator": "speed", "name": "value" },
+            "voltage"       : { "generator": "voltage", "name": "value" },
+            "current"       : { "generator": "current", "name": "value" },
+            "temp"          : { "generator": "temp", "name": "value" },
+            "noise"         : { "generator": "noise", "name": "value" },
+            "vibration"     : { "generator": "vibration", "name": "value" }
+          }
+        },
+        "facilities/facility-1/lines/line-1/machines/machine-3": {
+          "metrics": {
+            "speed"         : { "generator": "speed", "name": "value" },
+            "voltage"       : { "generator": "voltage", "name": "value" },
+            "current"       : { "generator": "current", "name": "value" },
+            "temp"          : { "generator": "temp", "name": "value" },
+            "noise"         : { "generator": "noise", "name": "value" },
+            "vibration"     : { "generator": "vibration", "name": "value" }
+          }
+        }        
+      },
+      "generators": {
+        "speed": {
+          "type": "sine", "period": 30000, "offset": 1640, "amplitude": 20
+        },
+        "voltage": {
+          "type": "sine", "period": 60000, "shift": 100, "offset": 213, "amplitude": 2
+        },
+        "current": {
+          "type": "sine", "period": 30000, "shift": 400, "offset": 35, "amplitude": 20
+        },
+        "temp": {
+          "type": "sine", "period": 100000, "offset": 25, "amplitude": 4
+        },
+        "noise": {
+          "type": "sine", "period": 100000, "shift": 45.5, "offset": 38, "amplitude": 3
+        },
+        "vibration": {
+          "type": "sine", "period": 432000, "offset": 0.12, "amplitude": 0.2
+        }
+      }
+    }
+  }
+}
