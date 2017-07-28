@@ -20,6 +20,7 @@ import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
+import org.apache.camel.component.mqtt.MQTTConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
@@ -43,7 +44,7 @@ public class Application extends RouteBuilder {
                         throws Exception {
                     if (exchange.getIn() != null) {
                         Message message = exchange.getIn();
-                        message.setHeader(KafkaConstants.KEY, message.getHeader("CamelMQTTSubscribeTopic"));
+                        message.setHeader(KafkaConstants.KEY, message.getHeader(MQTTConfiguration.MQTT_SUBSCRIBE_TOPIC));
                     }
                 }
             })
