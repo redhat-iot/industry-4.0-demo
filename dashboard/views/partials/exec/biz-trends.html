@@ -1,0 +1,45 @@
+<!--
+    Copyright (c) 2017 Red Hat, Inc. and others
+
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+        Red Hat Inc. - initial implementation
+
+-->
+<div>
+
+
+    <div style="float: right;" class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" mid="dropdownMenu1" data-toggle="dropdown">
+            {{timeFrame}}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('month');">Last Month</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('year');">Last Year</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('all');">Beginning of Time</a></li>
+        </ul>
+    </div>
+
+    <h2>Business Trends</h2>
+
+    <ul class="nav nav-tabs nav-tabs-pf">
+        <li ng-class="{ active: (getSelected() == 'fuel')}"><a ng-click="setSelected('fuel');">Fuel Efficiency</a></li>
+        <li ng-class="{ active: (getSelected() == 'value')}"><a ng-click="setSelected('value');">Value Under Transport</a></li>
+        <li ng-class="{ active: (getSelected() == 'timeperf')}"><a ng-click="setSelected('timeperf');">On-Time Performance</a></li>
+        <li ng-class="{ active: (getSelected() == 'custsat')}"><a ng-click="setSelected('custsat');">Customer Satisfaction</a></li>
+    </ul>
+
+    <div pf-c3-chart mid="chartId" config="chartConfig" get-chart-callback="getChart"></div>
+
+
+</div>
+
+
+
+
+

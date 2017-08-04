@@ -1,0 +1,69 @@
+<!--
+    Copyright (c) 2017 Red Hat, Inc. and others
+
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+        Red Hat Inc. - initial implementation
+
+-->
+<nav class="navbar navbar-default navbar-pf" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#/">
+          <div>
+            <div style="float:left;margin-right: 50px"><img ng-src="/app/imgs/logo.png" alt="Company&reg; logo" /></div>
+          </div>
+        </a>
+        <center><h1 style="color: white">{{headerTitle}}</h1></center>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-utility">
+          <li>
+            <a ng-href="" ng-click="predictiveMaintenance();"><span style="color: {{predictiveMaintenanceColor}};" title="Simulate Cascading Failure" class="fa fa-bolt"></span></a>
+          </li>
+          <li>
+            <a ng-href="" ng-click="unpredictedError();"><span style="color: {{unpredictedErrorColor}};;" title="Simulate Package Failure" class="fa fa-tag"></span></a>
+          </li>
+          <li>
+            <a ng-href="" ng-click="resetAll();"><span title="Reset Demo Data" class="fa fa-refresh"></span></a>
+          </li>
+          <li>
+            <a ng-href="#/"><span class="fa fa-industry"></span>&nbsp;23,433 Widgets Produced</a>
+          </li>
+          <li class="dropdown">
+            <a ng-href="#/" class="dropdown-toggle" data-toggle="dropdown">
+              <span class="pficon pficon-user"></span>
+              {{userInfo.fullName}} <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a ng-href="#/"><span class="pficon pficon-user"></span>&nbsp;Profile</a>
+              </li>
+              <li>
+                <a href="" ng-click="logout()"><span class="fa fa-sign-out"></span>&nbsp;Logout</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-primary">
+          <li ng-class="{ active: isActive('/exec')}">
+            <a ng-href="#/" class="active">Business</a>
+          </li>
+          <li ng-class="{ active: isActive('/')}">
+            <a ng-href="#/exec">Operations</a>
+          </li>
+          <li ng-class="{ active: isActive('/tech')}">
+            <a ng-href="#/exec">Technician</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
