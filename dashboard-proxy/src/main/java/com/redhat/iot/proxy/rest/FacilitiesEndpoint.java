@@ -57,19 +57,12 @@ public class FacilitiesEndpoint {
     public List<Run> getRuns(@PathParam("fid") String facilityId) {
 
         Map<String, Line> cache = dgService.getProductionLines();
-        Map<String, Run> runs = dgService.getRuns();
 
         Facility f = dgService.getFacilities().get(facilityId);
 
-        List<String> lids = new ArrayList<>();
-
-        for (Line l : f.getLines()) {
-            lids.add(l.getLid());
-        }
-
-        return runs.keySet().stream()
-                .map(runs::get)
-                .filter(run -> lids.contains(run.getLine().getLid()))
+        return cache.keySet().stream()
+                .map(cache::get)
+                .map(Line::getCurrentRun)
                 .collect(Collectors.toList());
 
     }

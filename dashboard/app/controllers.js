@@ -551,15 +551,26 @@ angular.module('app')
 
 
     .controller("LineListController",
-        ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Lines',
-            function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Lines) {
+        ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Lines', 'Facilities',
+            function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Lines, Facilities) {
 
                 $scope.selectedLine = null;
 
-                $scope.lines = Lines.getLines();
+                $scope.facilities = null;
+                $scope.lines = null;
+
+                $scope.selectedFacility = null;
+
 
                 $scope.resetAll = function () {
                     $rootScope.$broadcast("resetAll");
+                };
+
+                $scope.isFacilitySelected = function(fac) {
+                    if (!$scope.selectedFacility || !fac) {
+                        return false;
+                    }
+                    return $scope.selectedFacility.fid === fac.fid;
                 };
 
                 $scope.isLineSelected = function (line) {
@@ -567,17 +578,27 @@ angular.module('app')
                     if (!$scope.selectedLine || !line) {
                         return false;
                     }
-                    return $scope.selectedLine.lid == line.lid;
+                    return $scope.selectedLine.lid === line.lid;
                 };
 
 
                 $scope.selectLine = function (line) {
                     $scope.selectedLine = line;
                     $rootScope.$broadcast("lines:selected", line);
+                    console.log("broadcasted line selected: " + JSON.stringify(line));
                 };
 
-                $scope.$on('lines:updated', function (event) {
-                    $scope.lines = Lines.getLines();
+                $scope.selectFacility = function (fac) {
+                    $scope.selectedFacility = fac;
+                    $scope.lines = Lines.getLinesForFacility(fac);
+                    $rootScope.$broadcast("facilities:selected", fac);
+                };
+
+                $scope.$on('facilities:updated', function (event) {
+                    $scope.facilities = Facilities.getFacilities();
+                    if (!$scope.selectedFacility) {
+                        $scope.selectFacility($scope.facilities[0]);
+                    }
                 });
 
                 $scope.$on("line:alert", function (evt, al) {
@@ -596,17 +617,7 @@ angular.module('app')
 
                 var MAX_POINTS = 20;
 
-                $scope.allMachines = [];
                 $scope.selectedMachine = null;
-
-                Machines.getAllMachines(function(machines) {
-                    $scope.allMachines = machines;
-                });
-
-                $scope.selectMachine = function() {
-                    console.log("selecting machine: " + JSON.stringify($scope.selectedMachine));
-                    $scope.$broadcast("machine:selected", $scope.selectedMachine);
-                };
 
                 function addData(machine, data) {
 
@@ -640,12 +651,11 @@ angular.module('app')
                     });
                 }
 
-                $scope.selectedMachine = null;
-
                 $scope.n3options = [];
                 $scope.n3data = [];
 
                 $scope.$on('machine:selected', function (event, machine) {
+                    console.log("got machine selected");
                     machine.telemetry.forEach(function (telemetry) {
                         $scope.n3options[telemetry.name] = {
                             warning: false,
@@ -815,24 +825,32 @@ angular.module('app')
             }])
 
     .controller("FloorplanController",
-        ['$timeout', '$scope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG",
-            function ($timeout, $scope, $http, Notifications, SensorData, NgMap, APP_CONFIG) {
+        ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG", "Lines",
+            function ($timeout, $scope, $rootScope, $http, Notifications, SensorData, NgMap, APP_CONFIG, Lines) {
 
-                $scope.$on('lines:selected', function (event, line) {
-                    // TODO
-                });
+                $scope.selectMachine = function () {
+                    Lines.getLines().forEach(function (line) {
+                        line.machines.forEach(function (m) {
+                            if (m.mid === "machine-1" && m.currentLid === "line-1" && m.currentFid === "facility-1") {
+                                $rootScope.$broadcast("machine:selected", m);
+                            }
+                        })
+                    });
+                }
+
             }])
+
     .controller("LineDetailsController",
-        ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Lines",
-            function ($rootScope, $scope, $http, Notifications, SensorData, Lines) {
+        ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Lines", "Machines",
+            function ($rootScope, $scope, $http, Notifications, SensorData, Lines, Machines) {
 
                 $scope.lineQuery = '';
 
-                $scope.lines = null;
                 $scope.selectedLine = null;
                 $scope.linealerts = [];
 
                 $scope.$on('lines:selected', function (event, line) {
+                    console.log("got the message");
                     $scope.selectedLine = line;
                 });
 
@@ -844,7 +862,7 @@ angular.module('app')
                     if (!$scope.selectedLine) {
                         return false;
                     }
-                    return $scope.selectedLine.lid == line.lid;
+                    return $scope.selectedLine.lid === line.lid;
                 };
 
             }])

@@ -23,7 +23,6 @@ public class Run implements Serializable {
 
     private String name;
     private String rid;
-    private Line line;
     private String desc;
     private String status;
     private Date start;
@@ -44,14 +43,6 @@ public class Run implements Serializable {
 
     public void setRid(String rid) {
         this.rid = rid;
-    }
-
-    public Line getLine() {
-        return line;
-    }
-
-    public void setLine(Line line) {
-        this.line = line;
     }
 
     public String getDesc() {

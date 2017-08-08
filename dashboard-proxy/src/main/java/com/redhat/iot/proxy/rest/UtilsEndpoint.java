@@ -76,6 +76,7 @@ public class UtilsEndpoint {
 
             for (String[] line : LINES) {
                 Line newLine = new Line();
+                newLine.setCurrentFid(newFacility.getFid());
                 lines.add(newLine);
                 newLine.setName(line[0]);
                 newLine.setLid(line[1]);
@@ -111,12 +112,14 @@ public class UtilsEndpoint {
                 Date now = new Date();
 
                 Run r = new Run();
+                r.setName(rand(RUNS));
                 r.setCustomer(customerCache.get(rand(COMPANIES)));
-                r.setDesc(rand(RUNS));
-                r.setLine(newLine);
+                r.setDesc("Standard Run");
+                newLine.setCurrentRun(r);
                 r.setStatus("ok");
                 r.setStart(new Date(now.getTime() - ((int)(Math.floor((Math.random()  * 6.0) * (double)MS_IN_HOUR)))));
                 r.setEnd(new Date(now.getTime() + ((int)(Math.floor((Math.random()  * 3.0) * (double)MS_IN_HOUR)))));
+
                 runsCache.put(r.getRid(), r);
 
                 linesCache.put(newFacility.getFid() + "/" + newLine.getLid(), newLine);
@@ -131,10 +134,6 @@ public class UtilsEndpoint {
         }
 
 
-    }
-
-    private String guid() {
-        return java.util.UUID.randomUUID().toString();
     }
 
     private String rand(String[] strs) {
@@ -241,9 +240,9 @@ public class UtilsEndpoint {
     };
 
     public static final String[] RUNS = new String[]{
-            "5000x fidget spinners",
-            "2500x Die-cast",
-            "10000x Three-prong"
+            "500-FS",
+            "240-DS",
+            "10000-TP"
     };
 
 

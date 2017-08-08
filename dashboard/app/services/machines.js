@@ -22,22 +22,22 @@ angular.module('app')
 
 	var factory = {},
 		machines = [],
-        allMachines = [],
 		configRestEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api/machines';
 
 	    factory.getCurrentMachines = function() {
 	        return machines;
         };
 
+
         factory.getMachines = function(line, cb) {
             // get config
             $http({
                 method: 'GET',
-                url: configRestEndpoint + '/' + line.lid
+                url: configRestEndpoint
             }).then(function (response) {
                 machines = response.data;
                 if ((machines == undefined) || (machines.constructor !== Array)) {
-                    Notifications.error("Error fetching Machines for line:" + line.lid + " (invalid data). Reload to retry");
+                    Notifications.error("Error fetching Machines (invalid data). Reload to retry");
                     return;
                 }
 
@@ -45,28 +45,7 @@ angular.module('app')
 
             }, function err(response) {
                 console.log(JSON.stringify(response));
-                Notifications.error("Error fetching Machines for line: " + line.lid + ". Reload to retry");
-            });
-
-        };
-
-        factory.getAllMachines = function(cb) {
-            // get config
-            $http({
-                method: 'GET',
-                url: configRestEndpoint
-            }).then(function (response) {
-                allMachines = response.data;
-                if ((allMachines == undefined) || (allMachines.constructor !== Array)) {
-                    Notifications.error("Error fetching ALL Machines (invalid data). Reload to retry");
-                    return;
-                }
-
-                cb(allMachines);
-
-            }, function err(response) {
-                console.log(JSON.stringify(response));
-                Notifications.error("Error fetching ALL Machines. Reload to retry");
+                Notifications.error("Error fetching Machines. Reload to retry");
             });
 
         };

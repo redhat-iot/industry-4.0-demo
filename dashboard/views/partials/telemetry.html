@@ -23,25 +23,18 @@
         <icon class="fa fa-info-circle"></icon>&nbsp;Choose a shipment to view its telemetry
     </div>
 
-    <form name="fakeform">
-        <label>Pick a Machine to get telemetry: </label><br>
-        <select name="repeatSelect" id="repeatSelect" ng-model="selectedMachine" ng-change="selectMachine()"
-            ng-options="machine as (machine.currentFid + ' - ' + machine.currentLid + '-' + machine.mid) for machine in allMachines"></select>
-    </form>
-
-
     <div ng-repeat="telemetry in selectedMachine.telemetry track by $index">
 
 
         <div ng-if="!n3data[telemetry.name].hasData">
-            <icon class="fa fa-2x fa-exclamation-triangle"></icon>&nbsp;Current {{telemetry.name}} unavailable (<a ng-click="showHistory(telemetry);">History</a>)
+            <icon class="fa fa-2x fa-exclamation-triangle"></icon>&nbsp;Current {{telemetry.name}} unavailable (<a ng-disabled="historyDisabled" ng-click="showHistory(telemetry);">History</a>)
         </div>
 
         <div ng-if="n3data[telemetry.name].hasData">
             <span>{{telemetry.name}}</span>
             <span style="color: red;" ng-if="n3options[telemetry.name].warning">&nbsp;<icon title="{{telemetry.name}} out of bounds ({{telemetry.min}}{{telemetry.units}} < {{telemetry.name}} < {{telemetry.max}}{{telemetry.units}})" class="fa fa-exclamation-triangle"></icon></span>
             <div style="float:right;">
-                <a ng-click="showHistory(telemetry);">History</a>
+                <a ng-disabled="historyDisabled" ng-click="showHistory(telemetry);">History</a>
             </div>
         </div>
         <div class="container-fluid" ng-if="n3data[telemetry.name].hasData">

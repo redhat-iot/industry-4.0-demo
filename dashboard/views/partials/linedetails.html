@@ -15,13 +15,39 @@
     <h2>Production Line Details</h2>
     <hr>
 
-    <div ng-if="!line">
+    <div ng-if="!selectedLine">
         <icon class="fa fa-info-circle"></icon>
         &nbsp;Choose a line to view its details
     </div>
 
-    <div>
-        PRODUCTION DETAILS CONTENT TODO
+    <!--private String name;-->
+    <!--private String lid;-->
+    <!--private String desc;-->
+    <!--private String status;-->
+    <!--private List<Machine> machines;-->
+    <!--private String currentFid;-->
+    <!--private Run currentRun;-->
+
+    <!--machines: private String name;-->
+    <!--private String desc;-->
+    <!--private String status;-->
+    <!--private String mid;-->
+    <!--private String currentLid;-->
+    <!--private String currentFid;-->
+
+    <div ng-if="selectedLine">
+        <ul>
+            <li>Name {{selectedLine.name}}</li>
+            <li>LID {{selectedLine.lid}}</li>
+            <li>Desc {{selectedLine.desc}}</li>
+            <li>Status {{selectedLine.status}}</li>
+            <li>currentFid {{selectedLine.currentFid}}</li>
+            <li>currentRun {{selectedLine.currentRun}}</li>
+        </ul>
+        Machines:
+        <ul>
+            <li ng-repeat="m in selectedLine.machines">{{m.name}} - {{m.desc}} - {{m.status}}</li>
+        </ul>
     </div>
 
 </div>

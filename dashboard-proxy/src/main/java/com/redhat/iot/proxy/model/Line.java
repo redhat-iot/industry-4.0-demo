@@ -27,9 +27,18 @@ public class Line implements Serializable {
     private String status;
     private List<Machine> machines;
     private String currentFid;
+    private Run currentRun;
 
     public Line() {
 
+    }
+
+    public Run getCurrentRun() {
+        return currentRun;
+    }
+
+    public void setCurrentRun(Run currentRid) {
+        this.currentRun = currentRid;
     }
 
     public String getCurrentFid() {

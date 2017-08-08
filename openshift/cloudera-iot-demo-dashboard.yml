@@ -173,7 +173,7 @@ objects:
         kind: ImageStreamTag
         name: dashboard-proxy:latest
     source:
-      contextDir: dgproxy
+      contextDir: dashboard-proxy
       git:
         ref: ${GIT_REF}
         uri: ${GIT_URI}
