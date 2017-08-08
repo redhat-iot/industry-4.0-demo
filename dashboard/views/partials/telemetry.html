@@ -25,9 +25,8 @@
 
     <form name="fakeform">
         <label>Pick a Machine to get telemetry: </label><br>
-        <select name="repeatSelect" id="repeatSelect" ng-model="selectedMachineId" ng-change="selectMachine()">
-            <option ng-repeat="machine in allMachines" value="{{machine.mid}}">{{machine.mid}} ({{machine.name}}</option>
-        </select>
+        <select name="repeatSelect" id="repeatSelect" ng-model="selectedMachine" ng-change="selectMachine()"
+            ng-options="machine as (machine.currentFid + ' - ' + machine.currentLid + '-' + machine.mid) for machine in allMachines"></select>
     </form>
 
 

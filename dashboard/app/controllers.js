@@ -597,18 +597,15 @@ angular.module('app')
                 var MAX_POINTS = 20;
 
                 $scope.allMachines = [];
-                $scope.selectedMachineId = null;
+                $scope.selectedMachine = null;
 
                 Machines.getAllMachines(function(machines) {
                     $scope.allMachines = machines;
                 });
 
                 $scope.selectMachine = function() {
-                    $scope.allMachines.forEach(function(machine) {
-                        if (machine.mid == $scope.selectedMachineId) {
-                            $scope.$broadcast("machine:selected", machine);
-                        }
-                    });
+                    console.log("selecting machine: " + JSON.stringify($scope.selectedMachine));
+                    $scope.$broadcast("machine:selected", $scope.selectedMachine);
                 };
 
                 function addData(machine, data) {

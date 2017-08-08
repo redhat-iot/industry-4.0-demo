@@ -84,10 +84,17 @@ parameters:
   name: DASHBOARD_WEB_TITLE
   value: "Red Hat + Cloudera IoT Industry 4.0 Demo"
   required: true
-
+- description: Cloudera Impala service hostname
+  name: IMPALA_HOST
+  value: "34.211.218.209"
+  required: true
+- description: Cloudera Impala service port
+  name: IMPALA_PORT
+  value: "21050"
+  required: true
 - description: Cloudera Kafka service hostname
   name: KAFKA_ALERTS_HOST
-  value: "xx.xx.xx.xx"
+  value: "34.208.144.34"
   required: true
 - description: Cloudera Kafka service port
   name: KAFKA_ALERTS_PORT
@@ -425,15 +432,12 @@ objects:
             value: ${KAFKA_ALERTS_PORT}
           - name: KAFKA_ALERTS_TOPIC_REGEX
             value: ${KAFKA_ALERTS_TOPIC_REGEX}
+          - name: IMPALA_HOST
+            value: ${IMPALA_HOST}
+          - name: IMPALA_PORT
+            value: ${IMPALA_PORT}
           image: dashboard-proxy
           imagePullPolicy: Always
-          lifecycle:
-            preStop:
-              exec:
-                command:
-                - /wildfly/bin/jboss-cli.sh
-                - -c
-                - :shutdown(timeout=60)
           name: dashboard-proxy
           ports:
           - containerPort: 8778

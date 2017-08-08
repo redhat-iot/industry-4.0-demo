@@ -22,11 +22,24 @@ import java.util.List;
 public class Facility implements Serializable {
     private String fid;
     private String name;
+    private String desc;
     private String address;
     private LatLng location;
     private double utilization;
     private double size;
     private List<Line> lines;
+
+    public Facility() {
+
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
 
     public List<Line> getLines() {
         return lines;
@@ -84,11 +97,4 @@ public class Facility implements Serializable {
         this.location = location;
     }
 
-    public Facility(String name, String address, LatLng location, double size) {
-        this.name = name;
-        this.fid = name;
-        this.address = address;
-        this.location = location;
-        this.size = size;
-    }
 }

@@ -16,6 +16,8 @@
 
 'use strict';
 
+// Red-Hat/simulator-1/cloudera-demo/facilities/facility-1/lines/line-1/machines/machine-2/alert
+
 angular.module('app')
 
     .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Reports', 'Lines',
@@ -24,8 +26,8 @@ angular.module('app')
             client = null,
             msgproto = null,
             listeners = [],
-            topicRegex = /Red-Hat\/([^\/]*)\/iot-demo\/([^\/]*)\/([^\/]*)$/,
-            alertRegex = /Red-Hat\/([^\/]*)\/iot-demo\/([^\/]*)\/([^\/]*)\/alerts$/,
+            topicRegex = /[^\/]*\/[^\/]*\/[^\/]*\/facilities\/([^\/]*)\/lines\/([^\/]*)\/machines\/([^\/]*)$/,
+            alertTopicRegex = /[^\/]*\/[^\/]*\/[^\/]*\/facilities\/([^\/]*)\/lines\/([^\/]*)\/machines\/([^\/]*)\/alerts$/,
             metricOverrides = {};
 
             // Set the name of the hidden property and the change event for visibility
@@ -75,41 +77,43 @@ angular.module('app')
 
         function handleAlert(destination, alertObj) {
 
-            if (alertObj.type == 'VEHICLE') {
-                $rootScope.$broadcast('line:alert', {
-                    vin: alertObj.truckid,
-                    message: $filter('date')(alertObj.date, 'medium') + ": " +
-                                alertObj.desc + ": " + alertObj.message
-                });
-            } else if (alertObj.type == 'PACKAGE') {
-                $rootScope.$broadcast('package:alert', {
-                    vin: alertObj.truckid,
-                    sensor_id: alertObj.sensorid,
-                    message: $filter('date')(alertObj.date, 'medium') + ": " +
-                                alertObj.desc + ": " + alertObj.message
-                });
-            }
-
-            Reports.refresh();
+                // TODO
+            // if (alertObj.type == 'VEHICLE') {
+            //     $rootScope.$broadcast('line:alert', {
+            //         vin: alertObj.truckid,
+            //         message: $filter('date')(alertObj.date, 'medium') + ": " +
+            //                     alertObj.desc + ": " + alertObj.message
+            //     });
+            // } else if (alertObj.type == 'PACKAGE') {
+            //     $rootScope.$broadcast('package:alert', {
+            //         vin: alertObj.truckid,
+            //         sensor_id: alertObj.sensorid,
+            //         message: $filter('date')(alertObj.date, 'medium') + ": " +
+            //                     alertObj.desc + ": " + alertObj.message
+            //     });
+            // }
+            //
+            // Reports.refresh();
 
         }
 
         function onMessageArrived(message) {
             var destination = message.destinationName;
 
-            if (alertRegex.test(destination)) {
+            if (alertTopicRegex.test(destination)) {
                 handleAlert(destination, JSON.parse(message.payloadString));
             } else {
                 var payload = message.payloadBytes;
                 var decoded =  msgproto.decode(payload);
                 var matches = topicRegex.exec(destination);
-                var objType = matches[2];
-                var objId = matches[3];
+                var fid = matches[1];
+                var lid = matches[2];
+                var mid = matches[3];
 
                 listeners.filter(function(listener) {
-                    return (listener.objType == objType && listener.objId == objId);
+                    return (listener.objType === 'machines' && listener.objId === mid);
                 }).forEach(function(listener) {
-                    var targetObj = listener.machine || listener.line;
+                    var targetObj = listener.machine;
                     var cb = listener.listener;
 
                     var data = [];
@@ -118,10 +122,8 @@ angular.module('app')
                         targetObj.telemetry.forEach(function(objTel) {
                             var telName = objTel.name;
                             var telMetricName = objTel.metricName;
-                            var value =  (metricOverrides[listener.objId] && metricOverrides[listener.objId][telMetricName]) ?
-                                (metricOverrides[listener.objId][telMetricName] * (.95 + 0.05 * Math.random())).toFixed(1) :
-                                decodedMetric.doubleValue.toFixed(1);
-                            if (telMetricName == decodedMetric.name) {
+                            var value = decodedMetric.doubleValue.toFixed(1);
+                            if (telMetricName === decodedMetric.name) {
                                 data.push({
                                     name: telName,
                                     value: value,
@@ -133,13 +135,6 @@ angular.module('app')
                     cb(data);
                 });
             }
-        }
-
-        function onConnect() {
-            console.log("Connected to server");
-            var topicName = "Red-Hat/+/iot-demo/+/+/alerts";
-            client.subscribe(topicName);
-
         }
 
         function connectClient(attempt) {
@@ -176,7 +171,7 @@ angular.module('app')
                         if (attempt > 1) {
                             Notifications.success("Connected to the IoT cloud!");
                         }
-                        var topicName = "Red-Hat/+/iot-demo/+/+/alerts";
+                        var topicName = "+/+/+/facilities/+/lines/+/machines/+/alerts";
                         client.subscribe(topicName);
                     },
                     userName: APP_CONFIG.BROKER_USERNAME,
@@ -205,8 +200,8 @@ angular.module('app')
 
                 // Red-Hat/simulator-1/cloudera-demo/facilities/facility-1/lines/line-1/machines/machine-2
 
-            var topicName = 'Red-Hat/+/cloudera-demo/facilities/' +
-                machine.line.facility.fid + '/lines/' + machine.line.lid + '/machines/' + machine.mid;
+            var topicName = '+/+/+/facilities/' +
+                machine.currentFid + '/lines/' + machine.currentLid + '/machines/' + machine.mid;
 
             client.subscribe(topicName);
             console.log("subscribed to " + topicName);
@@ -219,12 +214,13 @@ angular.module('app')
             });
         };
 
-        factory.unsubscribeMachine = function (pkg) {
-            var topicName = "Red-Hat/+/iot-demo/packages/" + pkg.sensor_id;
+        factory.unsubscribeMachine = function (machine) {
+            var topicName = '+/+/+/facilities/' +
+                machine.currentFid + '/lines/' + machine.currentLid + '/machines/' + machine.mid;
             client.unsubscribe(topicName);
-            console.log("UNsubscribed to " + topicName);
+            console.log("UNsubscribed from " + topicName);
             listeners = listeners.filter(function(listener) {
-                return ((!listener.machine)  || (listener.machine.sensor_id != pkg.sensor_id));
+                return ((!listener.machine)  || (listener.topic !== topicName));
             });
         };
 
@@ -237,71 +233,32 @@ angular.module('app')
             listeners = [];
         };
 
-        factory.getRecentData = function (pkg, telemetry, cb) {
+        factory.getRecentData = function (machine, telemetry, cb) {
 
-            var esUrl = "http://" + APP_CONFIG.ES_HOSTNAME + '.' +
-                $location.host().replace(/^.*?\.(.*)/g,"$1") + ':' + APP_CONFIG.ES_PORT + '/_search';
+            var configRestEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' +
+                $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api/machines/history/query';
+
+            var topicReg = "[^/]*/[^/]*/[^/]*/facilities/" + machine.currentFid + "/lines/" + machine.currentLid + "/machines/" + machine.mid;
+
+            configRestEndpoint += ("?topic=" + encodeURIComponent(topicReg));
+
+            configRestEndpoint += ("&metric=" + telemetry.metricName);
 
             $http({
-                method: 'POST',
-                url: esUrl,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                data: {
-                    "size": 0,
-                    "query": {
-                        "bool": {
-                          "must": [
-                            {
-                              "term": {
-                                "channel": "iot-demo/packages/" + pkg.sensor_id
-                              }
-                            }
-                          ]
-                        }
-                    },
-                    "aggs": {
-                        "my_date_histo": {
-                            "date_histogram": {
-                                "field": "timestamp",
-                                "interval": "5m"
-                            },
-                            "aggs": {
-                                "the_avg": {
-                                    "avg": {
-                                        "field": "metrics." + telemetry.metricName + ".dbl"
-                                    }
-                                },
-                                "the_movavg": {
-                                    "moving_avg": {
-                                        "buckets_path": "the_avg"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }).then(function successCallback(response) {
+                method: 'GET',
+                url: configRestEndpoint
+            }).then(function (response) {
 
                 if (!response.data) {
                     cb([]);
                     return;
                 }
+                cb(response.data);
 
-                var recentData = [];
-                response.data.aggregations.my_date_histo.buckets.forEach(function (bucket) {
-                    if (bucket.the_movavg) {
-                        recentData.push({
-                            timestamp: bucket.key,
-                            value: bucket.the_movavg.value
-                        });
-                    }
-                });
-                cb(recentData);
-            }, function errorCallback(response) {
-                Notifications.error("error fetching recent data: " + response.statusText);
+            }, function err(response) {
+                console.log(JSON.stringify(response));
+                Notifications.error("Error fetching history for machine: " + machine.mid + ". Reload to retry");
             });
-
-
         };
 
         function sendJSONObjectMsg(jsonObj, topic) {

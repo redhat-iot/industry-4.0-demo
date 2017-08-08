@@ -21,16 +21,31 @@ import java.util.List;
 @XmlRootElement(name="line")
 public class Line implements Serializable {
 
+    private String name;
     private String lid;
     private String desc;
     private String status;
     private List<Machine> machines;
+    private String currentFid;
+
     public Line() {
 
     }
 
-    public Line(String lid) {
-        this.lid = lid;
+    public String getCurrentFid() {
+        return currentFid;
+    }
+
+    public void setCurrentFid(String currentFid) {
+        this.currentFid = currentFid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getLid() {

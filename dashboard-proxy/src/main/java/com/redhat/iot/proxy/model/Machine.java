@@ -22,16 +22,38 @@ import java.util.List;
 public class Machine implements Serializable {
 
     private String name;
+    private String desc;
     private String status;
     private String mid;
+    private String currentLid;
+    private String currentFid;
 
     public Machine() {
 
     }
 
+    public String getDesc() {
+        return desc;
+    }
 
-    public Machine (String mid) {
-        this.mid = mid;
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getCurrentLid() {
+        return currentLid;
+    }
+
+    public void setCurrentLid(String currentLid) {
+        this.currentLid = currentLid;
+    }
+
+    public String getCurrentFid() {
+        return currentFid;
+    }
+
+    public void setCurrentFid(String currentFid) {
+        this.currentFid = currentFid;
     }
 
     private List<Telemetry> telemetry;

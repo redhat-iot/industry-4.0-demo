@@ -21,6 +21,7 @@ import java.util.Date;
 @XmlRootElement(name="run")
 public class Run implements Serializable {
 
+    private String name;
     private String rid;
     private Line line;
     private String desc;
@@ -31,6 +32,14 @@ public class Run implements Serializable {
 
     public String getRid() {
         return rid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setRid(String rid) {

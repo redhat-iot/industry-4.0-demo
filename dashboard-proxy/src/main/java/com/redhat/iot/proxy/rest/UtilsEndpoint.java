@@ -31,8 +31,6 @@ import java.util.*;
 public class UtilsEndpoint {
 
     public static final long MS_IN_HOUR = 24 * 60 * 60 * 1000;
-    public static final int MACHINES_PER_LINE = 5;
-    public static final int LINES_PER_FACILITY = 4;
 
     @Inject
     DGService dgService;
@@ -65,41 +63,63 @@ public class UtilsEndpoint {
                     new Customer(COMPANY, "password"));
         }
 
-        for (String facName : FACILITY_LOCATIONS) {
+        for (String[] facility : FACILITIES) {
 
-            Facility newFacility = new Facility(facName, facName, new LatLng(20, -80), Math.random());
+            Facility newFacility = new Facility();
+            newFacility.setName(facility[0]);
+            newFacility.setFid(facility[1]);
+            newFacility.setSize(Math.random() * 10000);
+            newFacility.setLocation(new LatLng(20, -80));
             newFacility.setUtilization(Math.random());
+
             List<Line> lines = new ArrayList<>();
 
-            for (int j = 0; j < LINES_PER_FACILITY; j++) {
-                Line line = new Line(guid());
-
-                line.setDesc("Line " + facName + " " + j);
-                line.setStatus("ok");
+            for (String[] line : LINES) {
+                Line newLine = new Line();
+                lines.add(newLine);
+                newLine.setName(line[0]);
+                newLine.setLid(line[1]);
+                newLine.setDesc("The line");
+                newLine.setStatus("ok");
 
                 List<Machine> machines = new ArrayList<>();
 
-                for (int k = 0; k < MACHINES_PER_LINE; k++) {
-                    Machine m = new Machine(guid());
-                    m.setName(rand(MACHINE_NAMES));
-                    m.setStatus("ok");
-                    machinesCache.put(m.getMid(), m);
+                for (String[] machine : MACHINES) {
+                    Machine newMachine = new Machine();
+                    machines.add(newMachine);
+                    newMachine.setName(machine[0]);
+                    newMachine.setMid(machine[1]);
+                    newMachine.setStatus("ok");
+                    newMachine.setDesc("The machine");
+                    List<Telemetry> machineTelemetry = new ArrayList<>();
+                    machineTelemetry.add(new Telemetry("A", 40, 15, "Current", "current"));
+                    machineTelemetry.add(new Telemetry("°C", 50, 10, "Temperature", "temp"));
+                    machineTelemetry.add(new Telemetry("db", 50, 10, "Noise", "noise"));
+                    machineTelemetry.add(new Telemetry("rpm", 2000, 1000, "Speed", "speed"));
+                    machineTelemetry.add(new Telemetry("nu", 2000, 0, "Vibration", "vibration"));
+                    machineTelemetry.add(new Telemetry("V", 250, 190, "Voltage", "voltage"));
+                    newMachine.setTelemetry(machineTelemetry);
+                    newMachine.setCurrentFid(newFacility.getFid());
+                    newMachine.setCurrentLid(newLine.getLid());
+                    machinesCache.put(newFacility.getFid() + "/" + newLine.getLid() + "/" + newMachine.getMid(), newMachine);
+
+
                 }
 
-                line.setMachines(machines);
+                newLine.setMachines(machines);
 
                 Date now = new Date();
 
                 Run r = new Run();
                 r.setCustomer(customerCache.get(rand(COMPANIES)));
-                r.setDesc(rand(RUN_DESCRIPTIONS));
-                r.setLine(line);
+                r.setDesc(rand(RUNS));
+                r.setLine(newLine);
                 r.setStatus("ok");
                 r.setStart(new Date(now.getTime() - ((int)(Math.floor((Math.random()  * 6.0) * (double)MS_IN_HOUR)))));
                 r.setEnd(new Date(now.getTime() + ((int)(Math.floor((Math.random()  * 3.0) * (double)MS_IN_HOUR)))));
                 runsCache.put(r.getRid(), r);
 
-                linesCache.put(line.getLid(), line);
+                linesCache.put(newFacility.getFid() + "/" + newLine.getLid(), newLine);
 
 
 
@@ -107,7 +127,7 @@ public class UtilsEndpoint {
 
             newFacility.setLines(lines);
 
-            facilitiesCache.put(facName, newFacility);
+            facilitiesCache.put(newFacility.getFid(), newFacility);
         }
 
 
@@ -199,21 +219,28 @@ public class UtilsEndpoint {
             "Good Burger"
     };
 
-    public static final String[] FACILITY_LOCATIONS = new String[]{
-            "Atlanta",
-            "Singapore",
-            "Frankfurt",
-            "Raleigh"
+    public static final String[][] FACILITIES = new String[][]{
+            {"Atlanta", "facility-1"},
+            {"Singapore", "facility-2"},
+            {"Frankfurt", "facility-3"},
+            {"Raleigh", "facility-4"}
     };
 
-    public static final String[] MACHINE_NAMES = new String[]{
-            "Caster",
-            "Cooler",
-            "Weighting",
-            "Spin Test"
+    public static final String[][] LINES = new String[][]{
+            {"Line 1", "line-1"},
+            {"Line 2", "line-2"},
+            {"Line 3", "line-3"},
+            {"Line 4", "line-4"}
     };
 
-    public static final String[] RUN_DESCRIPTIONS = new String[]{
+    public static final String[][] MACHINES = new String[][]{
+            {"Caster", "machine-1"},
+            {"Cooler", "machine-2"},
+            {"Weighting", "machine-3"},
+            {"Spin Test", "machine-4"}
+    };
+
+    public static final String[] RUNS = new String[]{
             "5000x fidget spinners",
             "2500x Die-cast",
             "10000x Three-prong"
