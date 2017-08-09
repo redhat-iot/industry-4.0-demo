@@ -1,0 +1,32 @@
+<div style="border: 0" class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Machine Details: {{machine.name}}</h4>
+    </div>
+
+    <div class="modal-body p-t-10 container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <center>
+                    <img style="width: 200px;" src="app/imgs/{{machine.type}}.jpg" alt="{{machine.name}}" class="img-rounded">
+                </center>
+            </div>
+            <div class="col-md-6">
+                <center>
+                    <h2>{{machine.name}} By The Numbers</h2>
+                    <em>Line: {{line.name}} Facility: {{facility.name}}</em>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div pf-aggregate-status-card status="size"  show-top-border="true"></div>
+                        </div>
+                        <div class="col-md-4" pf-aggregate-status-card status="age" show-top-border="true"></div>
+                        <div class="col-md-4" pf-aggregate-status-card status="utilization" show-top-border="true"></div>
+                    </div>
+                    <!--<p><span style="font-size: 3em">654 sq. ft. total heated</p>-->
+                    <!--<p><span style="font-size: 3em">13.4</span> years old</p>-->
+                </center>
+            </div>
+        </div>
+
+    </div>
+</div>

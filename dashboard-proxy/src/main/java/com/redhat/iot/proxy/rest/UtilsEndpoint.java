@@ -102,6 +102,7 @@ public class UtilsEndpoint {
                     newMachine.setTelemetry(machineTelemetry);
                     newMachine.setCurrentFid(newFacility.getFid());
                     newMachine.setCurrentLid(newLine.getLid());
+                    newMachine.setType(machine[2]);
                     machinesCache.put(newFacility.getFid() + "/" + newLine.getLid() + "/" + newMachine.getMid(), newMachine);
 
 
@@ -233,10 +234,10 @@ public class UtilsEndpoint {
     };
 
     public static final String[][] MACHINES = new String[][]{
-            {"Caster", "machine-1"},
-            {"Cooler", "machine-2"},
-            {"Weighting", "machine-3"},
-            {"Spin Test", "machine-4"}
+            {"Caster", "machine-1", "caster"},
+            {"Chiller", "machine-2", "chiller"},
+            {"Weighting", "machine-3", "scale"},
+            {"Spin Test", "machine-4", "spinner"}
     };
 
     public static final String[] RUNS = new String[]{

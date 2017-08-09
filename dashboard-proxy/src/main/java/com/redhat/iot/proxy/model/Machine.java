@@ -27,9 +27,18 @@ public class Machine implements Serializable {
     private String mid;
     private String currentLid;
     private String currentFid;
+    private String type;
 
     public Machine() {
 
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getDesc() {

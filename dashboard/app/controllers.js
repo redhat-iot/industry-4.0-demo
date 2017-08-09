@@ -566,7 +566,7 @@ angular.module('app')
                     $rootScope.$broadcast("resetAll");
                 };
 
-                $scope.isFacilitySelected = function(fac) {
+                $scope.isFacilitySelected = function (fac) {
                     if (!$scope.selectedFacility || !fac) {
                         return false;
                     }
@@ -828,15 +828,19 @@ angular.module('app')
         ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG", "Lines",
             function ($timeout, $scope, $rootScope, $http, Notifications, SensorData, NgMap, APP_CONFIG, Lines) {
 
-                $scope.selectMachine = function () {
-                    Lines.getLines().forEach(function (line) {
-                        line.machines.forEach(function (m) {
-                            if (m.mid === "machine-1" && m.currentLid === "line-1" && m.currentFid === "facility-1") {
-                                $rootScope.$broadcast("machine:selected", m);
-                            }
-                        })
-                    });
-                }
+                $scope.selectedLine = null;
+                $scope.selectedFacility = null;
+
+                $scope.$on("lines:selected", function(evt, line) {
+                    $scope.selectedLine = line;
+                });
+                $scope.$on("facilities:selected", function(evt, fac) {
+                    $scope.selectedFacility = fac;
+                });
+
+                $scope.selectMachine = function (m) {
+                    $rootScope.$broadcast("machine:selected", m);
+                };
 
             }])
 

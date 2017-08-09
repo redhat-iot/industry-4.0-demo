@@ -16,29 +16,30 @@
 'use strict';
 
 
-angular.module('app').directive('floorplan', function () {
+angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templateRequest', '$timeout',
+    function ($compile, $rootScope, $templateRequest, $timeout) {
 
 
-	return {
-		restrict: 'E',
-		scope: true,
-		replace: false,
-		templateUrl: 'partials/floorplan.html',
-		controller: 'FloorplanController',
-        link: function(scope, element, attrs) {
-            var chart = d3.select("#diagram");
+    return {
+        restrict: 'E',
+        scope: {
+            selectedLine: "=?",
+            selectedFacility: "=?"
+        },
+        replace: false,
+
+        controller: 'FloorplanController',
+        link: function (scope, element, attrs) {
+            var chart = d3.select(element[0]);
 
             var tip = d3.tip()
                 .attr('class', 'd3-tip')
                 .html(function(d) {
-                    return '<div class="modal-content">' +
-                        '\n    <div class="modal-header">\n        ' +
-                        '<h4 class="modal-title" id="myModalLabel">Modal Title</h4>\n    ' +
-                        '</div>' +
-                        '\n    \n    <div class="modal-body container-fluid">\n        <div class="row">\n            <div class="col-md-6">\n                <center>\n\n                    <img style="width: 200px;" src="app/imgs/chiller.jpg" alt="Chiller" class="img-rounded">\n                </center>\n            </div>\n            <div class="col-md-6">\n                <center>\n                    <h2>Chiller By The Numbers</h2>\n                    <hr>\n                    <div class="row">\n                        <div class="col-md-4">\n                            <div pf-aggregate-status-card status="size" show-top-border="true"></div>\n                        </div>\n                        <div class="col-md-4" pf-aggregate-status-card status="age" show-top-border="true"></div>\n                        <div class="col-md-4" pf-aggregate-status-card status="utilization" show-top-border="true"></div>\n                    </div>\n                    <!--<p><span style="font-size: 3em">654 sq. ft. total heated</p>-->\n                    <!--<p><span style="font-size: 3em">13.4</span> years old</p>-->\n                </center>\n            </div>\n        </div>\n\n    ' +
-                        '</div>' +
-                        '\n</div>'
+                    return d;
                 });
+
+
+            tip.direction('e');
 
             var svg = chart
                 .append("svg")
@@ -49,80 +50,161 @@ angular.module('app').directive('floorplan', function () {
             var imgs = svg.selectAll("image").data([0]);
             imgs.enter()
                 .append("svg:image")
-                 .attr("width", "100%")
+                .attr("width", "100%")
                 .attr("xlink:href", "/app/imgs/floorplan.jpg");
 
-            svg.append("line")
-                .attr("x1", "35%")
-                .attr("y1", "10%")
-                .attr("x2", "2%")
-                .attr("y2", "10%")
-                .attr("stroke", "green")
-                .attr("stroke-width", 5)
-                .style("stroke-dasharray", 10)
-                .style("stroke-dashoffset", 2)
-                .style("animation", "dash 20s linear")
-                .style("animation-iteration-count", "infinite");
+            var rects = [
+                {
+                    "x": "35%",
+                    "y": "1.5%",
+                    "rx": "8",
+                    "ry": "8",
+                    "width": "8%",
+                    "height": "20%",
+                    "fill": "green",
+                    "fill-opacity": 0.4 + (Math.random() * 0.2)
+                },
+                {
+                    "x": "25%",
+                    "y": "22%",
+                    "rx": "8",
+                    "ry": "8",
+                    "width": "20%",
+                    "height": "20%",
+                    "fill": "green",
+                    "fill-opacity": 0.4 + (Math.random() * 0.2)
+                },
+                {
+                    "x": "25%",
+                    "y": "43%",
+                    "rx": "8",
+                    "ry": "8",
+                    "width": "20%",
+                    "height": "20%",
+                    "fill": "green",
+                    "fill-opacity": 0.4 + (Math.random() * 0.2)
+                },
+                {
+                    "x": "24%",
+                    "y": "69%",
+                    "rx": "8",
+                    "ry": "8",
+                    "width": "9%",
+                    "height": "18%",
+                    "fill": "green",
+                    "fill-opacity": 0.4 + (Math.random() * 0.2)
+                }
+            ];
 
-            svg.append("line")
-                .attr("x1", "55%")
-                .attr("y1", "10%")
-                .attr("x2", "98%")
-                .attr("y2", "10%")
-                .attr("stroke", "green")
-                .attr("stroke-width", 5)
-                .style("stroke-dasharray", 10)
-                .style("stroke-dashoffset", 2)
-                .style("animation", "dash 20s linear")
-                .style("animation-iteration-count", "infinite");
+            scope.render = function (line) {
 
-            svg.append("rect")
-                .attr("x", "35%")
-                .attr("y", "1.5%")
-                .attr("rx", "8")
-                .attr("ry", "8")
-                .attr("width", "8%")
-                .attr("height", "20%")
-                .attr("fill", "green")
-                .attr("fill-opacity", 0.4 + (Math.random() * 0.2));
+                if (line === undefined || !line) {
+                    console.log("floor plan: no selected line");
+                    return;
+                }
 
-            svg.append("rect")
-                .attr("x", "25%")
-                .attr("y", "22%")
-                .attr("rx", "8")
-                .attr("ry", "8")
-                .attr("width", "20%")
-                .attr("height", "20%")
-                .attr("fill", "green")
-                .attr("fill-opacity",  0.4 + (Math.random() * 0.2));
+                svg.selectAll("line").data([]).exit().remove();
 
-            svg.append("rect")
-                .attr("x", "25%")
-                .attr("y", "43%")
-                .attr("rx", "8")
-                .attr("ry", "8")
-                .attr("width", "20%")
-                .attr("height", "20%")
-                .attr("fill", "green")
-                .attr("fill-opacity",  0.4 + (Math.random() * 0.2));
+                svg.append("line")
+                    .attr("x1", "35%")
+                    .attr("y1", "10%")
+                    .attr("x2", "2%")
+                    .attr("y2", "10%")
+                    .attr("stroke", "green")
+                    .attr("stroke-width", 5)
+                    .style("stroke-dasharray", 10)
+                    .style("stroke-dashoffset", 2)
+                    .style("animation", "dash 20s linear")
+                    .style("animation-iteration-count", "infinite");
 
-            svg.append("rect")
-                .attr("x", "24%")
-                .attr("y", "69%")
-                .attr("rx", "8")
-                .attr("ry", "8")
-                .attr("width", "9%")
-                .attr("height", "18%")
-                .attr("fill", "green")
-                .attr("fill-opacity",  0.4 + (Math.random() * 0.2))
-                .on('mouseover', tip.show)
-                .on('mouseout', tip.hide)
-                .on('click', function() {
-                    console.log("click!");
-                    //TODO
-                    scope.selectMachine("TODO");
-                })
+                svg.append("line")
+                    .attr("x1", "55%")
+                    .attr("y1", "10%")
+                    .attr("x2", "98%")
+                    .attr("y2", "10%")
+                    .attr("stroke", "green")
+                    .attr("stroke-width", 5)
+                    .style("stroke-dasharray", 10)
+                    .style("stroke-dashoffset", 2)
+                    .style("animation", "dash 20s linear")
+                    .style("animation-iteration-count", "infinite");
+
+
+                var data = line.machines.slice(0, rects.length);
+
+
+                var rectObjs = svg.selectAll("rect").data(data);
+                rectObjs.exit().remove();
+
+                rectObjs.enter().append("rect")
+                    .attr("x", function (d, i) {
+                        return rects[i].x
+                    })
+                    .attr("y", function (d, i) {
+                        return rects[i].y
+                    })
+                    .attr("rx", function (d, i) {
+                        return rects[i].rx
+                    })
+                    .attr("ry", function (d, i) {
+                        return rects[i].ry
+                    })
+                    .attr("width", function (d, i) {
+                        return rects[i].width
+                    })
+                    .attr("height", function (d, i) {
+                        return rects[i].height
+                    })
+                    .attr("fill", function (d, i) {
+                        return rects[i].fill
+                    })
+                    .attr("fill-opacity", function (d, i) {
+                        return rects[i]["fill-opacity"];
+                    })
+                    .on('mouseover', function (d, i) {
+                    console.log("mouseover: d: " + JSON.stringify(d));
+                    var target = d3.event.target;
+                        $templateRequest('partials/machine-popup.html').then(function(partial) {
+                            var tmpScope = $rootScope.$new();
+                            tmpScope.machine = d;
+                            tmpScope.line = scope.selectedFacility;
+                            tmpScope.facility = scope.selectedLine;
+                            tmpScope.size = {
+                                title: "Hi",
+                                count: 20,
+                                iconClass: "fa fa-building",
+                                notifications: [{
+                                   "iconClass": "pficon pficon-ok"
+                            }]
+
+                        };
+                            var compiled = $compile(partial)(tmpScope);
+                            $timeout(function() {
+                                var html = compiled[0].outerHTML;
+                                tip.html(function() {
+                                    return html;
+                                });
+                                tip.show(d, i, target);
+                            });
+
+                        });
+
+                    })
+                    .on('mouseout', function (d) {
+                        tip.hide(d);
+                    })
+                    .on('click', function (d, i) {
+                        scope.selectMachine(d);
+                    });
+
+
+            };
+
+            scope.$watch('selectedLine', function () {
+                var selectedLine = scope.selectedLine;
+                scope.render(selectedLine);
+            });
 
         }
-	}
-});
+    }
+}]);
