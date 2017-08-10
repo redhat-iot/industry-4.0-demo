@@ -14,6 +14,7 @@
  */
 package com.redhat.iot.proxy.rest;
 
+import com.redhat.iot.proxy.model.CalEntry;
 import com.redhat.iot.proxy.model.Facility;
 import com.redhat.iot.proxy.model.Line;
 import com.redhat.iot.proxy.model.Run;
@@ -22,8 +23,13 @@ import com.redhat.iot.proxy.service.DGService;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A simple REST service which proxies requests to a local datagrid.
@@ -78,6 +84,26 @@ public class FacilitiesEndpoint {
                 .map(cache::get)
                 .collect(Collectors.toList());
 
+    }
+
+    @GET
+    @Path("/calendar/{fid}")
+    @Produces({"application/json"})
+    public List<CalEntry> cal(@PathParam("fid") String fid, @QueryParam("start") String start, @QueryParam("end") String end) {
+
+
+        LocalDateTime startObj = LocalDate.parse(start, DateTimeFormatter.ISO_DATE).atStartOfDay();
+        LocalDateTime endObj = LocalDate.parse(end, DateTimeFormatter.ISO_DATE).atStartOfDay();
+
+        Date startDate = new Date (startObj.toInstant(ZoneOffset.UTC).toEpochMilli());
+        Date endDate = new Date (endObj.toInstant(ZoneOffset.UTC).toEpochMilli());
+
+        Map<String, CalEntry> cache = dgService.getCalendar();
+
+        return cache.keySet().stream()
+                .map(cache::get).filter(calEntry -> calEntry.getFacility().getFid().equals(fid) &&
+                        calEntry.getStart().after(startDate) && calEntry.getEnd().before(endDate))
+                .collect(Collectors.toList());
     }
 
 

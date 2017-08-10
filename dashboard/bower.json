@@ -20,7 +20,8 @@
     "angular-scrollable-table": "1.1.2",
     "angular-moment": "1.0.0",
     "c3": "0.4.11",
-    "d3-tip": "0.8.0-alpha.1"
+    "d3-tip": "0.8.0-alpha.1",
+    "fullcalendar": "3.4.0"
   },
   "resolutions": {
     "jquery": "~2.1.4",

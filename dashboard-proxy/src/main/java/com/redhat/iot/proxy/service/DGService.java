@@ -43,6 +43,9 @@ public class DGService {
     public Map<String, Run> getRuns() {
         return cacheManager.getCache("runs");
     }
+    public Map<String, CalEntry> getCalendar() {
+        return cacheManager.getCache("calendar");
+    }
 
     public DGService() {
 
@@ -60,7 +63,7 @@ public class DGService {
 
         String cacheNames = System.getenv("DATASTORE_CACHE");
         if (cacheNames == null) {
-            cacheNames = "customer,facility,lines,machines,runs";
+            cacheNames = "customer,facility,lines,machines,runs,calendar";
         }
 
         System.out.println("DG Proxy initializing to " + host + ":" + port + " cache:" + cacheNames);

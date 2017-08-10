@@ -75,7 +75,7 @@ parameters:
   required: true
 - description: Datastore password
   name: DATASTORE_CACHE
-  value: "customer,facility,lines,machines,runs"
+  value: "customer,facility,lines,machines,runs,calendar"
   required: true
 - description: Datastore password
   name: ADDITIONAL_SENSOR_IDS

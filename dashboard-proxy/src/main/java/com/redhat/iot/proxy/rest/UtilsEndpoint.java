@@ -30,7 +30,7 @@ import java.util.*;
 @Singleton
 public class UtilsEndpoint {
 
-    public static final long MS_IN_HOUR = 24 * 60 * 60 * 1000;
+    public static final long MS_IN_HOUR = 60 * 60 * 1000;
 
     @Inject
     DGService dgService;
@@ -50,6 +50,7 @@ public class UtilsEndpoint {
         Map<String, Line> linesCache = dgService.getProductionLines();
         Map<String, Machine> machinesCache = dgService.getMachines();
         Map<String, Run> runsCache = dgService.getRuns();
+        Map<String, CalEntry> calendarCache = dgService.getCalendar();
 
 
         facilitiesCache.clear();
@@ -57,6 +58,7 @@ public class UtilsEndpoint {
         customerCache.clear();
         machinesCache.clear();
         runsCache.clear();
+        calendarCache.clear();
 
         for (String COMPANY : COMPANIES) {
             customerCache.put(COMPANY,
@@ -72,6 +74,14 @@ public class UtilsEndpoint {
             newFacility.setLocation(new LatLng(20, -80));
             newFacility.setUtilization(Math.random());
 
+            CalEntry calEntry = new CalEntry();
+            calEntry.setTitle("Maintenance Window");
+            Date now = new Date();
+            Date later = new Date(new Date().getTime() + (3 * 60 * 60 * 1000));
+            calEntry.setStart(now);
+            calEntry.setEnd(later);
+            calEntry.setFacility(newFacility);
+            calendarCache.put(UUID.randomUUID().toString(), calEntry);
             List<Line> lines = new ArrayList<>();
 
             for (String[] line : LINES) {
@@ -110,21 +120,26 @@ public class UtilsEndpoint {
 
                 newLine.setMachines(machines);
 
-                Date now = new Date();
-
                 Run r = new Run();
                 r.setName(rand(RUNS));
                 r.setCustomer(customerCache.get(rand(COMPANIES)));
                 r.setDesc("Standard Run");
                 newLine.setCurrentRun(r);
                 r.setStatus("ok");
-                r.setStart(new Date(now.getTime() - ((int)(Math.floor((Math.random()  * 6.0) * (double)MS_IN_HOUR)))));
-                r.setEnd(new Date(now.getTime() + ((int)(Math.floor((Math.random()  * 3.0) * (double)MS_IN_HOUR)))));
+                r.setStart(new Date(now.getTime() - ((int)(Math.floor((Math.random()  * 2.0) * (double)MS_IN_HOUR)))));
+                r.setEnd(new Date(now.getTime() + ((int)(Math.floor((Math.random()  * 4.0) * (double)MS_IN_HOUR)))));
+
+                CalEntry runEntry = new CalEntry();
+                runEntry.setTitle(r.getName() + "(" + r.getCustomer().getName() + ")");
+                runEntry.setStart(r.getStart());
+                runEntry.setEnd(r.getEnd());
+                runEntry.setFacility(newFacility);
+                runEntry.setColor(line[2]);
+                calendarCache.put(UUID.randomUUID().toString(), runEntry);
 
                 runsCache.put(r.getRid(), r);
 
                 linesCache.put(newFacility.getFid() + "/" + newLine.getLid(), newLine);
-
 
 
             }
@@ -148,7 +163,7 @@ public class UtilsEndpoint {
 
         List<Summary> result = new ArrayList<>();
 
-        Summary clientSummary = getClientSUmmary();
+        Summary clientSummary = getClientSummary();
         Summary facilitySummary = getFacilitySummary();
 
         result.add(clientSummary);
@@ -188,7 +203,7 @@ public class UtilsEndpoint {
         return summary;
     }
 
-    private Summary getClientSUmmary() {
+    private Summary getClientSummary() {
         Map<String, Customer> cache = dgService.getCustomers();
 
         Summary summary = new Summary();
@@ -227,14 +242,14 @@ public class UtilsEndpoint {
     };
 
     public static final String[][] LINES = new String[][]{
-            {"Line 1", "line-1"},
-            {"Line 2", "line-2"},
-            {"Line 3", "line-3"},
-            {"Line 4", "line-4"},
-            {"Line 5", "line-5"},
-            {"Line 6", "line-6"},
-            {"Line 7", "line-7"},
-            {"Line 8", "line-8"}
+            {"Line 1", "line-1", "red"},
+            {"Line 2", "line-2", "orange"},
+            {"Line 3", "line-3", "yellow"},
+            {"Line 4", "line-4", "green"},
+            {"Line 5", "line-5", "blue"},
+            {"Line 6", "line-6", "indigo"},
+            {"Line 7", "line-7", "violet"},
+            {"Line 8", "line-8", "cyan"}
     };
 
     public static final String[][] MACHINES = new String[][]{

@@ -28,6 +28,25 @@ angular.module('app')
         return facilities;
     };
 
+    factory.getLines = function() {
+        var lines = [];
+        facilities.forEach(function(f) {
+            Array.prototype.push.apply(lines, f.lines);
+        });
+        return lines;
+    };
+
+    factory.getLinesForFacility = function(facility) {
+        var lines = [];
+        facilities.forEach(function(f) {
+            Array.prototype.push.apply(lines, f.lines.filter(function(l) {
+                return l.currentFid === facility.fid;
+            }));
+        });
+        return lines;
+    };
+
+
     factory.reset = function() {
 
         // get config

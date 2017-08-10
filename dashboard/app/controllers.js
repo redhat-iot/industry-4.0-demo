@@ -551,8 +551,8 @@ angular.module('app')
 
 
     .controller("LineListController",
-        ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Lines', 'Facilities',
-            function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Lines, Facilities) {
+        ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Facilities',
+            function ($timeout, $rootScope, $scope, $http, Notifications, SensorData,  Facilities) {
 
                 $scope.selectedLine = null;
 
@@ -590,7 +590,7 @@ angular.module('app')
 
                 $scope.selectFacility = function (fac) {
                     $scope.selectedFacility = fac;
-                    $scope.lines = Lines.getLinesForFacility(fac);
+                    $scope.lines = Facilities.getLinesForFacility(fac);
                     $rootScope.$broadcast("facilities:selected", fac);
                 };
 
@@ -825,8 +825,8 @@ angular.module('app')
             }])
 
     .controller("FloorplanController",
-        ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG", "Lines",
-            function ($timeout, $scope, $rootScope, $http, Notifications, SensorData, NgMap, APP_CONFIG, Lines) {
+        ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG",
+            function ($timeout, $scope, $rootScope, $http, Notifications, SensorData, NgMap, APP_CONFIG) {
 
                 $scope.selectedLine = null;
                 $scope.selectedFacility = null;
@@ -845,8 +845,8 @@ angular.module('app')
             }])
 
     .controller("LineDetailsController",
-        ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Lines", "Machines",
-            function ($rootScope, $scope, $http, Notifications, SensorData, Lines, Machines) {
+        ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Machines",
+            function ($rootScope, $scope, $http, Notifications, SensorData, Machines) {
 
                 $scope.lineQuery = '';
 
@@ -934,26 +934,36 @@ angular.module('app')
 
             }])
 
-    .controller("MachineDetailsController",
-        ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Lines",
-            function ($rootScope, $scope, $http, Notifications, SensorData, Lines) {
+    .controller("CalEntryController",
+        ['$rootScope', '$scope', 'entry',
+            function ($rootScope, $scope, entry) {
 
-                $scope.selectedMachine = null;
-                $scope.$on('machines:selected', function (event, machine) {
-                    $scope.selectedMachine = machine;
+                $scope.entry = entry;
+            }])
+
+
+    .controller("CalendarController",
+        ['$rootScope', '$scope', '$http', '$modal', 'Notifications', "SensorData", "Facilities",
+            function ($rootScope, $scope, $http, $modal, Notifications, SensorData, Facilities) {
+
+                $scope.selectedFacility = null;
+                $scope.$on('facilities:selected', function (event, fac) {
+                    $scope.selectedFacility = fac;
                 });
 
-                $scope.$on("machine:alert", function (evt, al) {
-
-                });
-
-                $scope.isSelected = function (machine) {
-                    if (!$scope.selectedMachine) {
-                        return false;
-                    }
-                    return $scope.Machine.mid == machine.mid;
-                };
-
+                $scope.eventPopup = function(cal) {
+                    console.log("opening cal: " + JSON.stringify(cal));
+                    $modal.open({
+                        templateUrl: 'partials/calentry.html',
+                        controller: 'CalEntryController',
+                        size: 'md',
+                        resolve: {
+                            entry: function () {
+                                return cal;
+                            }
+                        }
+                    });
+                }
             }])
 
     .controller("HeaderController",

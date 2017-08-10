@@ -1,0 +1,28 @@
+<!--
+    Copyright (c) 2017 Red Hat, Inc. and others
+
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+        Red Hat Inc. - initial implementation
+
+-->
+<div class="modal-header">
+    <button type="button" class="close" ng-click="$close()" aria-label="Close"><span aria-hidden="true">&times;</span>
+    </button>
+    <h2 class="modal-title">{{entry.title}}</h2>
+</div>
+<div class="modal-body">
+    <div style="float: right;"><icon style="color:{{entry.color}}" class="fa fa-5x fa-calendar"></icon></div><h1>{{entry.title}}</h1>
+<hr>
+    <h3><strong>Starts:</strong> {{entry.start | amCalendar:referenceTime:formats}} (<span am-time-ago="entry.start"></span>)</h3>
+    <h3><strong>Ends:</strong> {{entry.end | amCalendar:referenceTime:formats}} (<span am-time-ago="entry.end"></span>)</h3>
+    <h3><strong>Duration</strong>: {{entry.end | amDifference:entry.start:'hours'}} hours</h3>
+
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" ng-click="$close()">Close</button>
+</div>

@@ -20,8 +20,8 @@
 
 angular.module('app')
 
-    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Reports', 'Lines',
-        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Reports, Lines) {
+    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Reports',
+        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Reports) {
         var factory = {},
             client = null,
             msgproto = null,
