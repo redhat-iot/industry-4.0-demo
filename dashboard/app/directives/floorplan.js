@@ -195,6 +195,12 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                         tip.hide(d);
                     })
                     .on('click', function (d, i) {
+                        d3.selectAll("rect")
+                            .attr("stroke-width", 0);
+
+                        d3.select(this)
+                        .attr("stroke", "black")
+                        .attr("stroke-width", "3");
                         scope.selectMachine(d);
                     });
 
