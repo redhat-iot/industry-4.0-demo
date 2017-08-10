@@ -10,9 +10,10 @@
         Red Hat Inc. - initial implementation
 
  -->
-<div id="lineDetails">
+<div class="comtainer-fluid" id="lineDetails">
 
-    <h2>Production Line Details</h2>
+    <h2 ng-if="!selectedLine">Production Line Details</h2>
+    <h2 ng-if="selectedLine">Line Details: {{selectedLine.name}}&nbsp;<span style="font-variant: all-small-caps">{{selectedFacility.name}}</span></h2>
     <hr>
 
     <div ng-if="!selectedLine">
@@ -35,21 +36,50 @@
     <!--private String currentLid;-->
     <!--private String currentFid;-->
 
-    <div ng-if="selectedLine">
-        <ul>
-            <li>Name {{selectedLine.name}}</li>
-            <li>LID {{selectedLine.lid}}</li>
-            <li>Desc {{selectedLine.desc}}</li>
-            <li>Status {{selectedLine.status}}</li>
-            <li>currentFid {{selectedLine.currentFid}}</li>
-            <li>currentRun {{selectedLine.currentRun}}</li>
-        </ul>
-        Machines:
-        <ul>
-            <li ng-repeat="m in selectedLine.machines">{{m.name}} - {{m.desc}} - {{m.status}}</li>
-        </ul>
-    </div>
+    <!--<div ng-if="selectedLine">-->
+        <!--<ul>-->
+            <!--<li>Name {{selectedLine.name}}</li>-->
+            <!--<li>LID {{selectedLine.lid}}</li>-->
+            <!--<li>Desc {{selectedLine.desc}}</li>-->
+            <!--<li>Status {{selectedLine.status}}</li>-->
+            <!--<li>currentFid {{selectedLine.currentFid}}</li>-->
+            <!--<li>currentRun {{selectedLine.currentRun}}</li>-->
+        <!--</ul>-->
+        <!--Machines:-->
+        <!--<ul>-->
+            <!--<li ng-repeat="m in selectedLine.machines">{{m.name}} - {{m.desc}} - {{m.status}}</li>-->
+        <!--</ul>-->
+    <!--</div>-->
 
+    <div ng-if="selectedLine" class="p-t-10 container-fluid">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="progress-description">
+
+                    <span class="pficon pficon-ok"></span> <strong>Current Run:</strong>  {{selectedLine.currentRun.desc}} ({{selectedLine.currentRun.customer.name}})
+                </div>
+                <div class="progress progress-label-top-right">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="42.7" aria-valuemin="0" aria-valuemax="100" style="width: 42.7%;">
+                        <span>42.7% (35 of 82 Widgets)&nbsp;&nbsp;&nbsp;<div class="spinner spinner-xs spinner-inline"></div></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12">
+                <div ng-repeat="bizState in bizStates" class="row">
+                    <div class="col-md-12">
+                        <div pf-trends-chart config="bizState.config" chart-data="bizState.data"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
 

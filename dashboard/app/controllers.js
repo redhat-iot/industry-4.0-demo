@@ -851,11 +851,74 @@ angular.module('app')
                 $scope.lineQuery = '';
 
                 $scope.selectedLine = null;
+                $scope.selectedFacility = null;
+
+                $scope.config = {
+                    'chartId'      :  "foo",
+                    'units'        : "Uptime",
+                    'tooltipType'  : 'default',
+                    'centerLabelFn': function () {
+                        return "98.6%";
+                    }
+
+                };
+                $scope.data = {
+                    'used': 98.6,
+                    'total': 100,
+                    'min': 0,
+                    'dataAvailable': true
+
+                };
+
+                var today = new Date();
+                var dates = ['dates'];
+                var yTemp = ['used'];
+                for (var d = 20 - 1; d >= 0; d--) {
+                    dates.push(new Date(today.getTime() - (d * 24 * 60 * 60 * 1000)));
+                    yTemp.push('');
+                }
+
+                var actuals = ["Retention", "Margin", "Facilities", "P/E Ratio", "Closed"];
+
+                function fill(data) {
+                    return data.map(function(v, idx) {
+                        if (idx === 0) {
+                            return v;
+                        } else {
+                            return 80 + Math.floor(Math.random() * 20);
+                        }
+                    });
+                }
+
+
+                var actuals = ["Throughput", "Uptime", "Other"];
+
+                $scope.bizStates = actuals.map(function(name) {
+                    return {
+                        config: {
+                            'chartId'      : name.replace(/[^A-Za-z0-9]/g, ''),
+                            'layout'       : 'inline',
+                            'trendLabel'   : name,
+                            'tooltipType'  : 'percentage',
+                            'valueType'     : 'actual'
+                        },
+                        data: {
+                            'total': '100',
+                            'xData': dates,
+                            'yData':  fill(yTemp)
+
+                        }
+                    };
+                });
+
                 $scope.linealerts = [];
 
                 $scope.$on('lines:selected', function (event, line) {
-                    console.log("got the message");
                     $scope.selectedLine = line;
+                });
+
+                $scope.$on('facilities:selected', function (event, fac) {
+                    $scope.selectedFacility = fac;
                 });
 
                 $scope.$on("line:alert", function (evt, al) {

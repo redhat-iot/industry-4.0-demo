@@ -230,7 +230,11 @@ public class UtilsEndpoint {
             {"Line 1", "line-1"},
             {"Line 2", "line-2"},
             {"Line 3", "line-3"},
-            {"Line 4", "line-4"}
+            {"Line 4", "line-4"},
+            {"Line 5", "line-5"},
+            {"Line 6", "line-6"},
+            {"Line 7", "line-7"},
+            {"Line 8", "line-8"}
     };
 
     public static final String[][] MACHINES = new String[][]{

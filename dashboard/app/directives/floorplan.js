@@ -26,20 +26,19 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
             selectedLine: "=?",
             selectedFacility: "=?"
         },
+        templateUrl: 'partials/floorplan.html',
         replace: false,
 
         controller: 'FloorplanController',
         link: function (scope, element, attrs) {
-            var chart = d3.select(element[0]);
+
+            var chart = d3.select(element[0]).select("#floorplan");
 
             var tip = d3.tip()
                 .attr('class', 'd3-tip')
                 .html(function(d) {
                     return d;
                 });
-
-
-            tip.direction('e');
 
             var svg = chart
                 .append("svg")
@@ -184,6 +183,8 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                                 tip.html(function() {
                                     return html;
                                 });
+                                tip.direction('e');
+
                                 tip.show(d, i, target);
                             });
 
