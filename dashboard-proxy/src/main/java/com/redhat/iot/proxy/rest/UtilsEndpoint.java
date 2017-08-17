@@ -72,6 +72,7 @@ public class UtilsEndpoint {
             newFacility.setFid(facility[1]);
             newFacility.setSize(Math.random() * 10000);
             newFacility.setLocation(new LatLng(20, -80));
+            newFacility.setAddress(newFacility.getName());
             newFacility.setUtilization(Math.random());
 
             CalEntry calEntry = new CalEntry();
@@ -163,19 +164,25 @@ public class UtilsEndpoint {
 
         List<Summary> result = new ArrayList<>();
 
-        Summary clientSummary = getClientSummary();
+        Summary customerSummary = getClientSummary();
+        Summary runsSummary = getRunsSummary();
+        Summary linesSummary = getLinesSummary();
         Summary facilitySummary = getFacilitySummary();
+        Summary machinesSummary = getMachinesSummary();
 
-        result.add(clientSummary);
+        result.add(customerSummary);
+        result.add(runsSummary);
+        result.add(linesSummary);
         result.add(facilitySummary);
+        result.add(machinesSummary);
 
-        Summary mgrs = new Summary();
-        mgrs.setName("fake");
-        mgrs.setTitle("Managers");
-        mgrs.setCount(23);
-        mgrs.setWarningCount(4);
-        mgrs.setErrorCount(1);
-        result.add(mgrs);
+        Summary operatorsSummary = new Summary();
+        operatorsSummary.setName("operators");
+        operatorsSummary.setTitle("Operators");
+        operatorsSummary.setCount(23);
+        operatorsSummary.setWarningCount(4);
+        operatorsSummary.setErrorCount(1);
+        result.add(operatorsSummary);
         return result;
     }
 
@@ -210,6 +217,78 @@ public class UtilsEndpoint {
         summary.setName("clients");
         summary.setTitle("Clients");
         summary.setCount(cache.keySet().size());
+        return summary;
+
+    }
+
+    private Summary getLinesSummary() {
+        Map<String, Run> cache = dgService.getRuns();
+
+        Summary summary = new Summary();
+        summary.setName("lines");
+        summary.setTitle("Lines");
+        summary.setCount(cache.keySet().size());
+
+        long warningCount = cache.keySet().stream()
+                .map(cache::get)
+                .filter(r -> r.getStatus().equalsIgnoreCase( "warning"))
+                .count();
+
+        long errorCount = cache.keySet().stream()
+                .map(cache::get)
+                .filter(r -> r.getStatus().equalsIgnoreCase("error"))
+                .count();
+
+        summary.setWarningCount(warningCount);
+        summary.setErrorCount(errorCount);
+
+        return summary;
+
+    }
+    private Summary getRunsSummary() {
+        Map<String, Run> cache = dgService.getRuns();
+
+        Summary summary = new Summary();
+        summary.setName("runs");
+        summary.setTitle("Runs");
+        summary.setCount(cache.keySet().size());
+        long warningCount = cache.keySet().stream()
+                .map(cache::get)
+                .filter(r -> r.getStatus().equalsIgnoreCase( "warning"))
+                .count();
+
+        long errorCount = cache.keySet().stream()
+                .map(cache::get)
+                .filter(r -> r.getStatus().equalsIgnoreCase("error"))
+                .count();
+
+        summary.setWarningCount(warningCount);
+        summary.setErrorCount(errorCount);
+
+        return summary;
+
+    }
+
+    private Summary getMachinesSummary() {
+        Map<String, Machine> cache = dgService.getMachines();
+
+        Summary summary = new Summary();
+        summary.setName("runs");
+        summary.setTitle("Runs");
+        summary.setCount(cache.keySet().size());
+        long warningCount = cache.keySet().stream()
+                .map(cache::get)
+                .filter(r -> r.getStatus().equalsIgnoreCase( "warning"))
+                .count();
+
+        long errorCount = cache.keySet().stream()
+                .map(cache::get)
+                .filter(r -> r.getStatus().equalsIgnoreCase("error"))
+                .count();
+
+        summary.setWarningCount(warningCount);
+        summary.setErrorCount(errorCount);
+
         return summary;
 
     }

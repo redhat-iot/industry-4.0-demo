@@ -22,7 +22,10 @@ angular.module('app').config([ '$routeProvider', function($routeProvider) {
   }).when('/exec', {
       templateUrl : 'partials/exec/home.html',
       controller : 'ExecHomeController'
+  }).when('/tech', {
+      templateUrl : 'partials/tech/home.html',
+      controller : 'TechHomeController'
   }).otherwise({
     redirectTo : '/'
   });
-} ]);
+}]);

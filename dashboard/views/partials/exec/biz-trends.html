@@ -12,7 +12,6 @@
 -->
 <div>
 
-
     <div style="float: right;" class="dropdown">
         <button class="btn btn-default dropdown-toggle" type="button" mid="dropdownMenu1" data-toggle="dropdown">
             {{timeFrame}}
@@ -28,17 +27,17 @@
     <h2>Business Trends</h2>
 
     <ul class="nav nav-tabs nav-tabs-pf">
-        <li ng-class="{ active: (getSelected() == 'fuel')}"><a ng-click="setSelected('fuel');">Fuel Efficiency</a></li>
-        <li ng-class="{ active: (getSelected() == 'value')}"><a ng-click="setSelected('value');">Value Under Transport</a></li>
-        <li ng-class="{ active: (getSelected() == 'timeperf')}"><a ng-click="setSelected('timeperf');">On-Time Performance</a></li>
-        <li ng-class="{ active: (getSelected() == 'custsat')}"><a ng-click="setSelected('custsat');">Customer Satisfaction</a></li>
+        <li ng-class="{ active: (getSelected() == 'rpu')}"><a ng-click="setSelected('rev');">Revenue</a></li>
+        <li ng-class="{ active: (getSelected() == 'pca')}"><a ng-click="setSelected('pca');">Production Capacity</a></li>
+        <li ng-class="{ active: (getSelected() == 'cpu')}"><a ng-click="setSelected('cpu');">Cost Per Unit</a></li>
+        <li ng-class="{ active: (getSelected() == 'mar')}"><a ng-click="setSelected('mar');">Margin</a></li>
+        <li ng-class="{ active: (getSelected() == 'upm')}"><a ng-click="setSelected('maintenance');">Unplanned Maintenance</a></li>
     </ul>
 
-    <div pf-c3-chart mid="chartId" config="chartConfig" get-chart-callback="getChart"></div>
+   <div pf-c3-chart id="chartId" config="chartConfig" get-chart-callback="getChart"></div>
 
 
 </div>
-
 
 
 

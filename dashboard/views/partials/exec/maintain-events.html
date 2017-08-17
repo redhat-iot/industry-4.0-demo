@@ -11,14 +11,23 @@
 
 -->
 <div mid="maintain-events">
-    <h2>Fleet Maintenance Events</h2>
-
-    <div pf-card head-title=""
-         show-top-border="false" footer="footerConfig"
-         filter="filterConfig">
-        <div mid="foo213" pf-trends-chart config="mconfig" chart-data="mdata"></div>
+    <div style="float: right;" class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" mid="dropdownMenu1" data-toggle="dropdown">
+            {{timeframe}}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('week');">Last Week</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('month');">Last Month</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('year');">Last Year</a></li>
+        </ul>
     </div>
 
+    <h2>Line Maintenance Events</h2>
+
+    <div id="timelinediv">
+
+    </div>
 </div>
 
 

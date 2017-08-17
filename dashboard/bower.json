@@ -8,6 +8,7 @@
   "private": true,
   "devDependencies": {
     "patternfly": "3.18.1",
+    "patternfly-timeline": "1.0.7",
     "angular-patternfly": "3.18.1",
     "angular-websocket": "2.0.0",
     "ngmap": "1.18.4",

@@ -36,6 +36,13 @@ angular.module('app')
 
             }])
 
+    .controller("TechHomeController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData',
+            function ($scope, $http, $filter, Notifications, SensorData) {
+
+
+            }])
+
     .controller("ExecBizStateController",
         ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
             function ($scope, $http, $filter, Notifications, SensorData, Reports) {
@@ -100,55 +107,161 @@ angular.module('app')
     .controller("ExecMaintainEventsController",
         ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
             function ($scope, $http, $filter, Notifications, SensorData, Reports) {
-                $scope.footerConfig = {
-                    'iconClass': 'fa fa-wrench',
-                    'text': 'View All Events',
-                    'callBackFn': function () {
-                        alert("Footer Callback Fn Called");
+                $scope.timeframe = "Last Year";
+                $scope.period = "year";
+                var MS_IN_DAY = 24 * 60 * 60 * 1000;
+
+                var now = new Date().getTime();
+
+                $scope.setPeriod = function (period) {
+                    $scope.period = period;
+                    switch (period) {
+                        case 'week':
+                            $scope.timeframe = "Last Week";
+                            break;
+                        case 'month':
+                            $scope.timeframe = "Last Month";
+                            break;
+                        case 'year':
+                        default:
+                            $scope.timeframe = "Last Year";
                     }
                 };
 
-                $scope.filterConfig = {
-                    'filters': [{label: 'Last Year', value: 'year'},
-                        {label: 'Last Month', value: 'month'},
-                        {label: 'Last Week', value: 'week'}],
-                    'callBackFn': function (f) {
-                        var yVals = ['Calls'];
-                        for (var d = 12 - 1; d >= 0; d--) {
-                            yVals.push(Math.round(Math.random() * 10));
-                        }
-                        $scope.mdata.yData = yVals;
-
-                    },
-                    'defaultFilter': '1'
-                };
-
-                var today = new Date();
-                var dates = ['dates'];
-                var yVals = ['Calls'];
-                for (var d = 12 - 1; d >= 0; d--) {
-                    dates.push(new Date(today.getTime() - (d * 24 * 60 * 60 * 1000)));
-                    yVals.push(Math.round(Math.random() * 10));
+                function genFixedEvents(startTime, period, count, details) {
+                    var result = [];
+                    for (var i = 0; i < count; i++) {
+                        var date = startTime + (i * period);
+                        result.push({
+                            "date": date,
+                            "details": details
+                        });
+                    }
+                    return result;
                 }
 
-                //tooltip: [{"x":"2017-04-10T01:37:32.215Z","value":8,"id":"Calls","index":9,"name":"Calls"}]
+                function genWeightedEvents(startTime, count, details, defDate, pctBefore) {
+                    var result = [], now = new Date().getTime();
 
-                $scope.mconfig = {
-                    'title': 'This Period',
-                    'layout': 'compact',
-                    'valueType': 'actual',
-                    'units': 'Events',
-                    'tooltipType': 'used',
-                    'tooltipFn': function (d) {
-                        return (d[0].value + " Calls on " + $filter('date')(d[0].x, 'mediumDate'))
+                    var beforeCount = Math.floor(count * pctBefore);
+                    var afterCount = count - beforeCount;
+                    var beforeTimeDiff = defDate - startTime;
+                    var afterTimeDiff = now - defDate;
+                    var date;
+
+                    for (var i = 0; i < beforeCount; i++) {
+                        date = startTime + (Math.random() * beforeTimeDiff);
+                        result.push({
+                            "date": date,
+                            "details": details
+                        });
                     }
-                };
+                    for (i = 0; i < afterCount; i++) {
+                        date = defDate + (Math.random() * afterTimeDiff);
+                        result.push({
+                            "date": date,
+                            "details": details
+                        });
+                    }
 
-                $scope.mdata = {
-                    'total': '250',
-                    'xData': dates,
-                    'yData': yVals
-                };
+                    return result;
+                }
+
+                var eventTypes = [
+                    {
+                        name: 'Planned Maintenance',
+                        color: '#2d7623'
+                    },
+                    {
+                        name: 'Unplanned Maintenance',
+                        color: '#b35c00'
+                    },
+                    {
+                        name: 'Warning Event',
+                        color: '#005c73'
+                    },
+                    {
+                        name: 'Line Shutdown',
+                        color: '#8b0000'
+                    }
+
+                ];
+
+                $scope.timelineData = [];
+
+                var fixedPreEvents = genFixedEvents(now - (450 * MS_IN_DAY),
+                    (60 * MS_IN_DAY),
+                    5,
+                    {
+                        event: 'Planned Maintenance',
+                        color: '#2d7623',
+                        facility: "Atlanta",
+                        line: "Line 3",
+                        comments: "None"
+                    });
+
+                var fixedPostEvents = genFixedEvents(now - (180 * MS_IN_DAY),
+                    (40 * MS_IN_DAY),
+                    6,
+                    {
+                        event: 'Planned Maintenance Post',
+                        color: '#2d7623',
+                        facility: "Atlanta",
+                        line: "Line 3",
+                        comments: "None"
+                    });
+
+                $scope.timelineData.push({
+                    "name": 'Planned Maintenance',
+                    "data": fixedPreEvents.concat(fixedPostEvents)
+                });
+
+
+                $scope.timelineData.push({
+                    "name": 'Unplanned Maintenance',
+                    "data": genWeightedEvents(now - (450 * MS_IN_DAY),
+                        30,
+                        {
+                            event: 'Unplanned Maintenance',
+                            color: '#b35c00',
+                            facility: "Atlanta",
+                            line: "Line 3",
+                            comments: "None"
+                        },
+                        (now - (180 * MS_IN_DAY)),
+                        0.9)
+                });
+
+                $scope.timelineData.push({
+                    "name": 'Warning Event',
+                    "data": genWeightedEvents(now - (450 * MS_IN_DAY),
+                        15,
+                        {
+                            event: 'Warning Event: Machine 4',
+                            color: '#005c73',
+                            facility: "Atlanta",
+                            line: "Line 3",
+                            comments: "High Temperature reading"
+                        },
+                        (now - (180 * MS_IN_DAY)),
+                        0.9)
+                });
+
+                $scope.timelineData.push({
+                    "name": 'Line Shutdown',
+                    "data": genWeightedEvents(now - (450 * MS_IN_DAY),
+                        15,
+                        {
+                            event: 'Line Shutdown',
+                            color: '#8b0000',
+                            facility: "Atlanta",
+                            line: "Line 3",
+                            comments: "High Temperature reading"
+                        },
+                        (now - (180 * MS_IN_DAY)),
+                        0.95)
+                });
+
 
 
             }])
@@ -156,6 +269,7 @@ angular.module('app')
     .controller("ExecFacilityUtilizationController",
         ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
             function ($scope, $http, $filter, Notifications, SensorData, Reports) {
+                var MS_IN_DAY = 24 * 60 * 60 * 1000;
 
                 $scope.facilities = Reports.getFacilities();
 
@@ -196,7 +310,7 @@ angular.module('app')
                     var yData = ['used'];
 
                     for (var d = 20 - 1; d >= 1; d--) {
-                        dates.push(new Date(today.getTime() - (d * 24 * 60 * 60 * 1000)));
+                        dates.push(new Date(today.getTime() - (d * MS_IN_DAY)));
                         yData.push(Math.floor(totalSize * Math.random()));
                     }
 
@@ -388,38 +502,142 @@ angular.module('app')
         ['$scope', '$http', '$filter', 'Notifications', 'SensorData',
             function ($scope, $http, $filter, Notifications, SensorData) {
 
+                var now = new Date().getTime();
+
                 $scope.chartConfig = patternfly.c3ChartDefaults().getDefaultAreaConfig();
 
-                $scope.selected = 'fuel';
+                // pca, cpu, rpu, upm
+                $scope.selected = 'cpu';
                 $scope.period = 'year';
 
                 $scope.setPeriod = function (period) {
                     $scope.period = period;
-                    xPoints = ['x'];
-                    currentUse = ['Current Period'];
-                    previousUse = ['Previous Period'];
 
-                    if (period == 'month') {
-                        $scope.timeFrame = "Last Month";
-                        for (var i = 30; i >= 0; i--) {
-                            xPoints.push(now - (i * 24 * 60 * 60 * 1000));
-                            currentUse.push(Math.random() * 200);
-                            previousUse.push(Math.random() * 200);
-                        }
-                    } else if (period == 'year') {
-                        $scope.timeFrame = "Last Year";
-                        for (var i = 12; i >= 0; i--) {
-                            xPoints.push(now - (i * 30 * 24 * 60 * 60 * 1000));
-                            currentUse.push(Math.random() * 200);
-                            previousUse.push(Math.random() * 200);
-                        }
-                    } else {
-                        $scope.timeFrame = "Beginning of Time";
-                        for (var i = 60; i >= 0; i--) {
-                            xPoints.push(now - (i * 30 * 24 * 60 * 60 * 1000));
-                            currentUse.push(Math.random() * 200);
-                            previousUse.push(Math.random() * 200);
-                        }
+                    if ($scope.selected === 'maintenance') {
+                        $scope.setMaintenance(period);
+                        return;
+                    }
+
+                    var xPoints = ['x'];
+                    var currentUse = ['Current Period'];
+                    var previousUse = ['Previous Period'];
+                    var min, max, pt, hrsPerPt, oldStart, oldEnd, newStart, newEnd, oldDef, newDef, units;
+
+                    switch ($scope.selected) {
+                        case 'pca':
+                            min = 2000;
+                            max = 10000;
+                            units = "units/hr";
+                            break;
+                        case 'cpu':
+                            min = 0;
+                            max = 1;
+                            units = "$";
+                            break;
+                        case 'rev':
+                            min = 0;
+                            max = 1000;
+                            units = "thousand $";
+                            break;
+                        case 'mar':
+                            min = 0;
+                            max = 1;
+                            units = "$";
+                            break;
+                        default:
+                            console.log("error: unrecognized selected time scope: " + $scope.selected);
+                    }
+
+                    switch (period) {
+                        case 'month':
+                            $scope.timeFrame = "Last Month";
+                            pt = 30;
+                            hrsPerPt = 24;
+                            oldDef = newDef = 1.0;
+                            switch ($scope.selected) {
+                                case 'pca':
+                                    oldStart = oldEnd = 3000;
+                                    newStart = newEnd = 6000;
+                                    break;
+                                case 'cpu':
+                                    oldStart = oldEnd = 0.5;
+                                    newStart = newEnd = 0.2;
+                                    break;
+                                case 'rev':
+                                    oldStart = oldEnd = 300;
+                                    newStart = newEnd = 830;
+                                    break;
+                                case 'mar':
+                                    oldStart = oldEnd = -0.1;
+                                    newStart = newEnd = 0.6;
+                                    break;
+                                default:
+                                    console.log("error: unrecognized selected time scope: " + $scope.selected);
+                            }
+                            break;
+                        case 'year':
+                            $scope.timeFrame = "Last Year";
+                            pt = 12;
+                            hrsPerPt = (24 * 30);
+                            oldDef = 1.0;
+                            newDef = 0.5;
+                            switch ($scope.selected) {
+                                case 'pca':
+                                    oldStart = oldEnd = newStart = 3000;
+                                    newEnd = 6000;
+                                    break;
+                                case 'cpu':
+                                    oldStart = oldEnd = newStart = 0.5;
+                                    newEnd = 0.2;
+                                    break;
+                                case 'rev':
+                                    oldStart = oldEnd = newStart = 300;
+                                    newEnd = 830;
+                                    break;
+                                case 'mar':
+                                    oldStart = oldEnd = newStart = 0.1;
+                                    newEnd = 0.6;
+                                    break;
+                                default:
+                                    console.log("error: unrecognized selected time scope: " + $scope.selected);
+                            }
+                            break;
+                        default:
+                            $scope.timeFrame = "Beginning of Time";
+                            pt = 60;
+                            hrsPerPt = (24 * 30);
+                            oldDef = 1;
+                            newDef = 54 / 60;
+                            switch ($scope.selected) {
+                                case 'pca':
+                                    oldStart = oldEnd = newStart = 3000;
+                                    newEnd = 6000;
+                                    break;
+                                case 'cpu':
+                                    oldStart = oldEnd = newStart = 0.5;
+                                    newEnd = 0.2;
+                                    break;
+                                case 'rev':
+                                    oldStart = oldEnd = newStart = 300;
+                                    newEnd = 830;
+                                    break;
+                                case 'mar':
+                                    oldStart = oldEnd = newStart = -0.1;
+                                    newEnd = 0.6;
+                                    break;
+                                default:
+                                    console.log("error: unrecognized selected time scope: " + $scope.selected);
+                            }
+
+                    }
+
+                    var oldData = SensorData.genTrend(min, max, pt + 1, oldStart, oldEnd, oldDef, 0.09);
+                    var newData = SensorData.genTrend(min, max, pt + 1, newStart, newEnd, newDef, 0.05);
+
+                    for (var i = pt; i >= 0; i--) {
+                        xPoints.push(now - (i * hrsPerPt * 60 * 60 * 1000));
+                        currentUse.push(newData[pt - i]);
+                        previousUse.push(oldData[pt - i]);
                     }
 
                     $scope.chartConfig.data = {
@@ -429,7 +647,7 @@ angular.module('app')
                         ],
                         type: 'area-spline',
                         colors: {
-                            'Previous Period': '#dddddd'
+                            'Previous Period': '#cccccc'
                         }
 
                     };
@@ -440,20 +658,26 @@ angular.module('app')
                             tick: {
                                 format: (period == 'month') ? '%b %d' : (period == 'year' ? '%b' : '%b %Y')
                             }
+                        },
+                        y: {
+                            label: {
+                                text: units,
+                                position: 'outer-middle'
+                            }
                         }
                     };
 
+                    // pca, cpu, rpu, upm
                     $scope.chartConfig.tooltip = {
                         format: {
-                            value: function (value, ratio, id, index) {
+                            value: function (value) {
                                 switch ($scope.selected) {
-                                    case 'fuel':
-                                        return ( value.toFixed(1) + " m.p.g.");
-                                    case 'value':
+                                    case 'pca':
+                                        return ( value.toFixed(1) + ' ' + units);
+                                    case 'rev':
+                                        return ( value.toFixed(1) + ' ' + units);
+                                    case 'cpu':
                                         return ( '$' + value.toFixed(2));
-                                    case 'timeperf':
-                                    case 'custsat':
-                                        return (value.toFixed(1) + '%');
                                     default:
                                         return value.toFixed(1);
                                 }
@@ -462,20 +686,156 @@ angular.module('app')
                     };
                 };
 
+                $scope.setMaintenance = function (period) {
+                    $scope.period = period;
+                    var now = new Date().getTime(),
+                        xPoints = ['x'],
+                        planned = ['Planned'],
+                        plannedCostPerHr = 200,
+                        unplanned = ['Unplanned'],
+                        unplannedCostPerHr = 800,
+                        totalCost = ['Total Maintenance Cost'];
+
+                    var plannedPerMonthBeforeIoT = 2;
+                    var plannedPerMonthAfterIoT = 5;
+                    var unplannedPerMonthBeforeIoT = 8;
+                    var unplannedPerMonthAfterIoT = 1;
+
+                    var pt, hrsPerPt, plannedStart, plannedEnd, unplannedStart, unplannedEnd, plannedDef, unplannedDef;
+
+                    switch (period) {
+                        case 'month':
+                            $scope.timeFrame = "Last Month";
+                            pt = 30;
+                            hrsPerPt = 24;
+                            unplannedStart = unplannedEnd = unplannedPerMonthAfterIoT / pt;
+                            plannedStart = plannedEnd = plannedPerMonthAfterIoT  / pt;
+                            plannedDef = unplannedDef = 1;
+                            break;
+                        case 'year':
+                            $scope.timeFrame = "Last Year";
+                            pt = 12;
+                            hrsPerPt = (24 * 30);
+                            unplannedStart = unplannedPerMonthBeforeIoT;
+                            unplannedEnd = unplannedPerMonthAfterIoT;
+                            unplannedDef = 0.5;
+
+                            plannedStart = plannedPerMonthBeforeIoT;
+                            plannedEnd = plannedPerMonthAfterIoT;
+                            plannedDef = 0.5;
+                            break;
+                        default:
+                            $scope.timeFrame = "Beginning of Time";
+                            pt = 60;
+                            hrsPerPt = (24 * 30);
+                            unplannedStart = unplannedPerMonthBeforeIoT;
+                            unplannedEnd = unplannedPerMonthAfterIoT;
+                            unplannedDef = (54/60);
+
+                            plannedStart = plannedPerMonthBeforeIoT;
+                            plannedEnd = plannedPerMonthAfterIoT;
+                            plannedDef = (54/60);
+
+                    }
+
+
+                    var plannedData = SensorData.genTrend(plannedPerMonthBeforeIoT, plannedPerMonthAfterIoT, pt + 1, plannedStart, plannedEnd, plannedDef, 0.2);
+                    var unplannedData = SensorData.genTrend(unplannedPerMonthAfterIoT, unplannedPerMonthBeforeIoT, pt + 1, unplannedStart, unplannedEnd, unplannedDef, 0.2);
+                    var totalCostData = plannedData.map(function(plannedAmt, idx) {
+                        return ((plannedData[idx] * plannedCostPerHr) + (unplannedData[idx] * unplannedCostPerHr));
+                    });
+
+                    for (var i = pt; i >= 0; i--) {
+                        xPoints.push(now - (i * hrsPerPt * 60 * 60 * 1000));
+                        unplanned.push(unplannedData[pt - i]);
+                        planned.push(plannedData[pt - i]);
+                        totalCost.push(totalCostData[pt - i]);
+                    }
+
+                    var types = {};
+                    types[unplanned[0]] = 'spline';
+                    types[planned[0]] = 'spline';
+
+                    var axes = {};
+                    axes[unplanned[0]] = 'y';
+                    axes[planned[0]] = 'y';
+                    axes[totalCost[0]] = 'y2';
+
+                    var colors = {};
+                    colors[planned[0]] = '#39a5dc';
+                    colors[unplanned[0]] = '#004368';
+                    colors[totalCost[0]] = '#39a5dc';
+
+                    $scope.chartConfig.data = {
+                        x: 'x',
+                        columns: [
+                            xPoints, planned, unplanned, totalCost
+                        ],
+                        type: 'bar',
+                        types: types,
+                        axes: axes,
+                        colors: colors
+
+
+                    };
+
+                    $scope.chartConfig.axis = {
+                        x: {
+                            type: 'timeseries',
+                            tick: {
+                                format: (period == 'month') ? '%b %d' : (period == 'year' ? '%b' : '%b %Y')
+                            }
+                        },
+                        y: {
+                            label: {
+                                text: "hours",
+                                position: 'outer-middle'
+                            }
+                        },
+                        y2: {
+                            show: true,
+                            label: {
+                                text: "thousands $",
+                                position: 'outer-middle'
+                            }
+                        }
+                    };
+
+                    // // pca, cpu, rpu, upm
+                    // $scope.chartConfig.tooltip = {
+                    //     format: {
+                    //         value: function (value) {
+                    //             switch ($scope.selected) {
+                    //                 case 'pca':
+                    //                     return ( value.toFixed(1) + ' ' + units);
+                    //                 case 'rev':
+                    //                     return ( value.toFixed(1) + ' ' + units);
+                    //                 case 'cpu':
+                    //                     return ( '$' + value.toFixed(2));
+                    //                 default:
+                    //                     return value.toFixed(1);
+                    //             }
+                    //         }
+                    //     }
+                    // };
+                };
+
                 $scope.getSelected = function () {
                     return $scope.selected;
                 };
 
                 $scope.setSelected = function (selected) {
                     $scope.selected = selected;
-                    $scope.setPeriod($scope.period);
+                    if (selected === 'maintenance') {
+                        $scope.setMaintenance($scope.period);
+                    } else {
+                        $scope.setPeriod($scope.period);
+                    }
                 };
 
 
-                var now = new Date().getTime();
-                var xPoints = ['x'], currentUse = ['Current Period'], previousUse = ['Previous Period'];
 
-                $scope.setPeriod('year');
+                $scope.setPeriod($scope.period);
                 $scope.timeFrame = "Last Year";
 
 
@@ -488,12 +848,12 @@ angular.module('app')
                 $scope.summaries = Reports.getSummaries();
 
                 var icons = {
-                    'clients': 'fa fa-user',
-                    'packages': 'fa fa-tag',
-                    "lines": 'fa fa-truck',
+                    'customers': 'fa fa-user',
+                    'runs': 'fa fa-play',
+                    "lines": 'fa fa-subway',
                     'operators': 'fa fa-group',
                     'facilities': 'fa fa-building',
-                    'managers': 'fa fa-group'
+                    'machines': 'fa fa-group'
                 };
 
                 function processSummaries(summaries) {
@@ -552,7 +912,7 @@ angular.module('app')
 
     .controller("LineListController",
         ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Facilities',
-            function ($timeout, $rootScope, $scope, $http, Notifications, SensorData,  Facilities) {
+            function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Facilities) {
 
                 $scope.selectedLine = null;
 
@@ -585,7 +945,6 @@ angular.module('app')
                 $scope.selectLine = function (line) {
                     $scope.selectedLine = line;
                     $rootScope.$broadcast("lines:selected", line);
-                    console.log("broadcasted line selected: " + JSON.stringify(line));
                 };
 
                 $scope.selectFacility = function (fac) {
@@ -603,7 +962,7 @@ angular.module('app')
 
                 $scope.$on("line:alert", function (evt, al) {
                     $scope.lines.forEach(function (l) {
-                        if (l.lid == al.lid) {
+                        if (l.lid === al.lid) {
                             l.status = "warning";
                             l.statusMsg = al.message;
                         }
@@ -655,7 +1014,6 @@ angular.module('app')
                 $scope.n3data = [];
 
                 $scope.$on('machine:selected', function (event, machine) {
-                    console.log("got machine selected");
                     machine.telemetry.forEach(function (telemetry) {
                         $scope.n3options[telemetry.name] = {
                             warning: false,
@@ -831,10 +1189,10 @@ angular.module('app')
                 $scope.selectedLine = null;
                 $scope.selectedFacility = null;
 
-                $scope.$on("lines:selected", function(evt, line) {
+                $scope.$on("lines:selected", function (evt, line) {
                     $scope.selectedLine = line;
                 });
-                $scope.$on("facilities:selected", function(evt, fac) {
+                $scope.$on("facilities:selected", function (evt, fac) {
                     $scope.selectedFacility = fac;
                 });
 
@@ -847,6 +1205,7 @@ angular.module('app')
     .controller("LineDetailsController",
         ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Machines",
             function ($rootScope, $scope, $http, Notifications, SensorData, Machines) {
+                var MS_IN_DAY = 24 * 60 * 60 * 1000;
 
                 $scope.lineQuery = '';
 
@@ -854,9 +1213,9 @@ angular.module('app')
                 $scope.selectedFacility = null;
 
                 $scope.config = {
-                    'chartId'      :  "foo",
-                    'units'        : "Uptime",
-                    'tooltipType'  : 'default',
+                    'chartId': "foo",
+                    'units': "Uptime",
+                    'tooltipType': 'default',
                     'centerLabelFn': function () {
                         return "98.6%";
                     }
@@ -874,14 +1233,14 @@ angular.module('app')
                 var dates = ['dates'];
                 var yTemp = ['used'];
                 for (var d = 20 - 1; d >= 0; d--) {
-                    dates.push(new Date(today.getTime() - (d * 24 * 60 * 60 * 1000)));
+                    dates.push(new Date(today.getTime() - (d * MS_IN_DAY)));
                     yTemp.push('');
                 }
 
                 var actuals = ["Retention", "Margin", "Facilities", "P/E Ratio", "Closed"];
 
                 function fill(data) {
-                    return data.map(function(v, idx) {
+                    return data.map(function (v, idx) {
                         if (idx === 0) {
                             return v;
                         } else {
@@ -893,19 +1252,19 @@ angular.module('app')
 
                 var actuals = ["Throughput", "Uptime", "Other"];
 
-                $scope.bizStates = actuals.map(function(name) {
+                $scope.bizStates = actuals.map(function (name) {
                     return {
                         config: {
-                            'chartId'      : name.replace(/[^A-Za-z0-9]/g, ''),
-                            'layout'       : 'inline',
-                            'trendLabel'   : name,
-                            'tooltipType'  : 'percentage',
-                            'valueType'     : 'actual'
+                            'chartId': name.replace(/[^A-Za-z0-9]/g, ''),
+                            'layout': 'inline',
+                            'trendLabel': name,
+                            'tooltipType': 'percentage',
+                            'valueType': 'actual'
                         },
                         data: {
                             'total': '100',
                             'xData': dates,
-                            'yData':  fill(yTemp)
+                            'yData': fill(yTemp)
 
                         }
                     };
@@ -951,8 +1310,7 @@ angular.module('app')
                     $scope.selectedFacility = fac;
                 });
 
-                $scope.eventPopup = function(cal) {
-                    console.log("opening cal: " + JSON.stringify(cal));
+                $scope.eventPopup = function (cal) {
                     $modal.open({
                         templateUrl: 'partials/calentry.html',
                         controller: 'CalEntryController',
@@ -984,10 +1342,13 @@ angular.module('app')
                 $scope.userInfo = {
                     fullName: "Mary Q. Operator"
                 };
-
                 $scope.$on("resetAll", function (evt) {
                     $scope.resetAll();
                 });
+
+                $scope.isActive = function (loc) {
+                    return loc === $location.path();
+                };
 
                 $scope.resetAll = function () {
                     var resetUrl = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/utils/resetAll';
