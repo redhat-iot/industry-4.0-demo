@@ -27,11 +27,11 @@
     <h2>Business Trends</h2>
 
     <ul class="nav nav-tabs nav-tabs-pf">
-        <li ng-class="{ active: (getSelected() == 'rpu')}"><a ng-click="setSelected('rev');">Revenue</a></li>
+        <li ng-class="{ active: (getSelected() == 'rev')}"><a ng-click="setSelected('rev');">Revenue</a></li>
         <li ng-class="{ active: (getSelected() == 'pca')}"><a ng-click="setSelected('pca');">Production Capacity</a></li>
         <li ng-class="{ active: (getSelected() == 'cpu')}"><a ng-click="setSelected('cpu');">Cost Per Unit</a></li>
         <li ng-class="{ active: (getSelected() == 'mar')}"><a ng-click="setSelected('mar');">Margin</a></li>
-        <li ng-class="{ active: (getSelected() == 'upm')}"><a ng-click="setSelected('maintenance');">Unplanned Maintenance</a></li>
+        <li ng-class="{ active: (getSelected() == 'maintenance')}"><a ng-click="setSelected('maintenance');">Unplanned Maintenance</a></li>
     </ul>
 
    <div pf-c3-chart id="chartId" config="chartConfig" get-chart-callback="getChart"></div>
