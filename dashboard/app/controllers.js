@@ -675,9 +675,10 @@ angular.module('app')
                                     case 'pca':
                                         return ( value.toFixed(1) + ' ' + units);
                                     case 'rev':
-                                        return ( value.toFixed(1) + ' ' + units);
+                                        return $filter('currency')(value * 1000, '$')
                                     case 'cpu':
-                                        return ( '$' + value.toFixed(2));
+                                    case 'mar':
+                                        return $filter('currency')(value, '$')
                                     default:
                                         return value.toFixed(1);
                                 }
@@ -777,6 +778,22 @@ angular.module('app')
                         colors: colors
 
 
+                    };
+
+                    $scope.chartConfig.tooltip = {
+                        format: {
+                            value: function (value, ratio, id) {
+                                switch(id) {
+                                    case planned[0]:
+                                        return value.toFixed(1) + " hours";
+                                    case unplanned[0]:
+                                        return value.toFixed(1) + " hours";
+                                    case totalCost[0]:
+                                    default:
+                                        return $filter('currency')(value * 1000, '$')
+                                }
+                            }
+                        }
                     };
 
                     $scope.chartConfig.axis = {
