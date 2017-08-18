@@ -23,6 +23,23 @@ angular.module('app')
 		facilities = [],
 		configRestEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api/facilities';
 
+    var currentLine = null, currentFacility = null;
+
+    $rootScope.$on("lines:selected", function(evt, line) {
+        currentLine = line;
+    });
+
+    $rootScope.$on("facilities:selected", function(evt, fac) {
+        currentFacility = fac;
+    });
+
+    factory.getCurrentLine = function() {
+        return currentLine;
+    };
+
+    factory.getCurrentFacility = function() {
+        return currentFacility;
+    };
 
     factory.getFacilities = function() {
         return facilities;

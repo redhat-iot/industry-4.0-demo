@@ -932,11 +932,9 @@ angular.module('app')
             function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Facilities) {
 
                 $scope.selectedLine = null;
-
-                $scope.facilities = null;
+                $scope.selectedFacility = null;
                 $scope.lines = null;
 
-                $scope.selectedFacility = null;
 
 
                 $scope.resetAll = function () {
@@ -955,7 +953,8 @@ angular.module('app')
                     if (!$scope.selectedLine || !line) {
                         return false;
                     }
-                    return $scope.selectedLine.lid === line.lid;
+                    return ($scope.selectedLine.lid === line.lid && $scope.selectedFacility &&
+                        $scope.selectedFacility.fid === $scope.selectedLine.currentFid);
                 };
 
 
@@ -984,7 +983,27 @@ angular.module('app')
                             l.statusMsg = al.message;
                         }
                     });
-                })
+                });
+
+                $scope.facilities = Facilities.getFacilities();
+                if ($scope.facilities) {
+                    var selectedFacility = Facilities.getCurrentFacility();
+                    if (!selectedFacility) {
+                        $scope.selectFacility($scope.facilities[0]);
+                    } else {
+                        $scope.facilities.forEach(function(fac) {
+                            if (fac.fid === selectedFacility.fid) {
+                                $scope.selectFacility(selectedFacility);
+                            }
+                        });
+                    }
+                    var selectedLine = Facilities.getCurrentLine();
+                    if (selectedLine) {
+                        $scope.selectLine(selectedLine);
+                    }
+                }
+
+
             }])
 
     .controller("TelemetryController",
@@ -1200,8 +1219,8 @@ angular.module('app')
             }])
 
     .controller("FloorplanController",
-        ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG",
-            function ($timeout, $scope, $rootScope, $http, Notifications, SensorData, NgMap, APP_CONFIG) {
+        ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG", "Facilities",
+            function ($timeout, $scope, $rootScope, $http, Notifications, SensorData, NgMap, APP_CONFIG, Facilities) {
 
                 $scope.selectedLine = null;
                 $scope.selectedFacility = null;
@@ -1217,14 +1236,28 @@ angular.module('app')
                     $rootScope.$broadcast("machine:selected", m);
                 };
 
+                var autoSelect = Facilities.getCurrentFacility();
+                if (autoSelect) {
+                    $scope.selectedFacility = autoSelect;
+                }
+
+                autoSelect = Facilities.getCurrentLine();
+                if (autoSelect) {
+                    $scope.selectedLine = autoSelect;
+                }
+
             }])
 
     .controller("LineDetailsController",
-        ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Machines",
-            function ($rootScope, $scope, $http, Notifications, SensorData, Machines) {
+        ['$rootScope', '$scope', '$interval', '$http', 'Notifications', "SensorData", "Machines", "Facilities",
+            function ($rootScope, $scope, $interval, $http, Notifications, SensorData, Machines, Facilities) {
+
                 var MS_IN_DAY = 24 * 60 * 60 * 1000;
+                var intervalTimer = null;
 
                 $scope.lineQuery = '';
+                $scope.total = 1;
+                $scope.completed = 0;
 
                 $scope.selectedLine = null;
                 $scope.selectedFacility = null;
@@ -1291,6 +1324,16 @@ angular.module('app')
 
                 $scope.$on('lines:selected', function (event, line) {
                     $scope.selectedLine = line;
+                    $scope.total = Math.floor(500 + Math.random() * 500);
+                    $scope.completed = Math.floor(Math.random() * 300);
+
+                    if (intervalTimer) {
+                        $interval.cancel(intervalTimer);
+                    }
+                    intervalTimer = $interval(function () {
+                        $scope.completed++;
+                    }, 10000);
+
                 });
 
                 $scope.$on('facilities:selected', function (event, fac) {
@@ -1308,6 +1351,14 @@ angular.module('app')
                     return $scope.selectedLine.lid === line.lid;
                 };
 
+                var autoSelect = Facilities.getCurrentLine();
+                if (autoSelect) {
+                    $scope.selectedLine = autoSelect;
+                }
+                autoSelect = Facilities.getCurrentFacility();
+                if (autoSelect) {
+                    $scope.selectedFacility = autoSelect;
+                }
             }])
 
     .controller("CalEntryController",
@@ -1338,7 +1389,13 @@ angular.module('app')
                             }
                         }
                     });
+                };
+
+                var autoSelect = Facilities.getCurrentFacility();
+                if (autoSelect) {
+                    $scope.selectedFacility = autoSelect;
                 }
+
             }])
 
     .controller("HeaderController",
