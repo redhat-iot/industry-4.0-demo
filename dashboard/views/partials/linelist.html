@@ -20,7 +20,7 @@
 
 
     <ul class="nav nav-tabs">
-        <li ng-repeat="facility in facilities" ng-class="{ active: isFacilitySelected(facility)}"><a ng-click="selectFacility(facility)">{{facility.name}}</a></li>
+        <li ng-repeat="facility in facilities" ng-class="{ active: isFacilitySelected(facility)}"><a ng-click="selectFacility(facility)">{{facility.name}}<span ng-if="getFacilityWarn(facility)">&nbsp;&nbsp;<icon class="pficon pficon-warning-triangle-o"></icon></span></a></li>
     </ul>
 
             <scrollable-table ng-if="lines.length > 0" watch="lines">
@@ -43,8 +43,9 @@
                         <td data-toggle="tooltip" data-placement="right" title="{{line.currentRun.desc}}">{{line.currentRun.desc}}<br>{{line.currentRun.customer.name}}</td>
                         <td>{{line.currentRun.end | amDifference:null:'hours'}} Hours</td>
                         <td><center>
-                            <icon ng-if="line.status == 'ok'" class="pficon fa-2x pficon-ok"></icon>
-                            <icon ng-if="line.status != 'ok'" title="Line problem ({{line.status}}) detected; line operator notified: {{line.statusMsg}}" class="pficon fa-2x pficon-warning-triangle-o"></icon>
+                            <icon ng-if="line.status === 'ok'" class="pficon fa-2x pficon-ok"></icon>
+                            <icon ng-if="line.status === 'warning'" title="Line warning detected; line operator notified." class="pficon fa-2x pficon-warning-triangle-o"></icon>
+                            <icon ng-if="line.status === 'error'" title="Line warning detected; line operator notified." class="pficon fa-2x pficon-error-circle-o"></icon>
                         </center></td>
                     </tr>
                     </tbody>

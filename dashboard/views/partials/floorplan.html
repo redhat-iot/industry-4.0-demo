@@ -11,6 +11,10 @@
 
  -->
 <div id="lines">
+    <select style="float: right;" ng-options="line as line.name for line in lines"
+            ng-model="selectedLine" ng-change="selectLine(selectedLine)">
+        <option value="">-- Select Line --</option>
+    </select>
 
     <h2>Product Line Floor</h2>
     <hr>

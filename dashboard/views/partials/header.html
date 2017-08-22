@@ -28,10 +28,10 @@
       <div class="collapse navbar-collapse navbar-collapse-1">
         <ul class="nav navbar-nav navbar-utility">
           <li>
-            <a ng-href="" ng-click="predictiveMaintenance();"><span style="color: {{predictiveMaintenanceColor}};" title="Simulate Cascading Failure" class="fa fa-bolt"></span></a>
+            <a ng-href="" ng-click="predictiveMaintenance();"><span style="color: {{predictiveMaintenanceColor}};" title="Simulate Predicted Maintenance" class="fa fa-warning"></span></a>
           </li>
           <li>
-            <a ng-href="" ng-click="unpredictedError();"><span style="color: {{unpredictedErrorColor}};;" title="Simulate Package Failure" class="fa fa-tag"></span></a>
+            <a ng-href="" ng-click="unpredictedError();"><span style="color: {{unpredictedErrorColor}};;" title="Simulate Unpredicted Error" class="fa fa-bomb"></span></a>
           </li>
           <li>
             <a ng-href="" ng-click="resetAll();"><span title="Reset Demo Data" class="fa fa-refresh"></span></a>
@@ -61,8 +61,19 @@
           <li ng-class="{ active: isActive('/')}">
             <a ng-href="#/">Operations</a>
           </li>
-          <li ng-class="{ active: isActive('/tech')}">
-            <a ng-href="#/tech">Technician</a>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              Technician
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a ng-href="#/tech/tasks">Task List</a>
+              </li>
+              <li>
+                <a ng-href="#/tech/floorplan">Floor Plan</a>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>

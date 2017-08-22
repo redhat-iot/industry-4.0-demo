@@ -17,60 +17,63 @@
 
 
 angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
-	function (APP_CONFIG, $location) {
+    function (APP_CONFIG, $location) {
 
 
-	return {
-        restrict: 'E',
-        replace: false,
-        scope: {
-        	selectedFacility: '=?'
-		},
-        templateUrl: 'partials/calendar.html',
-        controller: 'CalendarController',
-        link: function (scope, element, attrs) {
+        return {
+            restrict: 'E',
+            replace: false,
+            scope: {
+                selectedFacility: '=?'
+            },
+            templateUrl: 'partials/calendar.html',
+            controller: 'CalendarController',
+            link: function (scope, element, attrs) {
 
-            var calEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api/facilities/calendar';
+                var calEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/facilities/calendar';
 
-            scope.$watch('selectedFacility', function() {
-                if (!scope.selectedFacility) {
-                	console.log("cal: no facility");
-                    return;
-                }
+                scope.$watch('selectedFacility', function () {
+                    if (!scope.selectedFacility) {
+                        return;
+                    }
 
-                function render(fac) {
-                    $('#fullcalendar').fullCalendar({
-                        defaultView: 'agendaDay',
-                        contentHeight: 600,
-                        nowIndicator: true,
-                        allDaySlot: false,
-						weekends: false,
-						navLinks: true,
-						timezone: 'local',
-						header: {
-                            left:   'title',
-                            center: 'agendaWeek agendaDay',
-                            right:  'today prev,next'
-                        },
-                        eventSources: [
-							{
-                                url: calEndpoint + '/' + fac.fid
+                    function render(fac) {
+
+
+                        $('#fullcalendar').fullCalendar({
+                            defaultView: 'agendaDay',
+                            contentHeight: 600,
+                            nowIndicator: true,
+                            allDaySlot: false,
+                            weekends: false,
+                            navLinks: true,
+                            timezone: 'local',
+                            header: {
+                                left: 'title',
+                                center: 'agendaWeek agendaDay',
+                                right: 'today prev,next'
+                            },
+                            eventClick: function (calEvent, jsEvent, view) {
+
+                                scope.eventPopup(calEvent);
+
                             }
-                        ],
-                        eventClick: function(calEvent, jsEvent, view) {
-
-                            scope.eventPopup(calEvent);
-
-                        }
 
 
-                    })
-                }
+                        }).fullCalendar('removeEventSources');
 
-                render(scope.selectedFacility);
+                        $('#fullcalendar').fullCalendar('addEventSource',
+                            {
+                                url: calEndpoint + '/' + fac.fid + '/all'
+                            }
+                        );
+
+                    }
+
+                    render(scope.selectedFacility);
 
 
-			});
+                });
+            }
         }
-    }
-}]);
+    }]);

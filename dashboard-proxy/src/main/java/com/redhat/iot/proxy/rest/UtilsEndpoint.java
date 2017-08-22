@@ -16,10 +16,15 @@ package com.redhat.iot.proxy.rest;
 
 import com.redhat.iot.proxy.model.*;
 import com.redhat.iot.proxy.service.DGService;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import java.util.*;
 
 /**
@@ -81,8 +86,26 @@ public class UtilsEndpoint {
             Date later = new Date(new Date().getTime() + (3 * 60 * 60 * 1000));
             calEntry.setStart(now);
             calEntry.setEnd(later);
+            calEntry.setColor("#f7bd7f");
+            calEntry.setType("maintenance");
             calEntry.setFacility(newFacility);
+            JSONObject dets = new JSONObject()
+                    .put("desc", "The desc")
+                    .put("links",
+                            new JSONArray()
+                                    .put(
+                                            new JSONObject()
+                                                    .put("name", "Installation Manual")
+                                                    .put("link", "http://www.redhat.com"))
+                                    .put(
+                                            new JSONObject()
+                                                    .put("name", "Repair Manual")
+                                                    .put("link", "http://developers.redhat.com"))
+                    );
+
+            calEntry.setDetails(dets.toString());
             calendarCache.put(UUID.randomUUID().toString(), calEntry);
+
             List<Line> lines = new ArrayList<>();
 
             for (String[] line : LINES) {
@@ -127,8 +150,8 @@ public class UtilsEndpoint {
                 r.setDesc("Standard Run");
                 newLine.setCurrentRun(r);
                 r.setStatus("ok");
-                r.setStart(new Date(now.getTime() - ((int)(Math.floor((Math.random()  * 2.0) * (double)MS_IN_HOUR)))));
-                r.setEnd(new Date(now.getTime() + ((int)(Math.floor((Math.random()  * 4.0) * (double)MS_IN_HOUR)))));
+                r.setStart(new Date(now.getTime() - ((int) (Math.floor((Math.random() * 2.0) * (double) MS_IN_HOUR)))));
+                r.setEnd(new Date(now.getTime() + ((int) (Math.floor((Math.random() * 4.0) * (double) MS_IN_HOUR)))));
 
                 CalEntry runEntry = new CalEntry();
                 runEntry.setTitle(r.getName() + "(" + r.getCustomer().getName() + ")");
@@ -136,6 +159,8 @@ public class UtilsEndpoint {
                 runEntry.setEnd(r.getEnd());
                 runEntry.setFacility(newFacility);
                 runEntry.setColor(line[2]);
+                runEntry.setType("run");
+                runEntry.setDetails(new JSONObject().put("desc", "The Run").toString());
                 calendarCache.put(UUID.randomUUID().toString(), runEntry);
 
                 runsCache.put(r.getRid(), r);
@@ -231,7 +256,7 @@ public class UtilsEndpoint {
 
         long warningCount = cache.keySet().stream()
                 .map(cache::get)
-                .filter(r -> r.getStatus().equalsIgnoreCase( "warning"))
+                .filter(r -> r.getStatus().equalsIgnoreCase("warning"))
                 .count();
 
         long errorCount = cache.keySet().stream()
@@ -245,6 +270,7 @@ public class UtilsEndpoint {
         return summary;
 
     }
+
     private Summary getRunsSummary() {
         Map<String, Run> cache = dgService.getRuns();
 
@@ -254,7 +280,7 @@ public class UtilsEndpoint {
         summary.setCount(cache.keySet().size());
         long warningCount = cache.keySet().stream()
                 .map(cache::get)
-                .filter(r -> r.getStatus().equalsIgnoreCase( "warning"))
+                .filter(r -> r.getStatus().equalsIgnoreCase("warning"))
                 .count();
 
         long errorCount = cache.keySet().stream()
@@ -278,7 +304,7 @@ public class UtilsEndpoint {
         summary.setCount(cache.keySet().size());
         long warningCount = cache.keySet().stream()
                 .map(cache::get)
-                .filter(r -> r.getStatus().equalsIgnoreCase( "warning"))
+                .filter(r -> r.getStatus().equalsIgnoreCase("warning"))
                 .count();
 
         long errorCount = cache.keySet().stream()
@@ -321,21 +347,25 @@ public class UtilsEndpoint {
     };
 
     public static final String[][] LINES = new String[][]{
-            {"Line 1", "line-1", "red"},
-            {"Line 2", "line-2", "orange"},
-            {"Line 3", "line-3", "yellow"},
-            {"Line 4", "line-4", "green"},
-            {"Line 5", "line-5", "blue"},
-            {"Line 6", "line-6", "indigo"},
-            {"Line 7", "line-7", "violet"},
-            {"Line 8", "line-8", "cyan"}
+            {"Line 1", "line-1", "#9ecf99"},
+            {"Line 2", "line-2", "#9ecf99"},
+            {"Line 3", "line-3", "#9ecf99"},
+            {"Line 4", "line-4", "#9ecf99"},
+            {"Line 5", "line-5", "#9ecf99"},
+            {"Line 6", "line-6", "#9ecf99"},
+            {"Line 7", "line-7", "#9ecf99"},
+            {"Line 8", "line-8", "#9ecf99"}
     };
 
     public static final String[][] MACHINES = new String[][]{
             {"Caster", "machine-1", "caster"},
             {"Chiller", "machine-2", "chiller"},
             {"Weighting", "machine-3", "scale"},
-            {"Spin Test", "machine-4", "spinner"}
+            {"Spin Test", "machine-4", "spinner"},
+            {"Caster", "machine-5", "caster"},
+            {"Chiller", "machine-6", "chiller"},
+            {"Weighting", "machine-7", "scale"},
+            {"Spin Test", "machine-8", "spinner"}
     };
 
     public static final String[] RUNS = new String[]{

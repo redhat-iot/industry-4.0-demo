@@ -23,18 +23,26 @@ angular.module('app')
 		facilities = [],
 		configRestEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api/facilities';
 
-    var currentLine = null, currentFacility = null;
+    var currentLine = null, currentFacility = null, currentMachine = null;
 
     $rootScope.$on("lines:selected", function(evt, line) {
         currentLine = line;
+        currentMachine = null;
     });
 
     $rootScope.$on("facilities:selected", function(evt, fac) {
         currentFacility = fac;
+        currentLine = currentMachine = null;
+    });
+    $rootScope.$on("machines:selected", function(evt, mac) {
+        currentMachine = mac;
     });
 
     factory.getCurrentLine = function() {
         return currentLine;
+    };
+    factory.getCurrentMachine = function() {
+        return currentMachine;
     };
 
     factory.getCurrentFacility = function() {

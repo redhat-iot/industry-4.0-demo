@@ -21,8 +21,18 @@
     <h3><strong>Starts:</strong> {{entry.start | amCalendar:referenceTime:formats}} (<span am-time-ago="entry.start"></span>)</h3>
     <h3><strong>Ends:</strong> {{entry.end | amCalendar:referenceTime:formats}} (<span am-time-ago="entry.end"></span>)</h3>
     <h3><strong>Duration</strong>: {{entry.end | amDifference:entry.start:'hours'}} hours</h3>
+    <div ng-if="entry.details">
+        <hr>
+        <h2>Details</h2>
+        <p>{{entry.details.desc}}</p>
+        <h2 ng-if="entry.details.links">Technician Links</h2>
+        <ul ng-if="entry.details.links">
+            <li ng-repeat="link in entry.details.links"><a href="{{link.link}}">{{link.name}}</a></li>
+        </ul>
+    </div>
 
 </div>
 <div class="modal-footer">
+    <button style="float: left;" type="button" class="btn btn-danger" ng-if="entry.type === 'maintenance'" ng-click="completeTask(entry)">Complete Task</button>
     <button type="button" class="btn btn-primary" ng-click="$close()">Close</button>
 </div>

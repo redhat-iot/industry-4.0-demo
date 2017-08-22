@@ -41,7 +41,7 @@ angular.module('app')
                     return;
                 }
 
-                cb(lines);
+                cb(machines);
 
             }, function err(response) {
                 console.log(JSON.stringify(response));

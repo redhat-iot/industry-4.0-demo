@@ -20,8 +20,8 @@
 
 angular.module('app')
 
-    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Reports',
-        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Reports) {
+    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Facilities', 'Notifications', 'Reports',
+        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Facilities, Notifications, Reports) {
             var factory = {},
                 client = null,
                 msgproto = null,
@@ -77,23 +77,44 @@ angular.module('app')
 
             function handleAlert(destination, alertObj) {
 
-                // TODO
-                // if (alertObj.type == 'VEHICLE') {
-                //     $rootScope.$broadcast('line:alert', {
-                //         vin: alertObj.truckid,
-                //         message: $filter('date')(alertObj.date, 'medium') + ": " +
-                //                     alertObj.desc + ": " + alertObj.message
-                //     });
-                // } else if (alertObj.type == 'PACKAGE') {
-                //     $rootScope.$broadcast('package:alert', {
-                //         vin: alertObj.truckid,
-                //         sensor_id: alertObj.sensorid,
-                //         message: $filter('date')(alertObj.date, 'medium') + ": " +
-                //                     alertObj.desc + ": " + alertObj.message
-                //     });
-                // }
-                //
-                // Reports.refresh();
+                console.log("handleAlert: " + JSON.stringify(alertObj));
+                    Facilities.getFacilities().forEach(function(facility) {
+                        facility.lines.forEach(function(line) {
+                            line.machines.forEach(function(machine) {
+                                switch (alertObj.type) {
+                                    case 'degradation':
+                                    case 'maintenance':
+                                        if (alertObj.fid === facility.fid &&
+                                        alertObj.mid === machine.mid &&
+                                        alertObj.lid === line.lid) {
+                                            facility.status = 'warning';
+                                            line.status = 'warning';
+                                            machine.status = 'warning';
+                                        }
+                                        break;
+                                    case 'failure':
+                                        if (alertObj.fid === facility.fid &&
+                                            alertObj.mid === machine.mid &&
+                                            alertObj.lid === line.lid) {
+                                            facility.status = 'error';
+                                            line.status = 'error';
+                                            machine.status = 'error';
+                                        }
+                                        break;
+                                    case 'ok':
+                                    default:
+                                        if (alertObj.fid === facility.fid &&
+                                            alertObj.mid === machine.mid &&
+                                            alertObj.lid === line.lid) {
+                                            facility.status = 'ok';
+                                            line.status = 'ok';
+                                            machine.status = 'ok';
+                                        }
+                                }
+
+                            });
+                        });
+                    });
 
             }
 
@@ -302,141 +323,66 @@ angular.module('app')
             };
 
 
-            factory.predictiveMaintenance = function (vehicle) {
+            factory.predictiveMaintenance = function (facility, line, machine) {
 
-                var intervals = [];
+                var MS_IN_HOUR = 60 * 60 * 1000;
 
-                function stopAll() {
-                    intervals.forEach(function (i) {
-                        $interval.cancel(i);
-                        i = undefined;
-                    });
-                    intervals = [];
-                }
+                var deg = {
+                    fid: facility.fid,
+                    lid: line.lid,
+                    mid: machine.mid,
+                    type: 'degradation',
+                    date: new Date().getTime(),
+                    payload: {
+                        desc: "Telemetry indicating problem",
+                        telemetry: 'noise'
+                    }
+                };
 
-                var hitemp =
-                    {
-                        timestamp: new Date().getTime(),
-                        metric: [
-                            {
-                                name: 'temp',
-                                type: 'DOUBLE',
-                                doubleValue: 265
-                            }
-                        ]
-                    };
 
-                var hipress =
-                    {
-                        timestamp: new Date().getTime(),
-                        metric: [
-                            {
-                                name: 'oilpress',
-                                type: 'DOUBLE',
-                                doubleValue: 95
-                            }
-                        ]
-                    };
+                handleAlert("foo", deg);
+                $rootScope.$broadcast("alert", deg);
 
-                metricOverrides[vehicle.vin] = {};
-
-                intervals.push($interval(function () {
-                    metricOverrides[vehicle.vin]['temp'] = 265;
-                    sendKuraMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin)
-                }, 5000));
-
-                $timeout(function () {
-                    intervals.push($interval(function () {
-                        metricOverrides[vehicle.vin]['oilpress'] = 95;
-                        sendKuraMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin);
-                    }, 5000));
-                    var hitempalert = {
+                $timeout(function() {
+                    var maint = {
+                        fid: facility.fid,
+                        lid: line.lid,
+                        mid: machine.mid,
+                        type: 'maintenance',
                         date: new Date().getTime(),
-                        from: "Operations",
-                        desc: "Truck Maintenance Required",
-                        message: "Your line is in need of maintenance. A maintenance crew has been dispatched to the " + vehicle.destination.name + " facility (bay 4), please arrive no later than 10:0am EDT",
-                        type: 'VEHICLE',
-                        truckid: vehicle.vin,
-                        sensorid: null
+                        payload: {
+                            desc: "Predictive Maintenance scheduled",
+                            date: new Date().getTime() + (4 * MS_IN_HOUR),
+                            duration: 2 * MS_IN_HOUR
+                        }
                     };
 
-                    sendJSONObjectMsg(hitempalert, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
-                }, 10000);
-
-                // stop everything after 2 minutes
-                $timeout(function () {
-                    stopAll();
-                }, 120000);
-
-            };
-
-            factory.unpredictedError = function (vehicle, pkg) {
-
-                var intervals = [];
-
-                function stopAll() {
-                    intervals.forEach(function (i) {
-                        $interval.cancel(i);
-                        i = undefined;
-                    });
-                    intervals = [];
-                }
-
-                var hipkgtemp =
-                    {
-                        timestamp: new Date().getTime(),
-                        metric: [
-                            {
-                                name: 'Ambient',
-                                type: 'DOUBLE',
-                                doubleValue: 42.2
-                            }
-                        ]
-                    };
-
-                $timeout(function () {
-                    intervals.push($interval(function () {
-                        sendKuraMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/' + pkg.sensor_id);
-                        metricOverrides[pkg.sensor_id] = {};
-                        metricOverrides[pkg.sensor_id]['Ambient'] = 42.2;
-                    }, 5000));
+                    handleAlert("foo", maint);
+                    $rootScope.$broadcast("alert", maint);
                 }, 5000);
 
 
-                $timeout(function () {
-                    var hitempalert = {
-                        date: new Date().getTime(),
-                        from: "Operations",
-                        desc: "Client Package Alert",
-                        message: 'Temperature on package ' + pkg.sensor_id + ' (' + pkg.desc + ' for client ' + pkg.customer.name + ') on shelf 12 is out of spec (42.2°C), please verify condition',
-                        type: 'PACKAGE',
-                        truckid: vehicle.vin,
-                        sensorid: pkg.sensor_id
-                    };
+              //  sendJSONObjectMsg(msg, 'Red-Hat/cloudera-demo/alerts');
 
-                    sendJSONObjectMsg(hitempalert, 'Red-Hat/sim-truck/iot-demo/packages/' + pkg.sensor_id + '/alerts');
+            };
 
-                }, 8000);
+            factory.unpredictedError = function (facility, line, machine) {
+                var msg = {
+                    fid: facility.fid,
+                    lid: line.lid,
+                    mid: machine.mid,
+                    type: 'failure',
+                    date: new Date().getTime(),
+                    payload: {
+                        desc: "Machine 2 shut down due to imminent safety hazard",
+                        date: new Date().getTime()
+                    }
+                };
 
-                // start looking to clear alerts after 20s
-                $timeout(function () {
-                    intervals.push($interval(function () {
-                        Vehicles.reset();
-                        Shipments.getCurrentShipments().filter(function (s) {
-                            return s.sensor_id == pkg.sensor_id
-                        }).forEach(function (s) {
-                            if (s.status == 'ok') {
-                                stopAll();
-                                metricOverrides[s.sensor_id] = null;
-                            }
-                        });
-                    }, 5000));
-                }, 20000);
+                handleAlert("foo", msg);
+                $rootScope.$broadcast("alert", msg);
 
-                // stop everything after a 2 minutes
-                $timeout(function () {
-                    stopAll();
-                }, 120000);
+               // sendJSONObjectMsg(msg, 'Red-Hat/cloudera-demo/alerts');
             };
 
             connectClient(1);

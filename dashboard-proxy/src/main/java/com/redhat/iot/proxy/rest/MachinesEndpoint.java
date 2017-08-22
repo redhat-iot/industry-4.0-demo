@@ -86,15 +86,15 @@ public class MachinesEndpoint {
 //                topic + "' and millis >= ((unix_timestamp() * 1000) - (24 * 60 * 60 * 1000)) order by millis limit 500";
 
             String query = "SELECT \n" +
-                    "    (bucketed_values.bucket * 60000) AS bucket_millis,\n" +
+                    "    (bucketed_values.bucket * 300000) AS bucket_millis,\n" +
                     "    avg(bucketed_values.value) AS bucket_average_value\n" +
                     "FROM (\n" +
-                    "    SELECT value, ceil(millis/60000) AS bucket\n" +
+                    "    SELECT value, ceil(millis/300000) AS bucket\n" +
                     "    FROM iiot.telemetry\n" +
                     "    WHERE\n" +
                     "        metric='" + metric + "' AND\n" +
                     "        motor_id REGEXP '" + topic + "' AND \n" +
-                    "        millis >= ((unix_timestamp() * 1000) - (5 * 60 * 60 * 1000))\n" +
+                    "        millis >= ((unix_timestamp() * 1000) - (24 * 60 * 60 * 1000))\n" +
                     "    ) AS bucketed_values\n" +
                     "GROUP BY bucketed_values.bucket\n" +
                     "ORDER BY bucket_millis;\n" +

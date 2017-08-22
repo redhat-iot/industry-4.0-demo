@@ -36,10 +36,15 @@ angular.module('app')
 
             }])
 
-    .controller("TechHomeController",
-        ['$scope', '$http', '$filter', 'Notifications', 'SensorData',
-            function ($scope, $http, $filter, Notifications, SensorData) {
+    .controller("TechTasksController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Facilities',
+            function ($scope, $http, $filter, Notifications, SensorData, Facilities) {
 
+            $scope.selectedFacility = null;
+            $scope.selectedLine = null;
+
+                $scope.selectedFacility = Facilities.getCurrentFacility();
+                $scope.selectedLine = Facilities.getCurrentLine();
 
             }])
 
@@ -941,6 +946,16 @@ angular.module('app')
                     $rootScope.$broadcast("resetAll");
                 };
 
+                $scope.getFacilityWarn = function (fac) {
+                    var warn = false;
+                    fac.lines.forEach(function(l) {
+                        if (l.status !== 'ok') {
+                            warn = true;
+                        }
+                    });
+                    return warn;
+                };
+
                 $scope.isFacilitySelected = function (fac) {
                     if (!$scope.selectedFacility || !fac) {
                         return false;
@@ -962,6 +977,10 @@ angular.module('app')
                     $scope.selectedLine = line;
                     $rootScope.$broadcast("lines:selected", line);
                 };
+
+                $scope.$on("lines:selected", function(evt, line) {
+                    $scope.selectedLine = line;
+                });
 
                 $scope.selectFacility = function (fac) {
                     $scope.selectedFacility = fac;
@@ -986,29 +1005,29 @@ angular.module('app')
                 });
 
                 $scope.facilities = Facilities.getFacilities();
-                if ($scope.facilities) {
-                    var selectedFacility = Facilities.getCurrentFacility();
-                    if (!selectedFacility) {
-                        $scope.selectFacility($scope.facilities[0]);
-                    } else {
-                        $scope.facilities.forEach(function(fac) {
-                            if (fac.fid === selectedFacility.fid) {
-                                $scope.selectFacility(selectedFacility);
-                            }
-                        });
-                    }
-                    var selectedLine = Facilities.getCurrentLine();
-                    if (selectedLine) {
-                        $scope.selectLine(selectedLine);
-                    }
+
+                var selectedFacility = Facilities.getCurrentFacility();
+                if (!selectedFacility) {
+                    $scope.selectFacility($scope.facilities[0]);
+                } else {
+                    $scope.facilities.forEach(function(fac) {
+                        if (fac.fid === selectedFacility.fid) {
+                            $scope.selectFacility(selectedFacility);
+                        }
+                    });
                 }
+                var selectedLine = Facilities.getCurrentLine();
+                if (selectedLine) {
+                    $scope.selectLine(selectedLine);
+                }
+
 
 
             }])
 
     .controller("TelemetryController",
-        ['$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData', 'APP_CONFIG', 'Machines',
-            function ($filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData, APP_CONFIG, Machines) {
+        ['$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData', 'APP_CONFIG', 'Machines', 'Facilities',
+            function ($filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData, APP_CONFIG, Machines, Facilities) {
 
                 var MAX_POINTS = 20;
 
@@ -1049,7 +1068,7 @@ angular.module('app')
                 $scope.n3options = [];
                 $scope.n3data = [];
 
-                $scope.$on('machine:selected', function (event, machine) {
+                function showTelemetry(machine) {
                     machine.telemetry.forEach(function (telemetry) {
                         $scope.n3options[telemetry.name] = {
                             warning: false,
@@ -1112,7 +1131,18 @@ angular.module('app')
                         });
                     });
 
+                }
+
+                $scope.$on('machines:selected', function (event, machine) {
+                    $scope.selectedMachine = autoSelect;
+                    showTelemetry(machine);
                 });
+
+                var autoSelect = Facilities.getCurrentMachine();
+                if (autoSelect) {
+                    $scope.selectedMachine = autoSelect;
+                    showTelemetry(autoSelect);
+                }
 
                 $scope.showHistory = function (telemetry) {
 
@@ -1121,102 +1151,105 @@ angular.module('app')
                         return;
                     }
 
-                    SensorData.getRecentData($scope.selectedMachine, telemetry, function (cbData) {
-                        $modal.open({
-                            templateUrl: 'partials/history.html',
-                            controller: 'HistoryController',
-                            size: 'lg',
-                            resolve: {
-                                machine: function () {
-                                    return $scope.selectedMachine
-                                },
-                                data: function () {
-                                    var newData = {
-                                        hasData: false,
-                                        upperLimit: telemetry.max,
-                                        lowerLimit: telemetry.min,
-                                        value: 0,
-                                        dataset0: []
-                                    };
+                    $modal.open({
+                        templateUrl: 'partials/history.html',
+                        controller: 'HistoryController',
+                        size: 'lg',
+                        resolve: {
+                            machine: function () {
+                                return $scope.selectedMachine
+                            },
+                            dataFunc: function () {
 
-                                    cbData.forEach(function (pt) {
-                                        newData.dataset0.push({
-                                            x: new Date(pt.timestamp),
-                                            val_0: pt.value
-                                        });
+                            return function(cbData) {
+                                var newData = {
+                                    hasData: true,
+                                    upperLimit: telemetry.max,
+                                    lowerLimit: telemetry.min,
+                                    value: 0,
+                                    dataset0: []
+                                };
+
+                                cbData.forEach(function (pt) {
+                                    newData.dataset0.push({
+                                        x: new Date(pt.timestamp),
+                                        val_0: pt.value
                                     });
-                                    return newData;
-                                },
-                                telemetry: function () {
-                                    return telemetry
-                                },
-                                config: function () {
-                                    return {
-                                        series: [
-                                            {
-                                                axis: "y",
-                                                dataset: "dataset0",
-                                                key: "val_0",
-                                                label: telemetry.name,
-                                                color: "#1f77b4",
-                                                type: ['area'],
-                                                id: 'mySeries0',
-                                                interpolation: {mode: "bundle", tension: 0.98}
+                                });
+                                return newData;
+                            }},
+                            telemetry: function () {
+                                return telemetry
+                            },
+                            config: function () {
+                                return {
+                                    series: [
+                                        {
+                                            axis: "y",
+                                            dataset: "dataset0",
+                                            key: "val_0",
+                                            label: telemetry.name,
+                                            color: "#1f77b4",
+                                            type: ['area'],
+                                            id: 'mySeries0',
+                                            interpolation: {mode: "bundle", tension: 0.98}
+                                        }
+                                    ],
+                                    axes: {
+                                        x: {
+                                            key: "x",
+                                            type: 'date',
+                                            tickFormat: function (value, idx) {
+                                                return ($filter('date')(value, 'medium'));
                                             }
-                                        ],
-                                        axes: {
-                                            x: {
-                                                key: "x",
-                                                type: 'date',
-                                                tickFormat: function (value, idx) {
-                                                    return ($filter('date')(value, 'medium'));
-                                                }
-                                            }
+                                        }
+                                    },
+                                    margin: {
+                                        top: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        left: 0
+                                    },
+                                    symbols: [
+                                        {
+                                            type: 'hline',
+                                            value: telemetry.min,
+                                            color: '#FF0000',
+                                            axis: 'y'
                                         },
-                                        margin: {
-                                            top: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            left: 0
-                                        },
-                                        symbols: [
-                                            {
-                                                type: 'hline',
-                                                value: telemetry.min,
-                                                color: '#FF0000',
-                                                axis: 'y'
-                                            },
-                                            {
-                                                type: 'hline',
-                                                value: telemetry.max,
-                                                color: '#FF0000',
-                                                axis: 'y'
-                                            }
+                                        {
+                                            type: 'hline',
+                                            value: telemetry.max,
+                                            color: '#FF0000',
+                                            axis: 'y'
+                                        }
 
-                                        ]
+                                    ]
 
-                                    }
                                 }
-
                             }
-                        });
 
+                        }
                     });
-
 
                 }
             }])
 
     .controller("HistoryController",
-        ['$scope', '$http', 'Notifications', 'SensorData', 'machine', 'telemetry', 'data', 'config',
-            function ($scope, $http, Notifications, SensorData, machine, telemetry, data, config) {
+        ['$scope', '$http', 'Notifications', 'SensorData', 'machine', 'telemetry', 'dataFunc', 'config',
+            function ($scope, $http, Notifications, SensorData, machine, telemetry, dataFunc, config) {
 
-                $scope.data = data;
                 $scope.telemetry = telemetry;
                 $scope.config = config;
                 $scope.machine = machine;
+                $scope.data = null;
 
-            }])
+                SensorData.getRecentData(machine, telemetry, function (cbData) {
+                    $scope.data = dataFunc(cbData);
+                });
+
+
+                }])
 
     .controller("FloorplanController",
         ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG", "Facilities",
@@ -1224,27 +1257,46 @@ angular.module('app')
 
                 $scope.selectedLine = null;
                 $scope.selectedFacility = null;
+                $scope.selectedMachine = null;
+                $scope.lines = null;
 
                 $scope.$on("lines:selected", function (evt, line) {
                     $scope.selectedLine = line;
                 });
                 $scope.$on("facilities:selected", function (evt, fac) {
                     $scope.selectedFacility = fac;
+                    $scope.lines = Facilities.getLinesForFacility(fac);
+                    $scope.selectedLine = $scope.selectedMachine = null;
+                });
+
+                $scope.$on("alert", function (evt, alert) {
+                    $scope.render($scope.selectedLine);
                 });
 
                 $scope.selectMachine = function (m) {
-                    $rootScope.$broadcast("machine:selected", m);
+                    $scope.selectedMachine = m;
+                    $rootScope.$broadcast("machines:selected", m);
+                };
+                $scope.selectLine = function (line) {
+                    $scope.selectedLine = line;
+                    $rootScope.$broadcast("lines:selected", line);
                 };
 
                 var autoSelect = Facilities.getCurrentFacility();
                 if (autoSelect) {
                     $scope.selectedFacility = autoSelect;
+                    $scope.lines = Facilities.getLinesForFacility(autoSelect);
                 }
 
                 autoSelect = Facilities.getCurrentLine();
                 if (autoSelect) {
                     $scope.selectedLine = autoSelect;
                 }
+                autoSelect = Facilities.getCurrentMachine();
+                if (autoSelect) {
+                    $scope.selectedMachine = autoSelect;
+                }
+
 
             }])
 
@@ -1258,81 +1310,172 @@ angular.module('app')
                 $scope.lineQuery = '';
                 $scope.total = 1;
                 $scope.completed = 0;
+                $scope.bizStates = [];
 
                 $scope.selectedLine = null;
                 $scope.selectedFacility = null;
 
-                $scope.config = {
-                    'chartId': "foo",
-                    'units': "Uptime",
-                    'tooltipType': 'default',
-                    'centerLabelFn': function () {
-                        return "98.6%";
-                    }
-
-                };
-                $scope.data = {
-                    'used': 98.6,
-                    'total': 100,
-                    'min': 0,
-                    'dataAvailable': true
-
-                };
-
                 var today = new Date();
                 var dates = ['dates'];
                 var yTemp = ['used'];
-                for (var d = 20 - 1; d >= 0; d--) {
-                    dates.push(new Date(today.getTime() - (d * MS_IN_DAY)));
+                for (var d = 0; d < 20; d++) {
+                    dates.push(d);
                     yTemp.push('');
                 }
 
-                var actuals = ["Retention", "Margin", "Facilities", "P/E Ratio", "Closed"];
-
-                function fill(data) {
-                    return data.map(function (v, idx) {
+                function fill(data, start, end, defl, jitter) {
+                    return data.map(function (v, idx, arr) {
                         if (idx === 0) {
                             return v;
                         } else {
-                            return 80 + Math.floor(Math.random() * 20);
+                            var val = 0;
+                            if ((idx / arr.length) > defl) {
+                                val = end + ((0-(jitter/2)) + (Math.random() * jitter));
+                            } else {
+                                val = start + ((0-(jitter/2)) + (Math.random() * jitter));
+                            }
+                            if (val > 100) {
+                                return 100;
+                            } else if (val < 0) {
+                                return 0;
+                            } else {
+                                return Math.round(val);
+                            }
                         }
                     });
                 }
 
 
-                var actuals = ["Throughput", "Uptime", "Other"];
+                var actuals = [
+                    {
+                        name: "Throughput",
+                        normal: 97,
+                        warning: 50,
+                        error: 0
+                    },
+                    {
+                        name: "Uptime",
+                        normal: 95,
+                        warning: 50,
+                        error: 0
+                    },
+                    {
+                        name: "% Pass",
+                        normal: 100,
+                        warning: 50,
+                        error: 0
+                    }
+                ];
 
-                $scope.bizStates = actuals.map(function (name) {
-                    return {
-                        config: {
-                            'chartId': name.replace(/[^A-Za-z0-9]/g, ''),
-                            'layout': 'inline',
-                            'trendLabel': name,
-                            'tooltipType': 'percentage',
-                            'valueType': 'actual'
-                        },
-                        data: {
-                            'total': '100',
-                            'xData': dates,
-                            'yData': fill(yTemp)
-
-                        }
-                    };
-                });
 
                 $scope.linealerts = [];
 
-                $scope.$on('lines:selected', function (event, line) {
-                    $scope.selectedLine = line;
+                $scope.$on('alert', function(evt, alert) {
+
+                    if (alert.fid === $scope.selectedFacility.fid &&
+                            alert.lid === $scope.selectedLine.lid) {
+                        switch (alert.type) {
+                            case 'degregdation':
+                            case 'maintenance':
+                                $scope.selectedLine.status = 'warning';
+                                break;
+                            case 'failure':
+                                $scope.selectedLine.status = 'error';
+                                break;
+                            case 'ok':
+                            default:
+                                $scope.selectedLine.status = 'ok';
+                        }
+                    }
+                });
+
+                function showLineDetails(line) {
                     $scope.total = Math.floor(500 + Math.random() * 500);
                     $scope.completed = Math.floor(Math.random() * 300);
+
+                    var warning = line.status === 'warning';
+                    var error = line.status === 'error';
+
+                    //                function fill(data, start, end, defl, jitter) {
+
+                    $scope.bizStates = actuals.map(function (actual) {
+                        return {
+                            config: {
+                                'chartId': actual.name.replace(/[^A-Za-z0-9]/g, ''),
+                                'layout': 'inline',
+                                'trendLabel': actual.name,
+                                'tooltipType': 'percentage',
+                                'valueType': 'actual'
+                            },
+                            data: {
+                                'total': '100',
+                                'xData': dates,
+                                'yData': fill(yTemp,
+                                    actual.normal,
+                                    warning ? actual.warning : (error ? actual.error : actual.normal),
+                                    (warning || error) ? .5 : 1,
+                                    10),
+                                'colors': {
+                                    used: 'red',
+                                    'yData': 'red'
+                                }
+
+                            }
+                        };
+                    });
 
                     if (intervalTimer) {
                         $interval.cancel(intervalTimer);
                     }
                     intervalTimer = $interval(function () {
-                        $scope.completed++;
+                        $scope.bizStates.forEach(function(state) {
+                            var name = state.config.trendLabel;
+                            var actual = actuals.find(function(act) {
+                                return act.name === name;
+                            });
+                            var newVal = 0;
+                            switch (line.status) {
+                                case 'ok':
+                                    newVal = actual.normal;
+                                    state.config.color = undefined;
+                                    break;
+                                case 'warning':
+                                    newVal = actual.warning;
+                                    state.config.color = {
+                                        pattern: ['orange']
+                                    };
+                                    break;
+                                case 'error':
+                                default:
+                                    state.config.color = {
+                                        pattern: ['red']
+                                    };
+                                    newVal = actual.error;
+                            }
+                            newVal = Math.round(newVal + (-5 + Math.random() * 10));
+                            if (newVal > 100) {
+                                newVal = 100;
+                            } else if (newVal < 0) {
+                                newVal = 0;
+                            }
+
+                            var latestDate = state.data.xData[state.data.xData.length - 1];
+
+                            state.data.xData.splice(1, 1);
+                            state.data.xData.push(latestDate + 1);
+                            state.data.yData.splice(1, 1);
+                            state.data.yData.push(newVal);
+                        });
+                        if (line.status !== 'error') {
+                            $scope.completed++;
+                        }
+
                     }, 10000);
+
+                }
+                $scope.$on('lines:selected', function (event, line) {
+                    $scope.selectedLine = line;
+                    showLineDetails(line);
 
                 });
 
@@ -1354,6 +1497,7 @@ angular.module('app')
                 var autoSelect = Facilities.getCurrentLine();
                 if (autoSelect) {
                     $scope.selectedLine = autoSelect;
+                    showLineDetails(autoSelect);
                 }
                 autoSelect = Facilities.getCurrentFacility();
                 if (autoSelect) {
@@ -1364,8 +1508,19 @@ angular.module('app')
     .controller("CalEntryController",
         ['$rootScope', '$scope', 'entry',
             function ($rootScope, $scope, entry) {
+                if (entry.details) {
+                    try {
+                        entry.details = JSON.parse(entry.details);
+                    } catch (ignored) {
 
+                    }
+                }
                 $scope.entry = entry;
+
+                $scope.completeTask = function(task) {
+                    $scope.$close();
+                    task.title += " (COMPLETED)";
+                }
             }])
 
 
@@ -1397,22 +1552,65 @@ angular.module('app')
                 }
 
             }])
+    .controller("TasklistController",
+        ['$rootScope', '$scope', '$http', '$modal', 'Notifications', "SensorData", "Facilities",
+            function ($rootScope, $scope, $http, $modal, Notifications, SensorData, Facilities) {
+
+                $scope.selectedFacility = null;
+                $scope.facilities = Facilities.getFacilities();
+
+                $scope.$on('facilities:selected', function (event, fac) {
+                    $scope.selectedFacility = fac;
+                });
+
+                $scope.selectFacility = function(fac) {
+                    $scope.selectedFacility = fac;
+                    $rootScope.$broadcast("facilities:selected", fac);
+                };
+
+                $scope.eventPopup = function (cal) {
+                    $modal.open({
+                        templateUrl: 'partials/calentry.html',
+                        controller: 'CalEntryController',
+                        size: 'md',
+                        resolve: {
+                            entry: function () {
+                                return cal;
+                            }
+                        }
+                    });
+                };
+
+                var autoSelect = Facilities.getCurrentFacility();
+                if (autoSelect) {
+                    $scope.selectedFacility = autoSelect;
+                }
+
+            }])
 
     .controller("HeaderController",
         ['$scope', '$window', '$location', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Reports',
             function ($scope, $window, $location, $timeout, $http, APP_CONFIG, Notifications, SensorData, Reports) {
 
                 $scope.predictiveMaintenanceColor = 'orange';
-                $scope.unpredictedErrorColor = 'green';
+                $scope.unpredictedErrorColor = 'red';
+
+                $scope.selectedFacility = null;
+                $scope.selectedLine = null;
+                $scope.selectedMachine = null;
 
                 $scope.headerTitle = $window.document.title = APP_CONFIG.DASHBOARD_WEB_TITLE;
 
-                $scope.$on('lines:selected', function (evt, veh) {
-                    $scope.veh = veh;
+                $scope.$on('lines:selected', function (evt, line) {
+                    $scope.selectedLine = line;
                 });
-                $scope.$on('package:selected', function (evt, pkg) {
-                    $scope.machine = pkg;
+                $scope.$on('facilities:selected', function (evt, fac) {
+                    $scope.selectedFacility = fac;
                 });
+                $scope.$on('machines:selected', function (evt, mac) {
+                    $scope.selectedMachine = mac;
+                });
+
                 $scope.userInfo = {
                     fullName: "Mary Q. Operator"
                 };
@@ -1436,29 +1634,29 @@ angular.module('app')
                         Notifications.error("Error resetting. Reload to retry");
                     });
                 };
-                $scope.shipmentCount = Reports.getShipCount();
-
-                $scope.$watch(function () {
-                    return Reports.getShipCount();
-                }, function (newVal, oldVal) {
-                    $scope.shipmentCount = newVal;
-                });
-
 
                 $scope.predictiveMaintenance = function () {
+                    if (!$scope.selectedFacility || !$scope.selectedLine || !$scope.selectedMachine) {
+                        Notifications.error("You must select a facility, line and machine to simulate");
+                        return;
+                    }
                     $scope.predictiveMaintenanceColor = 'gray';
                     $timeout(function () {
                         $scope.predictiveMaintenanceColor = 'orange';
                     }, 1000);
-                    SensorData.predictiveMaintenance();
+                    SensorData.predictiveMaintenance($scope.selectedFacility, $scope.selectedLine, $scope.selectedMachine);
                 };
 
                 $scope.unpredictedError = function () {
+                    if (!$scope.selectedFacility || !$scope.selectedLine || !$scope.selectedMachine) {
+                        Notifications.error("You must select a facility, line and machine to simulate");
+                        return;
+                    }
                     $scope.unpredictedErrorColor = 'gray';
                     $timeout(function () {
-                        $scope.unpredictedErrorColor = 'green';
+                        $scope.unpredictedErrorColor = 'red';
                     }, 1000);
-                    SensorData.unpredictedError();
+                    SensorData.unpredictedError($scope.selectedFacility, $scope.selectedLine, $scope.selectedMachine);
                 };
 
             }])

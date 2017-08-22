@@ -29,7 +29,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A simple REST service which proxies requests to a local datagrid.
@@ -64,8 +63,6 @@ public class FacilitiesEndpoint {
 
         Map<String, Line> cache = dgService.getProductionLines();
 
-        Facility f = dgService.getFacilities().get(facilityId);
-
         return cache.keySet().stream()
                 .map(cache::get)
                 .map(Line::getCurrentRun)
@@ -87,23 +84,35 @@ public class FacilitiesEndpoint {
     }
 
     @GET
-    @Path("/calendar/{fid}")
+    @Path("/calendar/{fid}/{type}")
     @Produces({"application/json"})
-    public List<CalEntry> cal(@PathParam("fid") String fid, @QueryParam("start") String start, @QueryParam("end") String end) {
+    public List<CalEntry> cal(@PathParam("fid") String fid, @PathParam("type") String type, @QueryParam("start") String start, @QueryParam("end") String end) {
 
 
         LocalDateTime startObj = LocalDate.parse(start, DateTimeFormatter.ISO_DATE).atStartOfDay();
         LocalDateTime endObj = LocalDate.parse(end, DateTimeFormatter.ISO_DATE).atStartOfDay();
 
-        Date startDate = new Date (startObj.toInstant(ZoneOffset.UTC).toEpochMilli());
-        Date endDate = new Date (endObj.toInstant(ZoneOffset.UTC).toEpochMilli());
+        Date startDate = new Date (startObj.toInstant(ZoneOffset.UTC).toEpochMilli() - 24 * 60 * 60 * 1000);
+        Date endDate = new Date (endObj.toInstant(ZoneOffset.UTC).toEpochMilli()  + 24 * 60 * 60 * 1000);
 
         Map<String, CalEntry> cache = dgService.getCalendar();
 
         return cache.keySet().stream()
                 .map(cache::get).filter(calEntry -> calEntry.getFacility().getFid().equals(fid) &&
-                        calEntry.getStart().after(startDate) && calEntry.getEnd().before(endDate))
+                        calEntry.getStart().after(startDate) && calEntry.getEnd().before(endDate) &&
+                        ("all".equals(type) || calEntry.getType().equals(type)))
                 .collect(Collectors.toList());
+    }
+
+    @POST
+    @Path("/calendar")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    public void addEntry(CalEntry entry) {
+        Map<String, CalEntry> calendarCache = dgService.getCalendar();
+
+        calendarCache.put(UUID.randomUUID().toString(), entry);
+
     }
 
 
