@@ -49,14 +49,15 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                 var imgs = svg.selectAll("image").data([0]);
                 imgs.enter()
                     .append("svg:image")
-                    .attr("width", "100%")
+                    .attr("width", 600)
+                    .attr("height", 600)
                     .attr("xlink:href", "/app/imgs/floorplan.jpg");
 
                 var rects = [
                     // left side
                     {
                         "x": "35%",
-                        "y": "1.5%",
+                        "y": "4.5%",
                         "rx": "8",
                         "ry": "8",
                         "width": "8%",
@@ -66,7 +67,7 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     },
                     {
                         "x": "25%",
-                        "y": "22%",
+                        "y": "25%",
                         "rx": "8",
                         "ry": "8",
                         "width": "20%",
@@ -76,7 +77,7 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     },
                     {
                         "x": "25%",
-                        "y": "43%",
+                        "y": "46%",
                         "rx": "8",
                         "ry": "8",
                         "width": "20%",
@@ -86,7 +87,7 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     },
                     {
                         "x": "24%",
-                        "y": "69%",
+                        "y": "72%",
                         "rx": "8",
                         "ry": "8",
                         "width": "9%",
@@ -97,7 +98,7 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     // right side
                     {
                         "x": "59%",
-                        "y": "1.5%",
+                        "y": "4.5%",
                         "rx": "8",
                         "ry": "8",
                         "width": "8%",
@@ -107,7 +108,7 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     },
                     {
                         "x": "49%",
-                        "y": "22%",
+                        "y": "25%",
                         "rx": "8",
                         "ry": "8",
                         "width": "20%",
@@ -117,7 +118,7 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     },
                     {
                         "x": "49%",
-                        "y": "43%",
+                        "y": "46%",
                         "rx": "8",
                         "ry": "8",
                         "width": "20%",
@@ -127,7 +128,7 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     },
                     {
                         "x": "62%",
-                        "y": "69%",
+                        "y": "72%",
                         "rx": "8",
                         "ry": "8",
                         "width": "9%",
@@ -149,9 +150,9 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
 
                     svg.append("line")
                         .attr("x1", "35%")
-                        .attr("y1", "10%")
+                        .attr("y1", "13%")
                         .attr("x2", "2%")
-                        .attr("y2", "10%")
+                        .attr("y2", "13%")
                         .attr("stroke", "green")
                         .attr("stroke-width", 5)
                         .style("stroke-dasharray", 10)
@@ -161,9 +162,9 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
 
                     svg.append("line")
                         .attr("x1", "55%")
-                        .attr("y1", "10%")
+                        .attr("y1", "13%")
                         .attr("x2", "98%")
-                        .attr("y2", "10%")
+                        .attr("y2", "13%")
                         .attr("stroke", "green")
                         .attr("stroke-width", 5)
                         .style("stroke-dasharray", 10)

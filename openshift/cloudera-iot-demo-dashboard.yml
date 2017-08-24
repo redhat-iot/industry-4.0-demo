@@ -82,7 +82,7 @@ parameters:
   required: false
 - description: Displayed title of web dashboard
   name: DASHBOARD_WEB_TITLE
-  value: "Red Hat + Cloudera IoT Industry 4.0 Demo"
+  value: "IoT Industry 4.0 Demo"
   required: true
 - description: Cloudera Impala service hostname
   name: IMPALA_HOST
