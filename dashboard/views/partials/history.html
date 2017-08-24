@@ -13,11 +13,13 @@
 <div class="modal-header">
     <button type="button" class="close" ng-click="$close()" aria-label="Close"><span aria-hidden="true">&times;</span>
     </button>
-    <h2 class="modal-title">Telemetry History</h2>
+    <h1 class="modal-title">Telemetry History for metric:<code>{{telemetry.name}}</code>({{machine.mid}} - {{machine.desc}})</h1>
 </div>
 <div class="modal-body">
-    <em>{{telemetry.name}} - {{machine.desc}} - {{machine.customer.name}}</em>
-    <div style="height: 400px">
+    <div  style="padding: 10% 0;" ng-if="!data" >
+        <div  class="spinner spinner-lg"></div>
+    </div>
+    <div ng-if="data" style="height: 400px">
         <linechart  data="data" options="config"></linechart>
     </div>
 </div>
