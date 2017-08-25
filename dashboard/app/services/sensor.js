@@ -20,15 +20,15 @@
 
 angular.module('app')
 
-    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Facilities', 'Notifications', 'Reports',
-        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Facilities, Notifications, Reports) {
+    .factory('SensorData', ['$http', '$modal', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Facilities', 'Notifications', 'Reports',
+        function ($http, $modal, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Facilities, Notifications, Reports) {
             var factory = {},
                 client = null,
                 msgproto = null,
                 listeners = [],
-                topicRegex = /[^\/]*\/[^\/]*\/[^\/]*\/facilities\/([^\/]*)\/lines\/([^\/]*)\/machines\/([^\/]*)$/,
+                telemetryRegex = /[^\/]*\/[^\/]*\/[^\/]*\/facilities\/([^\/]*)\/lines\/([^\/]*)\/machines\/([^\/]*)$/,
                 alertTopicRegex = /[^\/]*\/[^\/]*\/[^\/]*\/facilities\/([^\/]*)\/lines\/([^\/]*)\/machines\/([^\/]*)\/alerts$/,
-                metricOverrides = {};
+                controlTopicPrefix = APP_CONFIG.CONTROL_TOPIC_PREFIX;
 
             // Set the name of the hidden property and the change event for visibility
             var hidden, visibilityChange;
@@ -75,40 +75,81 @@ angular.module('app')
                 }
             }
 
+            function sendJSONObjectMsg(jsonObj, topic) {
+                var message = new Paho.MQTT.Message(JSON.stringify(jsonObj));
+                message.destinationName = topic;
+                client.send(message);
+
+            }
+
+            function sendKuraMsg(kuraObj, topic) {
+                var payload = msgproto.encode(kuraObj).finish();
+                var message = new Paho.MQTT.Message(payload);
+                message.destinationName = topic;
+                client.send(message);
+
+            }
+
             function handleAlert(destination, alertObj) {
 
-                console.log("handleAlert: " + JSON.stringify(alertObj));
+                var matches = alertTopicRegex.exec(destination);
+                var fid = matches[1];
+                var lid = matches[2];
+                var mid = matches[3];
+
                     Facilities.getFacilities().forEach(function(facility) {
                         facility.lines.forEach(function(line) {
                             line.machines.forEach(function(machine) {
+
                                 switch (alertObj.type) {
-                                    case 'degradation':
                                     case 'maintenance':
-                                        if (alertObj.fid === facility.fid &&
-                                        alertObj.mid === machine.mid &&
-                                        alertObj.lid === line.lid) {
-                                            facility.status = 'warning';
-                                            line.status = 'warning';
-                                            machine.status = 'warning';
+                                        if (fid === facility.fid &&
+                                            mid === machine.mid &&
+                                            lid === line.lid) {
+                                            alertObj.machine = machine;
+                                            alertObj.line = line;
+                                            alertObj.facility = facility;
+                                            $rootScope.$broadcast("alert", alertObj);
                                         }
                                         break;
-                                    case 'failure':
-                                        if (alertObj.fid === facility.fid &&
-                                            alertObj.mid === machine.mid &&
-                                            alertObj.lid === line.lid) {
+                                    case 'error':
+                                        if (fid === facility.fid &&
+                                            mid === machine.mid &&
+                                            lid === line.lid) {
                                             facility.status = 'error';
                                             line.status = 'error';
                                             machine.status = 'error';
+                                            alertObj.machine = machine;
+                                            alertObj.line = line;
+                                            alertObj.facility = facility;
+                                            $rootScope.$broadcast("alert", alertObj);
+                                        }
+                                        break;
+                                    case 'warning':
+                                        if (fid === facility.fid &&
+                                            mid === machine.mid &&
+                                            lid === line.lid) {
+                                            facility.status = 'warning';
+                                            line.status = 'warning';
+                                            machine.status = 'warning';
+                                            alertObj.machine = machine;
+                                            alertObj.line = line;
+                                            alertObj.facility = facility;
+                                            $rootScope.$broadcast("alert", alertObj);
                                         }
                                         break;
                                     case 'ok':
                                     default:
-                                        if (alertObj.fid === facility.fid &&
-                                            alertObj.mid === machine.mid &&
-                                            alertObj.lid === line.lid) {
+                                        if (fid === facility.fid &&
+                                            mid === machine.mid &&
+                                            lid === line.lid) {
                                             facility.status = 'ok';
                                             line.status = 'ok';
                                             machine.status = 'ok';
+                                            alertObj.machine = machine;
+                                            alertObj.line = line;
+                                            alertObj.facility = facility;
+                                            $rootScope.$broadcast("alert", alertObj);
                                         }
                                 }
 
@@ -118,6 +159,22 @@ angular.module('app')
 
             }
 
+            $rootScope.$on('alert', function(evt, alertObj) {
+
+                if (alertObj.type === 'maintenance' || alertObj.type === 'error') {
+                    $modal.open({
+                        templateUrl: 'partials/alert.html',
+                        controller: 'AlertController',
+                        size: 'lg',
+                        resolve: {
+                            alertObj: function () {
+                                return alertObj;
+                            }
+                        }
+                    });
+                }
+            });
+
             function onMessageArrived(message) {
                 var destination = message.destinationName;
 
@@ -126,7 +183,7 @@ angular.module('app')
                 } else {
                     var payload = message.payloadBytes;
                     var decoded = msgproto.decode(payload);
-                    var matches = topicRegex.exec(destination);
+                    var matches = telemetryRegex.exec(destination);
                     var fid = matches[1];
                     var lid = matches[2];
                     var mid = matches[3];
@@ -158,6 +215,38 @@ angular.module('app')
                 }
             }
 
+            factory.resetStatus = function(facility) {
+                var msg = {
+                    id: guid(),
+                    timestamp: new Date().getTime(),
+                    command: 'reset'
+                };
+
+                facility.status = 'ok';
+
+                Facilities.getLinesForFacility(facility).forEach(function(line) {
+                    line.status = 'ok';
+                    line.machines.forEach(function(machine) {
+                        machine.status = 'ok';
+                        sendJSONObjectMsg(msg,
+                            APP_CONFIG.CONTROL_TOPIC_PREFIX +
+                            "/facilities/" + facility.fid +
+                            "/lines/" + line.lid +
+                            "/machines/" + machine.mid +
+                            "/control");
+                    });
+                });
+
+                Facilities.resetStatus(facility);
+            };
+
+            $rootScope.$on('resetAll', function() {
+
+                Facilities.getFacilities().forEach(function(facility) {
+                    factory.resetStatus(facility);
+                });
+            });
+
             function connectClient(attempt) {
 
                 var MAX_ATTEMPTS = 100;
@@ -170,13 +259,10 @@ angular.module('app')
                 if (attempt > 1) {
                     Notifications.warn("Trouble connecting to broker, will keep trying (reload to re-start the count)");
                 }
-                var brokerHostname = APP_CONFIG.BROKER_WEBSOCKET_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g, "$1");
+                var brokerHostname = APP_CONFIG.BROKER_HOSTNAME;
+                var brokerPort = APP_CONFIG.BROKER_WS_PORT;
 
-                // TODO: delete me
-                if (APP_CONFIG.BROKER_WEBSOCKET_HOSTNAME_OVERRIDE) {
-                    brokerHostname = APP_CONFIG.BROKER_WEBSOCKET_HOSTNAME_OVERRIDE;
-                }
-                client = new Paho.MQTT.Client(brokerHostname, Number(APP_CONFIG.BROKER_WEBSOCKET_PORT), "demo-client-" + guid());
+                client = new Paho.MQTT.Client(brokerHostname, Number(brokerPort), "dashboard-ui-client-" + guid());
 
                 client.onConnectionLost = onConnectionLost;
                 client.onMessageArrived = onMessageArrived;
@@ -219,8 +305,6 @@ angular.module('app')
             }
 
             factory.subscribeMachine = function (machine, listener) {
-
-                // Red-Hat/simulator-1/cloudera-demo/facilities/facility-1/lines/line-1/machines/machine-2
 
                 var topicName = '+/+/+/facilities/' +
                     machine.currentFid + '/lines/' + machine.currentLid + '/machines/' + machine.mid;
@@ -283,21 +367,6 @@ angular.module('app')
                 });
             };
 
-            function sendJSONObjectMsg(jsonObj, topic) {
-                var message = new Paho.MQTT.Message(JSON.stringify(jsonObj));
-                message.destinationName = topic;
-                client.send(message);
-
-            }
-
-            function sendKuraMsg(kuraObj, topic) {
-                var payload = msgproto.encode(kuraObj).finish();
-                var message = new Paho.MQTT.Message(payload);
-                message.destinationName = topic;
-                client.send(message);
-
-            }
-
             factory.genTrend = function (min, max, numPoints, initial, final, deflection, jitter) {
 
                 var result = [], diff = max - min, halfJitter = diff * jitter;
@@ -325,64 +394,33 @@ angular.module('app')
 
             factory.predictiveMaintenance = function (facility, line, machine) {
 
-                var MS_IN_HOUR = 60 * 60 * 1000;
-
-                var deg = {
-                    fid: facility.fid,
-                    lid: line.lid,
-                    mid: machine.mid,
-                    type: 'degradation',
-                    date: new Date().getTime(),
-                    payload: {
-                        desc: "Telemetry indicating problem",
-                        telemetry: 'noise'
-                    }
+                var msg = {
+                    id: guid(),
+                    timestamp: new Date().getTime(),
+                    command: 'simulate_maintenance_required'
                 };
-
-
-                handleAlert("foo", deg);
-                $rootScope.$broadcast("alert", deg);
-
-                $timeout(function() {
-                    var maint = {
-                        fid: facility.fid,
-                        lid: line.lid,
-                        mid: machine.mid,
-                        type: 'maintenance',
-                        date: new Date().getTime(),
-                        payload: {
-                            desc: "Predictive Maintenance scheduled",
-                            date: new Date().getTime() + (4 * MS_IN_HOUR),
-                            duration: 2 * MS_IN_HOUR
-                        }
-                    };
-
-                    handleAlert("foo", maint);
-                    $rootScope.$broadcast("alert", maint);
-                }, 5000);
-
-
-              //  sendJSONObjectMsg(msg, 'Red-Hat/cloudera-demo/alerts');
+                sendJSONObjectMsg(msg,
+                    APP_CONFIG.CONTROL_TOPIC_PREFIX +
+                    "/facilities/" + facility.fid +
+                    "/lines/" + line.lid +
+                    "/machines/" + machine.mid +
+                    "/control");
 
             };
 
             factory.unpredictedError = function (facility, line, machine) {
                 var msg = {
-                    fid: facility.fid,
-                    lid: line.lid,
-                    mid: machine.mid,
-                    type: 'failure',
-                    date: new Date().getTime(),
-                    payload: {
-                        desc: "Machine 2 shut down due to imminent safety hazard",
-                        date: new Date().getTime()
-                    }
+                    id: guid(),
+                    timestamp: new Date().getTime(),
+                    command: 'simulate_safety_hazard'
                 };
+                sendJSONObjectMsg(msg,
+                    APP_CONFIG.CONTROL_TOPIC_PREFIX +
+                    "/facilities/" + facility.fid +
+                    "/lines/" + line.lid +
+                    "/machines/" + machine.mid +
+                    "/control");
 
-                handleAlert("foo", msg);
-                $rootScope.$broadcast("alert", msg);
-
-               // sendJSONObjectMsg(msg, 'Red-Hat/cloudera-demo/alerts');
             };
 
             connectClient(1);

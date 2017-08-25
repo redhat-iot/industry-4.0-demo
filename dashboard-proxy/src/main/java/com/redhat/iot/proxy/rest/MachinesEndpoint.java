@@ -45,28 +45,6 @@ public class MachinesEndpoint {
     DataSource dataSource;
 
     @GET
-    @Path("/")
-    @Produces({"application/json"})
-    public List<Machine> getAll() {
-        Map<String, Machine> cache = dgService.getMachines();
-        return cache.keySet().stream()
-                .map(cache::get)
-                .collect(Collectors.toList());
-
-    }
-
-    @GET
-    @Path("/{lid}")
-    @Produces({"application/json"})
-    public List<Machine> getByLine(@PathParam("lid") String lid) {
-
-        Map<String, Line> lineCache = dgService.getProductionLines();
-
-        return lineCache.get(lid).getMachines();
-    }
-
-
-    @GET
     @Path("/history/query")
     @Produces({"application/json"})
     public List<Point> getHistory(@QueryParam("topic") String topic, @QueryParam("metric") String metric) throws SQLException {

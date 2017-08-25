@@ -1026,8 +1026,8 @@ angular.module('app')
             }])
 
     .controller("TelemetryController",
-        ['$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData', 'APP_CONFIG', 'Machines', 'Facilities',
-            function ($filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData, APP_CONFIG, Machines, Facilities) {
+        ['$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData', 'APP_CONFIG', 'Facilities',
+            function ($filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData, APP_CONFIG, Facilities) {
 
                 var MAX_POINTS = 20;
 
@@ -1249,7 +1249,16 @@ angular.module('app')
                 });
 
 
-                }])
+            }])
+
+    .controller("AlertController",
+        ['$scope', '$http', 'Notifications', 'alertObj',
+            function ($scope, $http, Notifications, alertObj) {
+
+                $scope.alertObj = alertObj;
+
+
+            }])
 
     .controller("FloorplanController",
         ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG", "Facilities",
@@ -1301,8 +1310,8 @@ angular.module('app')
             }])
 
     .controller("LineDetailsController",
-        ['$rootScope', '$scope', '$interval', '$http', 'Notifications', "SensorData", "Machines", "Facilities",
-            function ($rootScope, $scope, $interval, $http, Notifications, SensorData, Machines, Facilities) {
+        ['$rootScope', '$scope', '$interval', '$http', 'Notifications', "SensorData", "Facilities",
+            function ($rootScope, $scope, $interval, $http, Notifications, SensorData, Facilities) {
 
                 var MS_IN_DAY = 24 * 60 * 60 * 1000;
                 var intervalTimer = null;
@@ -1506,8 +1515,10 @@ angular.module('app')
             }])
 
     .controller("CalEntryController",
-        ['$rootScope', '$scope', 'entry',
-            function ($rootScope, $scope, entry) {
+        ['$rootScope', '$scope', 'entry', 'SensorData',
+            function ($rootScope, $scope, entry, SensorData) {
+
+                $scope.entry = entry;
                 if (entry.details) {
                     try {
                         entry.details = JSON.parse(entry.details);
@@ -1515,11 +1526,10 @@ angular.module('app')
 
                     }
                 }
-                $scope.entry = entry;
 
-                $scope.completeTask = function(task) {
+                $scope.completeTask = function() {
                     $scope.$close();
-                    task.title += " (COMPLETED)";
+                    SensorData.resetStatus($scope.entry.facility);
                 }
             }])
 

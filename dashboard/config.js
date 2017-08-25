@@ -15,13 +15,10 @@
 var config =
 {
     // hostname/port/name/password for Kapua broker
-    BROKER_WEBSOCKET_HOSTNAME: process.env.BROKER_WS_NAME + '-' + process.env.OPENSHIFT_BUILD_NAMESPACE,
-    BROKER_WEBSOCKET_PORT: process.env.BROKER_WEBSOCKET_PORT || 80,
+    BROKER_HOSTNAME: process.env.BROKER_HOSTNAME,
+    BROKER_WS_PORT: process.env.BROKER_WS_PORT || 80,
     BROKER_USERNAME: process.env.BROKER_USERNAME || "demo_username",
     BROKER_PASSWORD: process.env.BROKER_PASSWORD || "demo_password",
-
-    // TODO: DELETE ME!!
-    BROKER_WEBSOCKET_HOSTNAME_OVERRIDE: process.env.BROKER_WEBSOCKET_HOSTNAME_OVERRIDE || '',
 
     // hostname/port for DG proxy (no username/password required for demo)
     DASHBOARD_PROXY_HOSTNAME: process.env.DASHBOARD_PROXY_SERVICE + '-' + process.env.OPENSHIFT_BUILD_NAMESPACE,
@@ -31,6 +28,7 @@ var config =
     GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || "",
 
     STATIC_TELEMETRY_GRAPHS: process.env.STATIC_TELEMETRY_GRAPHS || '',
+    CONTROL_TOPIC_PREFIX: process.env.CONTROL_TOPIC_PREFIX || '',
     DASHBOARD_WEB_TITLE: process.env.DASHBOARD_WEB_TITLE || ''
 };
 

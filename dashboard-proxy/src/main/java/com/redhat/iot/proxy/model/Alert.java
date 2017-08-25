@@ -20,21 +20,30 @@ import java.util.Date;
 @XmlRootElement(name="alert")
 public class Alert {
     private Date date;
-    private String from;
+    private String id;
     private String desc;
-    private String message;
+    private String details;
     private String type;
     private Line line;
     private Machine machine;
+    private Facility facility;
 
-    public Alert(Date date, String from, String desc, String message, String type, Line line, Machine machine) {
+    public Alert(Date date, String id, String desc, String details, String type, Line line, Machine machine) {
         this.date = date;
-        this.from = from;
+        this.id = id;
         this.desc = desc;
-        this.message = message;
+        this.details = details;
         this.type = type;
         this.line = line;
         this.machine = machine;
+    }
+
+    public Facility getFacility() {
+        return facility;
+    }
+
+    public void setFacility(Facility facility) {
+        this.facility = facility;
     }
 
     public Date getDate() {
@@ -45,12 +54,12 @@ public class Alert {
         this.date = date;
     }
 
-    public String getFrom() {
-        return from;
+    public String getId() {
+        return id;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getDesc() {
@@ -61,12 +70,12 @@ public class Alert {
         this.desc = desc;
     }
 
-    public String getMessage() {
-        return message;
+    public String getDetails() {
+        return details;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setDetails(String details) {
+        this.details = details;
     }
 
     public String getType() {

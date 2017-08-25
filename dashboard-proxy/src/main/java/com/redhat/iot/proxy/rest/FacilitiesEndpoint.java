@@ -18,6 +18,7 @@ import com.redhat.iot.proxy.model.CalEntry;
 import com.redhat.iot.proxy.model.Facility;
 import com.redhat.iot.proxy.model.Line;
 import com.redhat.iot.proxy.model.Run;
+import com.redhat.iot.proxy.service.AlertsService;
 import com.redhat.iot.proxy.service.DGService;
 
 import javax.inject.Inject;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +43,8 @@ public class FacilitiesEndpoint {
     @Inject
     DGService dgService;
 
+    private static final Logger log = Logger.getLogger(FacilitiesEndpoint.class.getName());
+
     @GET
     @Path("/top/{count}")
     @Produces({"application/json"})
@@ -50,9 +54,9 @@ public class FacilitiesEndpoint {
 
 
         return cache.keySet().stream()
-            .map(cache::get).sorted(Comparator.comparingDouble(Facility::getUtilization))
+                .map(cache::get).sorted(Comparator.comparingDouble(Facility::getUtilization))
                 .limit(count)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
     }
 
@@ -92,8 +96,8 @@ public class FacilitiesEndpoint {
         LocalDateTime startObj = LocalDate.parse(start, DateTimeFormatter.ISO_DATE).atStartOfDay();
         LocalDateTime endObj = LocalDate.parse(end, DateTimeFormatter.ISO_DATE).atStartOfDay();
 
-        Date startDate = new Date (startObj.toInstant(ZoneOffset.UTC).toEpochMilli() - 24 * 60 * 60 * 1000);
-        Date endDate = new Date (endObj.toInstant(ZoneOffset.UTC).toEpochMilli()  + 24 * 60 * 60 * 1000);
+        Date startDate = new Date(startObj.toInstant(ZoneOffset.UTC).toEpochMilli() - 24 * 60 * 60 * 1000);
+        Date endDate = new Date(endObj.toInstant(ZoneOffset.UTC).toEpochMilli() + 24 * 60 * 60 * 1000);
 
         Map<String, CalEntry> cache = dgService.getCalendar();
 
@@ -115,6 +119,29 @@ public class FacilitiesEndpoint {
 
     }
 
+    @POST
+    @Path("/{fid}/resetStatus")
+    @Produces({"application/json"})
+    public void resetStatus(@PathParam("fid") String fid) {
+        log.info("Resetting status of " + fid);
+        Facility facility = dgService.getFacilities().get(fid);
+        if (facility == null) {
+            throw new IllegalArgumentException("facility " + fid + " not found");
+        }
+
+        facility.getLines().forEach(line -> {
+            line.setStatus("ok");
+            dgService.getProductionLines().put(fid + "/" + line.getLid(), line);
+            line.getMachines().forEach(machine -> {
+                machine.setStatus("ok");
+                dgService.getMachines().put(fid + "/" + line.getLid() + "/" + machine.getMid(), machine);
+            });
+        });
+
+        dgService.getFacilities().put(fid, facility);
+
+
+    }
 
 }
 

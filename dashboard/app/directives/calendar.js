@@ -32,6 +32,68 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
 
                 var calEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/facilities/calendar';
 
+                // handleAlert: {"id":"foo","description":"the dest","timestamp":1503599719963,"type":"maintenance","details":{"reason":"the reason","start":1503599719963,"end":1503599719963}}
+
+                scope.$on('alert', function (evt, alert) {
+                    if (alert.type === 'maintenance') {
+                        $('#fullcalendar').fullCalendar('addEventSource',
+                            {
+                                events: [
+                                    {
+                                        type: alert.type,
+                                        title: alert.description,
+                                        start: alert.details.start,
+                                        end: alert.details.end,
+                                        color: '#cc0000',
+                                        details: {
+                                            desc: alert.details.reason,
+                                            links: [
+                                                {
+                                                    name: "Installation Guide",
+                                                    link: "http://redhat.com"
+                                                },
+                                                {
+                                                    name: "Repair Guide",
+                                                    link: "http://developers.redhat.com"
+                                                }
+                                            ]
+                                        },
+                                        facility: alert.facility
+                                    }
+                                ]
+                            }
+                        );
+                    } else if (alert.type === 'error') {
+                        $('#fullcalendar').fullCalendar('addEventSource',
+                            {
+                                events: [
+                                    {
+                                        type: 'maintenance',
+                                        title: alert.description,
+                                        start: new Date().getTime(),
+                                        end: new Date().getTime() + (60 * 60 * 1000),
+                                        color: 'red',
+                                        details: {
+                                            desc: alert.details.reason,
+                                            links: [
+                                                {
+                                                    name: "Installation Guide",
+                                                    link: "http://redhat.com"
+                                                },
+                                                {
+                                                    name: "Repair Guide",
+                                                    link: "http://developers.redhat.com"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            });
+
+                    }
+
+                });
+
                 scope.$watch('selectedFacility', function () {
                     if (!scope.selectedFacility) {
                         return;

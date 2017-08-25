@@ -46,12 +46,24 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     .attr("viewBox", "0 0 600 600")
                     .call(tip);
 
-                var imgs = svg.selectAll("image").data([0]);
-                imgs.enter()
-                    .append("svg:image")
+
+                svg.append("svg:image")
                     .attr("width", 600)
                     .attr("height", 600)
                     .attr("xlink:href", "/app/imgs/floorplan.jpg");
+
+                svg.append("defs")
+                    .append("pattern")
+                    .attr("id", "fire")
+                    .attr('patternUnits', 'objectBoundingBox')
+                    .attr("width", 1)
+                    .attr("height", 1)
+                    .append("image")
+                    .attr("xlink:href", "/app/imgs/fire.png")
+                    .attr("width", 50)
+                    .attr("height", 71)
+                    .attr("x", 25)
+                    .attr("y", 25);
 
                 var rects = [
                     // left side
@@ -153,11 +165,11 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                         .attr("y1", "13%")
                         .attr("x2", "2%")
                         .attr("y2", "13%")
-                        .attr("stroke", "green")
+                        .attr("stroke", (line.status === 'error' ? 'red' : 'green'))
                         .attr("stroke-width", 5)
                         .style("stroke-dasharray", 10)
                         .style("stroke-dashoffset", 2)
-                        .style("animation", "dash 20s linear")
+                        .style("animation", (line.status === 'error' ? 'none' : "dash 20s linear"))
                         .style("animation-iteration-count", "infinite");
 
                     svg.append("line")
@@ -165,11 +177,11 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                         .attr("y1", "13%")
                         .attr("x2", "98%")
                         .attr("y2", "13%")
-                        .attr("stroke", "green")
+                        .attr("stroke", (line.status === 'error' ? 'red' : 'green'))
                         .attr("stroke-width", 5)
                         .style("stroke-dasharray", 10)
                         .style("stroke-dashoffset", 2)
-                        .style("animation", "dash 20s linear")
+                        .style("animation", (line.status === 'error' ? 'none' : "dash 20s linear"))
                         .style("animation-iteration-count", "infinite");
 
 
@@ -193,6 +205,10 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     }
 
                     rectObjs.enter().append("rect")
+                        .attr("fill", function(d) {
+                            if (d.status === 'error') {
+                            }
+                        })
                         .attr("stroke-width", function (d) {
                             return isSelected(d) ? 3 : 0;
                         })
@@ -218,23 +234,41 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                             return rects[i].height
                         })
                         .attr("fill", function (d, i) {
-                            switch (d.status) {
-                                case 'ok':
-                                    return 'green';
-                                    break;
-                                case 'warning':
+                            if (line.status === 'error') {
+                                if (d.status === 'error') {
+                                    return 'url(#fire)';
+                                } else {
                                     return 'yellow';
-                                    break;
-                                case 'error':
-                                default:
-                                    return 'red';
+                                }
+                            } else {
+                                switch (d.status) {
+                                    case 'ok':
+                                        return 'green';
+                                        break;
+                                    case 'warning':
+                                        return 'yellow';
+                                        break;
+                                    case 'error':
+                                    default:
+                                        return 'red';
+                                }
                             }
                         })
                         .attr("fill-opacity", function (d, i) {
-                            return rects[i]["fill-opacity"];
+                            if (d.status === 'error') {
+                                return 1;
+                            } else {
+                                return rects[i]["fill-opacity"];
+                            }
                         })
+
                         .on('mouseover', function (d, i) {
                             var target = d3.event.target;
+                            d3.select(this)
+                                .attr("fill-opacity", function(d) {
+                                    return d3.select(this).attr("fill-opacity") * 1.2;
+                                });
+
                             $templateRequest('partials/machine-popup.html').then(function (partial) {
                                 var tmpScope = $rootScope.$new();
                                 tmpScope.machine = d;
@@ -265,6 +299,10 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
 
                         })
                         .on('mouseout', function (d) {
+                            d3.select(this)
+                                .attr("fill-opacity", function(d) {
+                                    return d3.select(this).attr("fill-opacity") / 1.2;
+                                });
                             if (timer) {
                                 $timeout.cancel(timer);
                                 timer = null;
@@ -286,6 +324,9 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                 };
 
                 scope.$watch('selectedLine', function () {
+                    scope.render(scope.selectedLine);
+                });
+                scope.$watch('selectedLine.status', function () {
                     scope.render(scope.selectedLine);
                 });
 

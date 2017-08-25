@@ -13,17 +13,20 @@
             <div class="col-md-6">
                 <center>
                     <h2>{{machine.name}} By The Numbers</h2>
-                    <em>Line: {{line.name}} Facility: {{facility.name}}</em>
-                    <hr>
+                    <code>{{facility.name}}</code>&nbsp;&nbsp;&nbsp;<code>{{machine.name}}</code>
                     <div class="row">
-                        <div class="col-md-4">
-                            <div pf-aggregate-status-card status="size"  show-top-border="true"></div>
-                        </div>
-                        <div class="col-md-4" pf-aggregate-status-card status="age" show-top-border="true"></div>
-                        <div class="col-md-4" pf-aggregate-status-card status="utilization" show-top-border="true"></div>
+                    <hr>
+                        <center>
+                            <h1>Status</h1>
+                            <icon ng-if="machine.status === 'ok'" class="pficon fa-2x pficon-ok"></icon>
+                            <icon ng-if="machine.status === 'warning'" title="Line warning detected; line operator notified." class="pficon fa-2x pficon-warning-triangle-o"></icon>
+                            <icon ng-if="machine.status === 'error'" title="Line error detected; line operator notified." class="pficon fa-2x pficon-error-circle-o"></icon>
+                            <h1>Uptime</h1>
+                            <code>2343</code> hours
+                            <h1>Remaining Life</h1>
+                            <code>3454</code> hours
+                        </center>
                     </div>
-                    <!--<p><span style="font-size: 3em">654 sq. ft. total heated</p>-->
-                    <!--<p><span style="font-size: 3em">13.4</span> years old</p>-->
                 </center>
             </div>
         </div>

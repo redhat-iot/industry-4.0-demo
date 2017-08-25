@@ -80,32 +80,31 @@ public class UtilsEndpoint {
             newFacility.setAddress(newFacility.getName());
             newFacility.setUtilization(Math.random());
 
-            CalEntry calEntry = new CalEntry();
-            calEntry.setTitle("Maintenance Window");
-            Date now = new Date();
-            Date later = new Date(new Date().getTime() + (3 * 60 * 60 * 1000));
-            calEntry.setStart(now);
-            calEntry.setEnd(later);
-            calEntry.setColor("#f7bd7f");
-            calEntry.setType("maintenance");
-            calEntry.setFacility(newFacility);
-            JSONObject dets = new JSONObject()
-                    .put("desc", "The desc")
-                    .put("links",
-                            new JSONArray()
-                                    .put(
-                                            new JSONObject()
-                                                    .put("name", "Installation Manual")
-                                                    .put("link", "http://www.redhat.com"))
-                                    .put(
-                                            new JSONObject()
-                                                    .put("name", "Repair Manual")
-                                                    .put("link", "http://developers.redhat.com"))
-                    );
-
-            calEntry.setDetails(dets.toString());
-            calendarCache.put(UUID.randomUUID().toString(), calEntry);
-
+//            CalEntry calEntry = new CalEntry();
+//            calEntry.setTitle("Maintenance Window");
+//            Date later = new Date(new Date().getTime() + (3 * 60 * 60 * 1000));
+//            calEntry.setStart(now);
+//            calEntry.setEnd(later);
+//            calEntry.setColor("#f7bd7f");
+//            calEntry.setType("maintenance");
+//            calEntry.setFacility(newFacility);
+//            JSONObject dets = new JSONObject()
+//                    .put("desc", "The desc")
+//                    .put("links",
+//                            new JSONArray()
+//                                    .put(
+//                                            new JSONObject()
+//                                                    .put("name", "Installation Manual")
+//                                                    .put("link", "http://www.redhat.com"))
+//                                    .put(
+//                                            new JSONObject()
+//                                                    .put("name", "Repair Manual")
+//                                                    .put("link", "http://developers.redhat.com"))
+//                    );
+//
+//            calEntry.setDetails(dets.toString());
+//            calendarCache.put(UUID.randomUUID().toString(), calEntry);
+//
             List<Line> lines = new ArrayList<>();
 
             for (String[] line : LINES) {
@@ -143,6 +142,8 @@ public class UtilsEndpoint {
                 }
 
                 newLine.setMachines(machines);
+
+                Date now = new Date();
 
                 Run r = new Run();
                 r.setName(rand(RUNS));

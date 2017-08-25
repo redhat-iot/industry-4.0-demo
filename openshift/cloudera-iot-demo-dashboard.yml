@@ -45,9 +45,17 @@ parameters:
   name: BROKER_PASSWORD
   value: "RedHat123"
   required: true
-- description: OpenShift load-balanced MQ Broker service name
-  name: BROKER_WS_NAME
+- description: OpenShift load-balanced MQ Broker hostname
+  name: BROKER_HOSTNAME
   value: "broker"
+  required: true
+- description: OpenShift load-balanced MQ Broker port
+  name: BROKER_PORT
+  value: "31183"
+  required: true
+- description: OpenShift load-balanced MQ Broker websockets port
+  name: BROKER_WS_PORT
+  value: "80"
   required: true
 - description: Name of datastore proxy service
   name: DASHBOARD_PROXY_SERVICE
@@ -80,6 +88,10 @@ parameters:
 - description: Datastore password
   name: ADDITIONAL_SENSOR_IDS
   required: false
+- description: Datastore password
+  name: CONTROL_TOPIC_PREFIX
+  value: "Red-Hat/simulator-1/cloudera-demo"
+  required: true
 - description: Displayed title of web dashboard
   name: DASHBOARD_WEB_TITLE
   value: "IoT Industry 4.0 Demo"
@@ -91,18 +103,6 @@ parameters:
 - description: Cloudera Impala service port
   name: IMPALA_PORT
   value: "21050"
-  required: true
-- description: Cloudera Kafka service hostname
-  name: KAFKA_ALERTS_HOST
-  value: "34.208.144.34"
-  required: true
-- description: Cloudera Kafka service port
-  name: KAFKA_ALERTS_PORT
-  value: "9092"
-  required: true
-- description: Cloudera Kafka service topic
-  name: KAFKA_ALERTS_TOPIC_REGEX
-  value: "Red-Hat/[^/]*/[^/]*/facilities/[^/]*/lines/[^/]*/machines/[^/]*/alerts"
   required: true
 labels:
   demo: iot-cloudera-demo
@@ -224,8 +224,12 @@ objects:
       spec:
         containers:
         - env:
-          - name: BROKER_WS_NAME
-            value: ${BROKER_WS_NAME}
+          - name: BROKER_HOSTNAME
+            value: ${BROKER_HOSTNAME}
+          - name: BROKER_PORT
+            value: ${BROKER_PORT}
+          - name: BROKER_WS_PORT
+            value: ${BROKER_WS_PORT}
           - name: BROKER_USERNAME
             value: ${BROKER_USERNAME}
           - name: BROKER_PASSWORD
@@ -236,6 +240,8 @@ objects:
             value: ${GOOGLE_MAPS_API_KEY}
           - name: DASHBOARD_WEB_TITLE
             value: ${DASHBOARD_WEB_TITLE}
+          - name: CONTROL_TOPIC_PREFIX
+            value: ${CONTROL_TOPIC_PREFIX}
           image: dashboard
           imagePullPolicy: Always
           name: dashboard
@@ -420,18 +426,16 @@ objects:
             value: ${DATASTORE_PORT}
           - name: DATASTORE_CACHE
             value: ${DATASTORE_CACHE}
+          - name: BROKER_HOSTNAME
+            value: ${BROKER_HOSTNAME}
+          - name: BROKER_PORT
+            value: ${BROKER_PORT}
           - name: BROKER_USERNAME
             value: ${BROKER_USERNAME}
           - name: BROKER_PASSWORD
             value: ${BROKER_PASSWORD}
           - name: ADDITIONAL_SENSOR_IDS
             value: ${ADDITIONAL_SENSOR_IDS}
-          - name: KAFKA_ALERTS_HOST
-            value: ${KAFKA_ALERTS_HOST}
-          - name: KAFKA_ALERTS_PORT
-            value: ${KAFKA_ALERTS_PORT}
-          - name: KAFKA_ALERTS_TOPIC_REGEX
-            value: ${KAFKA_ALERTS_TOPIC_REGEX}
           - name: IMPALA_HOST
             value: ${IMPALA_HOST}
           - name: IMPALA_PORT

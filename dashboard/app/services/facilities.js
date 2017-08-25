@@ -71,6 +71,17 @@ angular.module('app')
         return lines;
     };
 
+    factory.resetStatus = function(facility) {
+        $http({
+            method: 'POST',
+            url: configRestEndpoint + "/" + facility.fid + "/resetStatus"
+        }).then(function (response) {
+        }, function err(response) {
+            console.log(JSON.stringify(response));
+            Notifications.error("Error resetting facilities from [" + response.config.url + "]. Reload to retry");
+        });
+
+    };
 
     factory.reset = function() {
 
