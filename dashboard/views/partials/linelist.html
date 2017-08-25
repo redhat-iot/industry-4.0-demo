@@ -20,7 +20,7 @@
 
 
     <ul class="nav nav-tabs">
-        <li ng-repeat="facility in facilities" ng-class="{ active: isFacilitySelected(facility)}"><a ng-click="selectFacility(facility)">{{facility.name}}<span ng-if="getFacilityWarn(facility)">&nbsp;&nbsp;<icon class="pficon pficon-warning-triangle-o"></icon></span></a></li>
+        <li ng-repeat="facility in facilities" ng-class="{ active: isFacilitySelected(facility)}"><a ng-click="selectFacility(facility)">{{facility.name}}<span ng-if="facility.status !== undefined && facility.status !== 'ok'">&nbsp;&nbsp;<icon class="pficon pficon-warning-triangle-o"></icon></span></a></li>
     </ul>
 
             <scrollable-table ng-if="lines.length > 0" watch="lines">

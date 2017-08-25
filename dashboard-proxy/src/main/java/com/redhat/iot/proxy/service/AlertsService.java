@@ -257,6 +257,7 @@ public class AlertsService implements MqttCallback {
             line.setStatus("ok");
             dgService.getProductionLines().put(fid + "/" + lid, line);
             machine.setStatus("ok");
+            machine.setStatusMsg("ok");
             dgService.getMachines().put(fid + "/" + lid + "/" + mid, machine);
             clearAlertsForLine(line);
             dgService.getFacilities().put(fid, facility);
@@ -265,6 +266,7 @@ public class AlertsService implements MqttCallback {
             line.setStatus("warning");
             dgService.getProductionLines().put(fid + "/" + lid, line);
             machine.setStatus("warning");
+            machine.setStatusMsg(desc);
             dgService.getMachines().put(fid + "/" + lid + "/" + mid, machine);
             addAlert(new Alert(date, id, desc, details.toString(), type, line, machine));
             dgService.getFacilities().put(fid, facility);
@@ -274,6 +276,7 @@ public class AlertsService implements MqttCallback {
             line.setStatus("error");
             dgService.getProductionLines().put(fid + "/" + lid, line);
             machine.setStatus("error");
+            machine.setStatusMsg(desc);
             dgService.getMachines().put(fid + "/" + lid + "/" + mid, machine);
             addAlert(new Alert(date, id, desc, details.toString(), type, line, machine));
             dgService.getFacilities().put(fid, facility);
@@ -319,7 +322,7 @@ public class AlertsService implements MqttCallback {
             calEntry.setEnd(new Date(mEnd));
             calEntry.setFacility(facility);
             calEntry.setTitle("Line Maintenance: " + line.getLid());
-            calEntry.setColor("#f7bd7f");
+            calEntry.setColor("red");
             calEntry.setType("maintenance");
             JSONObject dets = new JSONObject()
                     .put("desc", reason)
@@ -337,6 +340,7 @@ public class AlertsService implements MqttCallback {
 
             calEntry.setDetails(dets.toString());
             dgService.getCalendar().put(UUID.randomUUID().toString(), calEntry);
+            log.info("Added maintanence event for facility " + facility.getFid());
 
         } else {
             log.info("Unknown alert type (" + type + "), ignoring");

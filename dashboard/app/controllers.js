@@ -946,16 +946,6 @@ angular.module('app')
                     $rootScope.$broadcast("resetAll");
                 };
 
-                $scope.getFacilityWarn = function (fac) {
-                    var warn = false;
-                    fac.lines.forEach(function(l) {
-                        if (l.status !== 'ok') {
-                            warn = true;
-                        }
-                    });
-                    return warn;
-                };
-
                 $scope.isFacilitySelected = function (fac) {
                     if (!$scope.selectedFacility || !fac) {
                         return false;

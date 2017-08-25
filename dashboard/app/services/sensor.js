@@ -91,7 +91,7 @@ angular.module('app')
             }
 
             function handleAlert(destination, alertObj) {
-
+                console.log("recieved alert: " + JSON.stringify(alertObj));
                 var matches = alertTopicRegex.exec(destination);
                 var fid = matches[1];
                 var lid = matches[2];
@@ -119,6 +119,7 @@ angular.module('app')
                                             facility.status = 'error';
                                             line.status = 'error';
                                             machine.status = 'error';
+                                            machine.statusMsg = alertObj.description;
                                             alertObj.machine = machine;
                                             alertObj.line = line;
                                             alertObj.facility = facility;
@@ -132,9 +133,11 @@ angular.module('app')
                                             facility.status = 'warning';
                                             line.status = 'warning';
                                             machine.status = 'warning';
+                                            machine.statusMsg = alertObj.description;
                                             alertObj.machine = machine;
                                             alertObj.line = line;
                                             alertObj.facility = facility;
+                                            console.log("broadcasting warning");
                                             $rootScope.$broadcast("alert", alertObj);
                                         }
                                         break;
@@ -146,6 +149,7 @@ angular.module('app')
                                             facility.status = 'ok';
                                             line.status = 'ok';
                                             machine.status = 'ok';
+                                            machine.statusMsg = 'ok';
                                             alertObj.machine = machine;
                                             alertObj.line = line;
                                             alertObj.facility = facility;
@@ -179,7 +183,9 @@ angular.module('app')
                 var destination = message.destinationName;
 
                 if (alertTopicRegex.test(destination)) {
-                    handleAlert(destination, JSON.parse(message.payloadString));
+                    $rootScope.$apply(function() {
+                        handleAlert(destination, JSON.parse(message.payloadString));
+                    })
                 } else {
                     var payload = message.payloadBytes;
                     var decoded = msgproto.decode(payload);
@@ -222,12 +228,20 @@ angular.module('app')
                     command: 'reset'
                 };
 
+                Facilities.getFacilities().forEach(function(fac) {
+                    if (fac.fid === facility.fid) {
+                        fac.status = 'ok';
+                    }
+                });
+
                 facility.status = 'ok';
 
                 Facilities.getLinesForFacility(facility).forEach(function(line) {
                     line.status = 'ok';
+                    line.statusMsg = 'ok';
                     line.machines.forEach(function(machine) {
                         machine.status = 'ok';
+                        machine.statusMsg = 'ok';
                         sendJSONObjectMsg(msg,
                             APP_CONFIG.CONTROL_TOPIC_PREFIX +
                             "/facilities/" + facility.fid +

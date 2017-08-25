@@ -21,6 +21,8 @@
                             <icon ng-if="machine.status === 'ok'" class="pficon fa-2x pficon-ok"></icon>
                             <icon ng-if="machine.status === 'warning'" title="Line warning detected; line operator notified." class="pficon fa-2x pficon-warning-triangle-o"></icon>
                             <icon ng-if="machine.status === 'error'" title="Line error detected; line operator notified." class="pficon fa-2x pficon-error-circle-o"></icon>
+                            <br ng-if="machine.status !== 'ok'">
+                            <code ng-if="machine.status !== 'ok'">{{machine.statusMsg}}</code>
                             <h1>Uptime</h1>
                             <code>2343</code> hours
                             <h1>Remaining Life</h1>

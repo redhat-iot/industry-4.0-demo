@@ -24,6 +24,7 @@ public class Machine implements Serializable {
     private String name;
     private String desc;
     private String status;
+    private String statusMsg;
     private String mid;
     private String currentLid;
     private String currentFid;
@@ -31,6 +32,14 @@ public class Machine implements Serializable {
 
     public Machine() {
 
+    }
+
+    public String getStatusMsg() {
+        return statusMsg;
+    }
+
+    public void setStatusMsg(String statusMsg) {
+        this.statusMsg = statusMsg;
     }
 
     public String getType() {

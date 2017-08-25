@@ -35,7 +35,7 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
                 // handleAlert: {"id":"foo","description":"the dest","timestamp":1503599719963,"type":"maintenance","details":{"reason":"the reason","start":1503599719963,"end":1503599719963}}
 
                 scope.$on('alert', function (evt, alert) {
-                    if (alert.type === 'maintenance') {
+                    if (alert.type === 'maintenance' && alert.facility.fid === scope.selectedFacility.fid) {
                         $('#fullcalendar').fullCalendar('addEventSource',
                             {
                                 events: [
@@ -63,7 +63,7 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
                                 ]
                             }
                         );
-                    } else if (alert.type === 'error') {
+                    } else if (alert.type === 'error' && alert.facility.fid === scope.selectedFacility.fid) {
                         $('#fullcalendar').fullCalendar('addEventSource',
                             {
                                 events: [
@@ -85,7 +85,8 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
                                                     link: "http://developers.redhat.com"
                                                 }
                                             ]
-                                        }
+                                        },
+                                        facility: alert.facility
                                     }
                                 ]
                             });
@@ -101,15 +102,17 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
 
                     function render(fac) {
 
+                        var scrollTime = (new Date().getHours() - 1) + ':00:00';
 
                         $('#fullcalendar').fullCalendar({
                             defaultView: 'agendaDay',
-                            contentHeight: 600,
+                            contentHeight: 400,
                             nowIndicator: true,
                             allDaySlot: false,
                             weekends: false,
                             navLinks: true,
                             timezone: 'local',
+                            scrollTime: scrollTime,
                             header: {
                                 left: 'title',
                                 center: 'agendaWeek agendaDay',

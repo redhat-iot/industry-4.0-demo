@@ -35,9 +35,9 @@
         <h2 ng-if="alertObj.details.start">Maintenance Window Scheduled</h2>
         <ul ng-if="alertObj.details.start">
             <li><strong>Starts:</strong> {{alertObj.details.start | amCalendar:referenceTime:formats}} (<span am-time-ago="alertObj.details.start"></span>)</li>
-            <h3><strong>Duration</strong>: {{alertObj.details.end | amDifference:alertObj.details.start:'hours'}} hours</h3>
+            <li><strong>Duration</strong>: {{alertObj.details.end | amDifference:alertObj.details.start:'hours'}} hours</li>
         </ul>
-        <a ng-click="$close()" ng-href="#/tech/tasks">Go to Technician Tasks</a>
+        <a ng-click="$close()" ng-href="#/tech/tasks">Technician Dashboard</a>&nbsp;<icon class="fa fa-arrow-circle-right"></icon>
     </div>
 </div>
 <div class="modal-footer">
