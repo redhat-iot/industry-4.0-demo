@@ -49,7 +49,7 @@ public class Application extends RouteBuilder {
                 }
             })
             // Outgoing to Kafka
-        .to("kafka:ingest?brokers=34.208.144.34:9092");
+        .to("kafka:ingest?brokers=34.208.144.34:9092&serializerClass=org.apache.kafka.common.serialization.ByteArraySerializer");
 
         // Monitoring Kafka topic, for testing only
         from("kafka:ingest?brokers=34.208.144.34:9092&groupId=kapua_bridge")
