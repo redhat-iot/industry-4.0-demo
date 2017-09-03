@@ -51,7 +51,7 @@ parameters:
   required: true
 - description: OpenShift load-balanced MQ Broker port
   name: BROKER_PORT
-  value: "31183"
+  value: "31883"
   required: true
 - description: OpenShift load-balanced MQ Broker websockets port
   name: BROKER_WS_PORT
