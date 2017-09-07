@@ -187,7 +187,13 @@ angular.module('app')
                         handleAlert(destination, JSON.parse(message.payloadString));
                     })
                 } else {
-                    var payload = message.payloadBytes;
+                    var payload;
+                    try {
+                        payload = pako.inflate(message.payloadBytes);
+                    } catch (err) {
+                        // Not compressed
+                        payload = message.payloadBytes;
+                    }
                     var decoded = msgproto.decode(payload);
                     var matches = telemetryRegex.exec(destination);
                     var fid = matches[1];
