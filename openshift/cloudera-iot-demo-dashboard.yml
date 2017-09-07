@@ -105,7 +105,8 @@ parameters:
   value: "21050"
   required: true
 labels:
-  demo: iot-cloudera-demo
+  demo: cloudera
+  app: dashboard
 
 objects:
 

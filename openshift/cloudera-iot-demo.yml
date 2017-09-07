@@ -15,7 +15,7 @@ components:
   cockpit: false # if true, deploys Cockpit 
   metrics: false # if true, deploys Metrics 
   logging: false # if true, deploys Logging 
-  pvs: true # enables PersistentVolumes 
+  pvs: false # enables PersistentVolumes 
 
 
 users: 
