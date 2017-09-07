@@ -45,16 +45,16 @@ public class AlertsService implements MqttCallback {
     private static final Logger log = Logger.getLogger(AlertsService.class.getName());
     public AlertsService() {
 
-        String brokerHost = System.getenv("BROKER_HOSTNAME");
-        String brokerPort = System.getenv("BROKER_PORT");
+        // String brokerHost = System.getenv("KAPUA_BROKER_SERVICE_HOST");
+        // String brokerPort = System.getenv("KAPUA_BROKER_SERVICE_PORT_MQTT_TCP");
 
-        if (brokerHost == null || brokerPort == null) {
-            throw new IllegalArgumentException("BROKER_HOSTNAME or BROKER_PORT not set, cannot process alerts");
-        }
+        // if (brokerHost == null || brokerPort == null) {
+        //     throw new IllegalArgumentException("BROKER_HOSTNAME or BROKER_PORT not set, cannot process alerts");
+        // }
 
 
         MemoryPersistence persistence = new MemoryPersistence();
-        String broker = "tcp://" + brokerHost + ":" + brokerPort;
+        String broker = System.getenv("KAPUA_BROKER_PORT");
         try {
             mqttClient = new MqttClient(broker, "dashboard-proxy-" + UUID.randomUUID().toString(), persistence);
         } catch (MqttException e) {
