@@ -91,10 +91,25 @@ angular.module('app')
             url: configRestEndpoint + "/"
         }).then(function (response) {
             facilities = response.data;
-            if ((facilities == undefined) || (facilities.constructor !== Array)) {
+
+            if ((facilities === undefined) || (facilities.constructor !== Array)) {
                 Notifications.error("Error fetching Facilities (invalid data). Reload to retry");
                 return;
             }
+
+            // Sort the result
+            facilities.sort(function(a, b) {
+                return a.fid.localeCompare(b.fid);
+            }).forEach(function(fac) {
+                fac.lines.sort(function(a, b) {
+                    return a.lid.localeCompare(b.lid);
+                });
+                fac.lines.forEach(function(line) {
+                    line.machines.sort(function(a, b) {
+                        return a.mid.localeCompare(b.mid);
+                    });
+                });
+            });
 
             $rootScope.$broadcast('facilities:updated');
 
