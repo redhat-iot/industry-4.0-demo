@@ -24,14 +24,22 @@ die() { printf "$@" "\n" 1>&2 ; exit 1; }
 
 ### Remove imagestreams and buildconfigs
 
-$OC delete buildconfig dashboard
-$OC delete imagestream dashboard
+#$OC delete buildconfig dashboard
+#$OC delete imagestream dashboard
+
+$OC delete buildconfig dashboard-proxy
+$OC delete imagestream dashboard-proxy
 
 ### Add local development as binary source buildconfig
+#echo Creating new buildConfig for local source builds
+#$OC new-build --name dashboard --image-stream nodejs:4 --strategy source --binary
+#echo Starting new build using local source at ../dashboard
+#$OC start-build dashboard --from-dir=../dashboard --follow
+
 echo Creating new buildConfig for local source builds
-$OC new-build --name dashboard --image nodejs:4 --strategy source --binary
-echo Starting new build using local source at ../dashboard
-$OC start-build dashboard --from-dir=../dashboard --follow
+$OC new-build --name dashboard-proxy --image-stream wildfly:10.1 --strategy source --binary
+echo Starting new build using local source at ../dashboard-proxy
+$OC start-build dashboard-proxy --from-dir=../dashboard-proxy --follow
 
 ### Optionally
 # oc get pods

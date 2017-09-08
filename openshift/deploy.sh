@@ -30,5 +30,9 @@ $OC describe "project/$OPENSHIFT_PROJECT_NAME" &>/dev/null || die "Project '$OPE
 ### Create Kapua from template
 
 echo Creating Kapua from template ...
-$OC new-app -n "$OPENSHIFT_PROJECT_NAME" -f cloudera-iot-demo-kapua.yml -p IMAGE_VERSION=${IMAGE_VERSION}
+$OC new-app -n "$OPENSHIFT_PROJECT_NAME" --file cloudera-iot-demo-kapua.yml -p IMAGE_VERSION=${IMAGE_VERSION}
 echo Creating Kapua from template ... done!
+
+echo Creating Dashboard from template ...
+oc new-app --file=cloudera-iot-demo-dashboard.yml
+echo Creating Dashboard from template ... done!
