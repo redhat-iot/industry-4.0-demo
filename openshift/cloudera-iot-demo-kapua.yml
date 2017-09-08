@@ -38,35 +38,6 @@ parameters:
 - name: ELASTIC_SEARCH_MEMORY
   descrption: The minimum and maximun Java heap space for Elasticsearch
   value: 256m
-- description: Maven mirror url. If nexus is deployed locally, use nexus url (e.g. http://nexus.ci:8081/content/groups/public/)
-  displayName: Maven mirror url
-  name: MAVEN_MIRROR_URL
-  required: false
-- description: MQ cluster password
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression
-  name: MQ_CLUSTER_PASSWORD
-  required: true
-- description: JGroups cluster password
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression
-  name: JGROUPS_CLUSTER_PASSWORD
-  required: true
-- description: Git source URI for application
-  name: GIT_URI
-  required: true
-  value: https://github.com/redhat-iot/summit2017
-- description: Git branch/tag reference
-  name: GIT_REF
-  value: master
-- description: MQ Broker username
-  name: BROKER_USERNAME
-  value: "demo-gw2"
-  required: true
-- description: MQ Broker password
-  name: BROKER_PASSWORD
-  value: "RedHat123"
-  required: true
 - description: OpenShift load-balanced MQ Broker service name
   name: BROKER_WS_NAME
   value: "broker"

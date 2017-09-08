@@ -90,7 +90,7 @@ parameters:
   required: false
 - description: Datastore password
   name: CONTROL_TOPIC_PREFIX
-  value: "Red-Hat/simulator-1/cloudera-demo"
+  value: "Red-Hat/cldr-demo-gw/cloudera-demo"
   required: true
 - description: Displayed title of web dashboard
   name: DASHBOARD_WEB_TITLE

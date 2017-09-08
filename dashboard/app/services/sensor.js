@@ -279,7 +279,7 @@ angular.module('app')
                 if (attempt > 1) {
                     Notifications.warn("Trouble connecting to broker, will keep trying (reload to re-start the count)");
                 }
-                var brokerHostname = APP_CONFIG.BROKER_HOSTNAME;
+                var brokerHostname = APP_CONFIG.BROKER_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1");
                 var brokerPort = APP_CONFIG.BROKER_WS_PORT;
 
                 client = new Paho.MQTT.Client(brokerHostname, Number(brokerPort), "dashboard-ui-client-" + guid());

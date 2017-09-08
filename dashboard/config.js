@@ -15,7 +15,7 @@
 var config =
 {
     // hostname/port/name/password for Kapua broker
-    BROKER_HOSTNAME: process.env.BROKER_HOSTNAME + '-' + process.env.OPENSHIFT_BUILD_NAMESPACE + '.apps.cloudera-iot-demo.rhiot.org',
+    BROKER_HOSTNAME: process.env.BROKER_HOSTNAME + '-' + process.env.OPENSHIFT_BUILD_NAMESPACE,
     BROKER_WS_PORT: process.env.BROKER_WS_PORT || 80,
     BROKER_USERNAME: process.env.BROKER_USERNAME || "demo-gw2",
     BROKER_PASSWORD: process.env.BROKER_PASSWORD || "RedHat123",
