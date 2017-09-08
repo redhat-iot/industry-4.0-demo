@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.redhat.iot</groupId>
+        <artifactId>cloudera-demo-gateway</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <groupId>com.redhat.iot.demo</groupId>
+    <artifactId>com.redhat.iot.cloudera.demo.package</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <!-- <kura.basedir>${project.basedir}/..</kura.basedir> -->
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>de.dentrassi.maven</groupId>
+                <artifactId>osgi-dp</artifactId>
+                <version>0.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <additionalDependencies>
+                        <additionalDependency>
+                            <groupId>org.apache.commons</groupId>
+                            <artifactId>commons-csv</artifactId>
+                            <version>1.1</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.apache.camel</groupId>
+                            <artifactId>camel-csv</artifactId>
+                            <version>2.17.2</version>
+                        </additionalDependency>
+<!--
+                        <additionalDependency>
+                            <groupId>com.redhat.iot.demo</groupId>
+                            <artifactId>com.redhat.iot.demo.simulator</artifactId>
+                            <version>${project.version}</version>
+                        </additionalDependency>
+-->
+                        <additionalDependency>
+                            <groupId>com.redhat.iot.cloudera.demo</groupId>
+                            <artifactId>com.redhat.iot.cloudera.demo.simulator</artifactId>
+                            <version>${project.version}</version>
+                        </additionalDependency>
+<!--
+                        <additionalDependency>
+                            <groupId>com.redhat.iot.demo</groupId>
+                            <artifactId>com.redhat.iot.demo.camel</artifactId>
+                            <version>${project.version}</version>
+                        </additionalDependency>
+-->
+                    </additionalDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

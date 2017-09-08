@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" 
+    name="com.redhat.iot.demo.simulator.GatewayRouter"
+	configuration-policy="require" enabled="true" immediate="true"
+    activate="start" deactivate="stop" modified="updated">
+  <property name="service.pid" type="String" value="com.redhat.iot.demo.simulator.GatewayRouter"/>
+	<implementation class="com.redhat.iot.demo.simulator.GatewayRouter"/>
+	<service>
+		<provide interface="com.redhat.iot.demo.simulator.GatewayRouter"/>
+		<provide interface="org.eclipse.kura.configuration.ConfigurableComponent"/>
+	</service>
+
+</scr:component>
