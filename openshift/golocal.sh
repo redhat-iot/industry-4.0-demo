@@ -30,20 +30,14 @@ die() { printf "$@" "\n" 1>&2 ; exit 1; }
 $OC delete buildconfig dashboard-proxy
 $OC delete imagestream dashboard-proxy
 
-### Add local development as binary source buildconfig
-#echo Creating new buildConfig for local source builds
-#$OC new-build --name dashboard --image-stream nodejs:4 --strategy source --binary
-#echo Starting new build using local source at ../dashboard
-#$OC start-build dashboard --from-dir=../dashboard --follow
-
 # Grab the JDBC driver
 TMPFILE1=`mktemp`
 TMPFILE2=`mktemp -d`
 DFILE="2.5.38.1058 GA/Cloudera_ImpalaJDBC4_2.5.38.zip"
 URL="https://downloads.cloudera.com/connectors/impala_jdbc_2.5.38.1058.zip"
 
-echo "Downloading JDBC Driver from ${URL}"...
-curl -sko "${TMPFILE1}" "${URL}"
+echo "Downloading JDBC Driver from ${URL} to ${TMPFILE1} in ${TMPFILE2}"...
+curl -so "${TMPFILE1}" "${URL}"
 echo "Extracting JDBC Driver..."
 unzip -q -d "${TMPFILE2}" "${TMPFILE1}" "${DFILE}"
 unzip -q -o -d ../dashboard-proxy/modules/org/apache/hadoop/impala/main \
@@ -55,6 +49,11 @@ echo Creating new buildConfig for local source builds
 $OC new-build --name dashboard-proxy --image-stream wildfly:10.1 --strategy source --binary
 echo Starting new build using local source at ../dashboard-proxy
 $OC start-build dashboard-proxy --from-dir=../dashboard-proxy --follow
+
+#echo Creating new buildConfig for local source builds
+#$OC new-build --name dashboard --image-stream wildfly:10.1 --strategy source --binary
+#echo Starting new build using local source at ../dashboard
+#$OC start-build dashboard --from-dir=../dashboard --follow
 
 ### Optionally
 # oc get pods
