@@ -207,6 +207,11 @@ angular.module('app').directive('floorplan', ['$compile', '$rootScope', '$templa
                     rectObjs.enter().append("rect")
                         .attr("fill", function(d) {
                             if (d.status === 'error') {
+                                return "red";
+                            } else if (d.status === 'maintenance') {
+                                return "yellow";
+                            } else {
+                                return "green";
                             }
                         })
                         .attr("stroke-width", function (d) {

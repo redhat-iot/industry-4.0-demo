@@ -53,6 +53,12 @@ angular.module('app')
         return facilities;
     };
 
+    factory.getFacilityById = function(id) {
+        return facilities.find(function(el) {
+            return el.fid === id;
+        });
+    };
+
     factory.getLines = function() {
         var lines = [];
         facilities.forEach(function(f) {
@@ -78,7 +84,6 @@ angular.module('app')
         }).then(function (response) {
         }, function err(response) {
             console.log(JSON.stringify(response));
-            Notifications.error("Error resetting facilities from [" + response.config.url + "]. Reload to retry");
         });
 
     };

@@ -342,6 +342,16 @@ public class AlertsService implements MqttCallback {
             dgService.getCalendar().put(UUID.randomUUID().toString(), calEntry);
             log.info("Added maintanence event for facility " + facility.getFid());
 
+            log.info("temporarily issuing WARNING alert");
+            line.setStatus("warning");
+            dgService.getProductionLines().put(fid + "/" + lid, line);
+            machine.setStatus("warning");
+            machine.setStatusMsg(desc);
+            dgService.getMachines().put(fid + "/" + lid + "/" + mid, machine);
+            addAlert(new Alert(date, id, desc, details.toString(), type, line, machine));
+            dgService.getFacilities().put(fid, facility);
+
+
         } else {
             log.info("Unknown alert type (" + type + "), ignoring");
         }

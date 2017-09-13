@@ -40,8 +40,8 @@ angular.module('app')
         ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Facilities',
             function ($scope, $http, $filter, Notifications, SensorData, Facilities) {
 
-            $scope.selectedFacility = null;
-            $scope.selectedLine = null;
+                $scope.selectedFacility = null;
+                $scope.selectedLine = null;
 
                 $scope.selectedFacility = Facilities.getCurrentFacility();
                 $scope.selectedLine = Facilities.getCurrentLine();
@@ -266,7 +266,6 @@ angular.module('app')
                         (now - (180 * MS_IN_DAY)),
                         0.95)
                 });
-
 
 
             }])
@@ -715,7 +714,7 @@ angular.module('app')
                             pt = 30;
                             hrsPerPt = 24;
                             unplannedStart = unplannedEnd = unplannedPerMonthAfterIoT / pt;
-                            plannedStart = plannedEnd = plannedPerMonthAfterIoT  / pt;
+                            plannedStart = plannedEnd = plannedPerMonthAfterIoT / pt;
                             plannedDef = unplannedDef = 1;
                             break;
                         case 'year':
@@ -736,18 +735,18 @@ angular.module('app')
                             hrsPerPt = (24 * 30);
                             unplannedStart = unplannedPerMonthBeforeIoT;
                             unplannedEnd = unplannedPerMonthAfterIoT;
-                            unplannedDef = (54/60);
+                            unplannedDef = (54 / 60);
 
                             plannedStart = plannedPerMonthBeforeIoT;
                             plannedEnd = plannedPerMonthAfterIoT;
-                            plannedDef = (54/60);
+                            plannedDef = (54 / 60);
 
                     }
 
 
                     var plannedData = SensorData.genTrend(plannedPerMonthBeforeIoT, plannedPerMonthAfterIoT, pt + 1, plannedStart, plannedEnd, plannedDef, 0.2);
                     var unplannedData = SensorData.genTrend(unplannedPerMonthAfterIoT, unplannedPerMonthBeforeIoT, pt + 1, unplannedStart, unplannedEnd, unplannedDef, 0.2);
-                    var totalCostData = plannedData.map(function(plannedAmt, idx) {
+                    var totalCostData = plannedData.map(function (plannedAmt, idx) {
                         return ((plannedData[idx] * plannedCostPerHr) + (unplannedData[idx] * unplannedCostPerHr));
                     });
 
@@ -788,7 +787,7 @@ angular.module('app')
                     $scope.chartConfig.tooltip = {
                         format: {
                             value: function (value, ratio, id) {
-                                switch(id) {
+                                switch (id) {
                                     case planned[0]:
                                         return value.toFixed(1) + " hours";
                                     case unplanned[0]:
@@ -854,7 +853,6 @@ angular.module('app')
                         $scope.setPeriod($scope.period);
                     }
                 };
-
 
 
                 $scope.setPeriod($scope.period);
@@ -941,7 +939,6 @@ angular.module('app')
                 $scope.lines = null;
 
 
-
                 $scope.resetAll = function () {
                     $rootScope.$broadcast("resetAll");
                 };
@@ -959,7 +956,7 @@ angular.module('app')
                         return false;
                     }
                     return ($scope.selectedLine.lid === line.lid && $scope.selectedFacility &&
-                        $scope.selectedFacility.fid === $scope.selectedLine.currentFid);
+                    $scope.selectedFacility.fid === $scope.selectedLine.currentFid);
                 };
 
 
@@ -968,8 +965,13 @@ angular.module('app')
                     $rootScope.$broadcast("lines:selected", line);
                 };
 
-                $scope.$on("lines:selected", function(evt, line) {
+                $scope.$on("lines:selected", function (evt, line) {
                     $scope.selectedLine = line;
+                });
+
+                $scope.$on("facilities:selected", function (evt, fac) {
+                    $scope.selectedFacility = fac;
+                    $scope.lines = Facilities.getLinesForFacility(fac);
                 });
 
                 $scope.selectFacility = function (fac) {
@@ -1000,7 +1002,7 @@ angular.module('app')
                 if (!selectedFacility) {
                     $scope.selectFacility($scope.facilities[0]);
                 } else {
-                    $scope.facilities.forEach(function(fac) {
+                    $scope.facilities.forEach(function (fac) {
                         if (fac.fid === selectedFacility.fid) {
                             $scope.selectFacility(selectedFacility);
                         }
@@ -1010,7 +1012,6 @@ angular.module('app')
                 if (selectedLine) {
                     $scope.selectLine(selectedLine);
                 }
-
 
 
             }])
@@ -1151,23 +1152,24 @@ angular.module('app')
                             },
                             dataFunc: function () {
 
-                            return function(cbData) {
-                                var newData = {
-                                    hasData: true,
-                                    upperLimit: telemetry.max,
-                                    lowerLimit: telemetry.min,
-                                    value: 0,
-                                    dataset0: []
-                                };
+                                return function (cbData) {
+                                    var newData = {
+                                        hasData: true,
+                                        upperLimit: telemetry.max,
+                                        lowerLimit: telemetry.min,
+                                        value: 0,
+                                        dataset0: []
+                                    };
 
-                                cbData.forEach(function (pt) {
-                                    newData.dataset0.push({
-                                        x: new Date(pt.timestamp),
-                                        val_0: pt.value
+                                    cbData.forEach(function (pt) {
+                                        newData.dataset0.push({
+                                            x: new Date(pt.timestamp),
+                                            val_0: pt.value
+                                        });
                                     });
-                                });
-                                return newData;
-                            }},
+                                    return newData;
+                                }
+                            },
                             telemetry: function () {
                                 return telemetry
                             },
@@ -1329,9 +1331,9 @@ angular.module('app')
                         } else {
                             var val = 0;
                             if ((idx / arr.length) > defl) {
-                                val = end + ((0-(jitter/2)) + (Math.random() * jitter));
+                                val = end + ((0 - (jitter / 2)) + (Math.random() * jitter));
                             } else {
-                                val = start + ((0-(jitter/2)) + (Math.random() * jitter));
+                                val = start + ((0 - (jitter / 2)) + (Math.random() * jitter));
                             }
                             if (val > 100) {
                                 return 100;
@@ -1369,10 +1371,10 @@ angular.module('app')
 
                 $scope.linealerts = [];
 
-                $scope.$on('alert', function(evt, alert) {
+                $scope.$on('alert', function (evt, alert) {
 
                     if (alert.fid === $scope.selectedFacility.fid &&
-                            alert.lid === $scope.selectedLine.lid) {
+                        alert.lid === $scope.selectedLine.lid) {
                         switch (alert.type) {
                             case 'degregdation':
                             case 'maintenance':
@@ -1427,9 +1429,9 @@ angular.module('app')
                         $interval.cancel(intervalTimer);
                     }
                     intervalTimer = $interval(function () {
-                        $scope.bizStates.forEach(function(state) {
+                        $scope.bizStates.forEach(function (state) {
                             var name = state.config.trendLabel;
-                            var actual = actuals.find(function(act) {
+                            var actual = actuals.find(function (act) {
                                 return act.name === name;
                             });
                             var newVal = 0;
@@ -1472,6 +1474,7 @@ angular.module('app')
                     }, 10000);
 
                 }
+
                 $scope.$on('lines:selected', function (event, line) {
                     $scope.selectedLine = line;
                     showLineDetails(line);
@@ -1504,9 +1507,19 @@ angular.module('app')
                 }
             }])
 
+    .controller("TaskReviewController",
+        ['$rootScope', '$scope', '$location',
+            function ($rootScope, $scope, $location) {
+
+                $scope.closeAndOpen = function (loc) {
+                    $scope.$close();
+                    $location.path(loc);
+                }
+            }])
+
     .controller("CalEntryController",
-        ['$rootScope', '$scope', 'entry', 'SensorData',
-            function ($rootScope, $scope, entry, SensorData) {
+        ['$rootScope', '$scope', '$modal', 'entry', 'SensorData',
+            function ($rootScope, $scope, $modal, entry, SensorData) {
 
                 $scope.entry = entry;
                 if (entry.details) {
@@ -1517,9 +1530,16 @@ angular.module('app')
                     }
                 }
 
-                $scope.completeTask = function() {
+                $scope.completeTask = function () {
                     $scope.$close();
                     SensorData.resetStatus($scope.entry.facility);
+
+                    $modal.open({
+                        templateUrl: 'partials/taskreview.html',
+                        controller: 'TaskReviewController',
+                        size: 'lg'
+                    });
+
                 }
             }])
 
@@ -1563,7 +1583,7 @@ angular.module('app')
                     $scope.selectedFacility = fac;
                 });
 
-                $scope.selectFacility = function(fac) {
+                $scope.selectFacility = function (fac) {
                     $scope.selectedFacility = fac;
                     $rootScope.$broadcast("facilities:selected", fac);
                 };
@@ -1589,8 +1609,8 @@ angular.module('app')
             }])
 
     .controller("HeaderController",
-        ['$scope', '$window', '$location', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Reports',
-            function ($scope, $window, $location, $timeout, $http, APP_CONFIG, Notifications, SensorData, Reports) {
+        ['$rootScope', '$scope', '$window', '$location', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Facilities',
+            function ($rootScope, $scope, $window, $location, $timeout, $http, APP_CONFIG, Notifications, SensorData, Facilities) {
 
                 $scope.predictiveMaintenanceColor = 'orange';
                 $scope.unpredictedErrorColor = 'red';
@@ -1624,6 +1644,12 @@ angular.module('app')
 
                 $scope.resetAll = function () {
                     var resetUrl = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/utils/resetAll';
+
+                    // reset the machines in all facilities
+                    Facilities.getFacilities().forEach(function (fac) {
+                        SensorData.resetStatus(fac);
+                    });
+
                     $http({
                         method: 'POST',
                         url: resetUrl
@@ -1633,13 +1659,49 @@ angular.module('app')
                     }, function err(response) {
                         Notifications.error("Error resetting. Reload to retry");
                     });
+
+
                 };
 
-                $scope.predictiveMaintenance = function () {
-                    if (!$scope.selectedFacility || !$scope.selectedLine || !$scope.selectedMachine) {
-                        Notifications.error("You must select a facility, line and machine to simulate");
-                        return;
+                function pickDefaults() {
+                    var fac1 = Facilities.getFacilityById("facility-1");
+                    var lin1 = fac1.lines.find(function (lin) {
+                        return lin.lid === "line-1";
+                    });
+                    var mac1 = lin1.machines.find(function (mac) {
+                        return mac.mid === "machine-1";
+                    });
+                    var mac2 = lin1.machines.find(function (mac) {
+                        return mac.mid === "machine-2";
+                    });
+                    var mac3 = lin1.machines.find(function (mac) {
+                        return mac.mid === "machine-3";
+                    });
+
+                    if (!$scope.selectedFacility || $scope.selectedFacility.fid !== fac1.fid) {
+                        $rootScope.$broadcast("facilities:selected", fac1);
+                        $rootScope.$broadcast("lines:selected", lin1);
+                        $rootScope.$broadcast("machines:selected", mac1);
                     }
+                    if (!$scope.selectedLine || $scope.selectedLine.lid !== lin1.lid) {
+                        $rootScope.$broadcast("lines:selected", lin1);
+                        $rootScope.$broadcast("machines:selected", mac1);
+                    }
+                    if (!$scope.selectedMachine ||
+                        ($scope.selectedMachine.mid !== mac1.mid &&
+                        $scope.selectedMachine.mid !== mac2.mid &&
+                        $scope.selectedMachine.mid !== mac3.mid)) {
+                        $rootScope.$broadcast("machines:selected", mac1);
+                    }
+
+                }
+
+                $scope.predictiveMaintenance = function () {
+                    pickDefaults();
+
+                    Notifications.info('Starting maintenance simulation: Facility "' + $scope.selectedFacility.name +
+                    '" Line "' + $scope.selectedLine.name + '" Machine "' + $scope.selectedMachine.name + '"');
+
                     $scope.predictiveMaintenanceColor = 'gray';
                     $timeout(function () {
                         $scope.predictiveMaintenanceColor = 'orange';
@@ -1648,10 +1710,11 @@ angular.module('app')
                 };
 
                 $scope.unpredictedError = function () {
-                    if (!$scope.selectedFacility || !$scope.selectedLine || !$scope.selectedMachine) {
-                        Notifications.error("You must select a facility, line and machine to simulate");
-                        return;
-                    }
+                    pickDefaults();
+
+                    Notifications.info('Starting safety hazard simulation: Facility "' + $scope.selectedFacility.name +
+                        '" Line "' + $scope.selectedLine.name + '" Machine "' + $scope.selectedMachine.name + '"');
+
                     $scope.unpredictedErrorColor = 'gray';
                     $timeout(function () {
                         $scope.unpredictedErrorColor = 'red';

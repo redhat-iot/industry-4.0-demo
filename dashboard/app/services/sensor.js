@@ -91,7 +91,7 @@ angular.module('app')
             }
 
             function handleAlert(destination, alertObj) {
-                console.log("recieved alert: " + JSON.stringify(alertObj));
+                console.log("recieved alert on topic: " + destination + " -- " + JSON.stringify(alertObj));
                 var matches = alertTopicRegex.exec(destination);
                 var fid = matches[1];
                 var lid = matches[2];
@@ -106,6 +106,10 @@ angular.module('app')
                                         if (fid === facility.fid &&
                                             mid === machine.mid &&
                                             lid === line.lid) {
+                                            facility.status = 'warning';
+                                            line.status = 'warning';
+                                            machine.status = 'warning';
+                                            machine.statusMsg = alertObj.description;
                                             alertObj.machine = machine;
                                             alertObj.line = line;
                                             alertObj.facility = facility;
