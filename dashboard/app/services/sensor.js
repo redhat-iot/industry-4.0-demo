@@ -106,10 +106,12 @@ angular.module('app')
                                         if (fid === facility.fid &&
                                             mid === machine.mid &&
                                             lid === line.lid) {
-                                            facility.status = 'warning';
-                                            line.status = 'warning';
-                                            machine.status = 'warning';
-                                            machine.statusMsg = alertObj.description;
+                                            if (facility.status === 'ok' || line.status === 'ok' || machine.status === 'ok') {
+                                                facility.status = 'warning';
+                                                line.status = 'warning';
+                                                machine.status = 'warning';
+                                                machine.statusMsg = alertObj.description;
+                                            }
                                             alertObj.machine = machine;
                                             alertObj.line = line;
                                             alertObj.facility = facility;
@@ -169,7 +171,7 @@ angular.module('app')
 
             $rootScope.$on('alert', function(evt, alertObj) {
 
-                if (alertObj.type === 'maintenance' || alertObj.type === 'error') {
+                if (alertObj.type === 'maintenance') {
                     $modal.open({
                         templateUrl: 'partials/alert.html',
                         controller: 'AlertController',

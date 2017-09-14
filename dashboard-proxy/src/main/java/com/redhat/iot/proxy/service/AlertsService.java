@@ -281,36 +281,6 @@ public class AlertsService implements MqttCallback {
             addAlert(new Alert(date, id, desc, details.toString(), type, line, machine));
             dgService.getFacilities().put(fid, facility);
 
-            log.info("Adding MAINTENANCE cal entry");
-            String reason = getStringObj(details, "reason");
-            Long mStart = new Date().getTime();
-            Long mEnd = mStart + MS_IN_HOUR;
-
-            CalEntry calEntry = new CalEntry();
-            calEntry.setStart(new Date(mStart));
-            calEntry.setEnd(new Date(mEnd));
-            calEntry.setFacility(facility);
-            calEntry.setTitle("Line SHUTDOWN: " + line.getLid());
-            calEntry.setColor("red");
-            calEntry.setType("maintenance");
-            JSONObject dets = new JSONObject()
-                    .put("desc", reason)
-                    .put("links",
-                            new JSONArray()
-                                    .put(
-                                            new JSONObject()
-                                                    .put("name", "Installation Manual")
-                                                    .put("link", "http://www.redhat.com"))
-                                    .put(
-                                            new JSONObject()
-                                                    .put("name", "Repair Manual")
-                                                    .put("link", "http://developers.redhat.com"))
-                    );
-
-            calEntry.setDetails(dets.toString());
-            dgService.getCalendar().put(UUID.randomUUID().toString(), calEntry);
-
-
         } else if ("maintenance".equalsIgnoreCase(type)) {
             log.info("MAINTENANCE alert received");
             String reason = getStringObj(details, "reason");

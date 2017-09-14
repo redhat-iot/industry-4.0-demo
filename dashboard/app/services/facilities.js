@@ -116,6 +116,14 @@ angular.module('app')
                 });
             });
 
+            facilities.forEach(function(facility) {
+                facility.lines.forEach(function(line) {
+                    if (line.status !== 'ok') {
+                        facility.status = line.status;
+                    }
+                });
+            });
+
             $rootScope.$broadcast('facilities:updated');
 
         }, function err(response) {

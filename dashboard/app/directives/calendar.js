@@ -63,36 +63,7 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
                                 ]
                             }
                         );
-                    } else if (alert.type === 'error' && alert.facility.fid === scope.selectedFacility.fid) {
-                        $('#fullcalendar').fullCalendar('addEventSource',
-                            {
-                                events: [
-                                    {
-                                        type: 'maintenance',
-                                        title: alert.description,
-                                        start: new Date().getTime(),
-                                        end: new Date().getTime() + (60 * 60 * 1000),
-                                        color: 'red',
-                                        details: {
-                                            desc: alert.details.reason,
-                                            links: [
-                                                {
-                                                    name: "Installation Guide",
-                                                    link: "http://redhat.com"
-                                                },
-                                                {
-                                                    name: "Repair Guide",
-                                                    link: "http://developers.redhat.com"
-                                                }
-                                            ]
-                                        },
-                                        facility: alert.facility
-                                    }
-                                ]
-                            });
-
                     }
-
                 });
 
                 scope.$watch('selectedFacility', function () {

@@ -1377,11 +1377,13 @@ angular.module('app')
                     if (alert.fid === $scope.selectedFacility.fid &&
                         alert.lid === $scope.selectedLine.lid) {
                         switch (alert.type) {
-                            case 'degregdation':
+                            case 'warning':
                             case 'maintenance':
-                                $scope.selectedLine.status = 'warning';
+                                if ($scope.selectedLine.status === 'ok') {
+                                    $scope.selectedLine.status = 'warning';
+                                }
                                 break;
-                            case 'failure':
+                            case 'error':
                                 $scope.selectedLine.status = 'error';
                                 break;
                             case 'ok':
@@ -1484,10 +1486,6 @@ angular.module('app')
 
                 $scope.$on('facilities:selected', function (event, fac) {
                     $scope.selectedFacility = fac;
-                });
-
-                $scope.$on("line:alert", function (evt, al) {
-
                 });
 
                 $scope.isSelected = function (line) {
