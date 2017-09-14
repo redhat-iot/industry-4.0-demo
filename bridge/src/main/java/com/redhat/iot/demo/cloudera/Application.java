@@ -37,7 +37,7 @@ public class Application extends RouteBuilder {
     public void configure() throws Exception {
 
         // Incoming from MQTT
-        from("mqtt:incoming?host=tcp://broker-redhat-iot.apps.cloudera-iot-demo.rhiot.org:31883&subscribeTopicName=Red-Hat/+/cloudera-demo/#&userName=demo-gw2&password=RedHat123")
+        from("mqtt:incoming?host=tcp://broker-redhat-iot.apps.cloudera-iot-demo.rhiot.org:31883&subscribeTopicName=Red-Hat/+/cloudera-demo/facilities/+/lines/+/machines/+&userName=demo-gw2&password=RedHat123")
             .process(new Processor() {
                 @Override
                 public void process(Exchange exchange)
@@ -52,6 +52,7 @@ public class Application extends RouteBuilder {
         .to("kafka:ingest?brokers=34.208.144.34:9092&serializerClass=org.apache.kafka.common.serialization.ByteArraySerializer");
 
         // Monitoring Kafka topic, for testing only
+/*
         from("kafka:ingest?brokers=34.208.144.34:9092&groupId=kapua_bridge")
                 .process(exchange -> {
                     String messageKey = "";
@@ -66,7 +67,6 @@ public class Application extends RouteBuilder {
                                     .getHeader(KafkaConstants.KEY);
                         Object data = message.getBody();
 
-
                         System.out.println("topicName :: "
                                 + topicName + " partitionId :: "
                                 + partitionId + " messageKey :: "
@@ -74,5 +74,6 @@ public class Application extends RouteBuilder {
                                 + data + "\n");
                     }
                 }).to("log:input");
+*/
     }
 }
