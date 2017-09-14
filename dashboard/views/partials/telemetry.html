@@ -20,7 +20,7 @@
     <!--<div pf-trends-chart config="config[telemetry.name]" chart-data="data[telemetry.name]">-->
 
     <div ng-if="!selectedMachine">
-        <icon class="fa fa-info-circle"></icon>&nbsp;Choose a shipment to view its telemetry
+        <icon class="fa fa-info-circle"></icon>&nbsp;Choose a machine to view its telemetry
     </div>
 
     <div ng-repeat="telemetry in selectedMachine.telemetry track by $index">
