@@ -278,21 +278,20 @@ angular.module('app')
                 $scope.facilities = Reports.getFacilities();
 
                 $scope.config = {
-                    units: 'sq. ft.'
+                    units: 'units/mo.'
                 };
 
                 $scope.donutConfig = {
-                    chartId: 'chart-util',
-                    thresholds: {'warning': '60'}
+                    chartId: 'chart-util'
                 };
 
                 $scope.sparklineConfig = {
                     chartId: 'chart-spark',
                     tooltipType: 'percentage',
-                    units: 'sq. ft.'
+                    units: 'units/mo.'
                 };
 
-                $scope.centerLabel = "used";
+                $scope.centerLabel = "percent";
                 $scope.custChartHeight = 60;
                 $scope.custShowXAxis = false;
                 $scope.custShowYAxis = false;
@@ -301,12 +300,11 @@ angular.module('app')
 
                 function processFacilityUtilization(facilities) {
 
-                    // figure total sq ft and utilization
-                    var totalSize = 0;
-                    var usedSize = 0;
+                    var totalCapacity = 0;
+                    var usedCapacity = 0;
                     facilities.forEach(function (facility) {
-                        totalSize += facility.size;
-                        usedSize += (facility.utilization * facility.size);
+                        totalCapacity += facility.capacity;
+                        usedCapacity += (facility.utilization * facility.capacity);
                     });
 
                     var today = new Date();
@@ -315,17 +313,17 @@ angular.module('app')
 
                     for (var d = 20 - 1; d >= 1; d--) {
                         dates.push(new Date(today.getTime() - (d * MS_IN_DAY)));
-                        yData.push(Math.floor(totalSize * Math.random()));
+                        yData.push(Math.floor(totalCapacity * (.90 + (.10 * Math.random()))));
                     }
 
                     // add one more representing today
                     dates.push(new Date(today.getTime()));
-                    yData.push(Math.floor(usedSize));
+                    yData.push(Math.floor(usedCapacity));
 
                     $scope.utilData = {
                         dataAvailable: true,
-                        used: Math.floor(usedSize),
-                        total: Math.floor(totalSize),
+                        used: Math.floor(usedCapacity),
+                        total: Math.floor(totalCapacity),
                         xData: dates,
                         yData: yData
                     };
@@ -1023,6 +1021,7 @@ angular.module('app')
                 var MAX_POINTS = 20;
 
                 $scope.selectedMachine = null;
+                $scope.selectedFacility = null;
 
                 function addData(machine, data) {
 
@@ -1125,13 +1124,15 @@ angular.module('app')
                 }
 
                 $scope.$on('machines:selected', function (event, machine) {
-                    $scope.selectedMachine = autoSelect;
                     showTelemetry(machine);
+                });
+
+                $scope.$on('facilities:selected', function (event, fac) {
+                    $scope.selectedFacility = fac;
                 });
 
                 var autoSelect = Facilities.getCurrentMachine();
                 if (autoSelect) {
-                    $scope.selectedMachine = autoSelect;
                     showTelemetry(autoSelect);
                 }
 

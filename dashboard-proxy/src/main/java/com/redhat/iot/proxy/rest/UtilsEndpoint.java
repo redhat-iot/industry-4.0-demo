@@ -75,36 +75,11 @@ public class UtilsEndpoint {
             Facility newFacility = new Facility();
             newFacility.setName(facility[0]);
             newFacility.setFid(facility[1]);
-            newFacility.setSize(Math.random() * 10000);
+            newFacility.setCapacity(Math.round(Math.random() * 10000));
             newFacility.setLocation(new LatLng(20, -80));
             newFacility.setAddress(newFacility.getName());
-            newFacility.setUtilization(Math.random());
+            newFacility.setUtilization(.90 + (.1 * Math.random()));
 
-//            CalEntry calEntry = new CalEntry();
-//            calEntry.setTitle("Maintenance Window");
-//            Date later = new Date(new Date().getTime() + (3 * 60 * 60 * 1000));
-//            calEntry.setStart(now);
-//            calEntry.setEnd(later);
-//            calEntry.setColor("#f7bd7f");
-//            calEntry.setType("maintenance");
-//            calEntry.setFacility(newFacility);
-//            JSONObject dets = new JSONObject()
-//                    .put("desc", "The desc")
-//                    .put("links",
-//                            new JSONArray()
-//                                    .put(
-//                                            new JSONObject()
-//                                                    .put("name", "Installation Manual")
-//                                                    .put("link", "http://www.redhat.com"))
-//                                    .put(
-//                                            new JSONObject()
-//                                                    .put("name", "Repair Manual")
-//                                                    .put("link", "http://developers.redhat.com"))
-//                    );
-//
-//            calEntry.setDetails(dets.toString());
-//            calendarCache.put(UUID.randomUUID().toString(), calEntry);
-//
             List<Line> lines = new ArrayList<>();
 
             for (String[] line : LINES) {
@@ -126,12 +101,12 @@ public class UtilsEndpoint {
                     newMachine.setStatus("ok");
                     newMachine.setDesc("The machine");
                     List<Telemetry> machineTelemetry = new ArrayList<>();
-                    machineTelemetry.add(new Telemetry("A", 40, 15, "Current", "current"));
-                    machineTelemetry.add(new Telemetry("°C", 50, 10, "Temperature", "temp"));
-                    machineTelemetry.add(new Telemetry("db", 50, 10, "Noise", "noise"));
-                    machineTelemetry.add(new Telemetry("rpm", 2000, 1000, "Speed", "speed"));
-                    machineTelemetry.add(new Telemetry("nu", 2000, 0, "Vibration", "vibration"));
-                    machineTelemetry.add(new Telemetry("V", 250, 190, "Voltage", "voltage"));
+                    machineTelemetry.add(new Telemetry("A", 55, 15, "Current", "current"));
+                    machineTelemetry.add(new Telemetry("°C", 90, 10, "Temperature", "temp"));
+                    machineTelemetry.add(new Telemetry("db", 40, 30, "Noise", "noise"));
+                    machineTelemetry.add(new Telemetry("rpm", 2000, 1500, "Speed", "speed"));
+                    machineTelemetry.add(new Telemetry("nu", .5, 0.05, "Vibration", "vibration"));
+                    machineTelemetry.add(new Telemetry("V", 250, 200, "Voltage", "voltage"));
                     newMachine.setTelemetry(machineTelemetry);
                     newMachine.setCurrentFid(newFacility.getFid());
                     newMachine.setCurrentLid(newLine.getLid());

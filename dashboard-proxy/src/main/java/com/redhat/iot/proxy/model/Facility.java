@@ -26,7 +26,7 @@ public class Facility implements Serializable {
     private String address;
     private LatLng location;
     private double utilization;
-    private double size;
+    private long capacity;
     private List<Line> lines;
 
     public Facility() {
@@ -57,12 +57,12 @@ public class Facility implements Serializable {
         this.lines = lines;
     }
 
-    public double getSize() {
-        return size;
+    public long getCapacity() {
+        return capacity;
     }
 
-    public void setSize(double size) {
-        this.size = size;
+    public void setCapacity(long capacity) {
+        this.capacity = capacity;
     }
 
     public double getUtilization() {
