@@ -1037,9 +1037,9 @@ angular.module('app')
                         dataSet.hasData = true;
                         dataSet.dataset0.push({
                             x: new Date(),
-                            val_0: metric.value
+                            val_0: metric.value.toFixed(3)
                         });
-                        dataSet.value = metric.value;
+                        dataSet.value = metric.value.toFixed(1);
                         if (dataSet.dataset0.length > (MAX_POINTS + 1)) {
                             // remove the earliest value
                             dataSet.dataset0.splice(0, 1);

@@ -216,7 +216,7 @@ angular.module('app')
                             targetObj.telemetry.forEach(function (objTel) {
                                 var telName = objTel.name;
                                 var telMetricName = objTel.metricName;
-                                var value = decodedMetric.doubleValue.toFixed(1);
+                                var value = decodedMetric.doubleValue;
                                 if (telMetricName === decodedMetric.name) {
                                     data.push({
                                         name: telName,
