@@ -1520,6 +1520,8 @@ angular.module('app')
         ['$rootScope', '$scope', '$modal', 'entry', 'SensorData',
             function ($rootScope, $scope, $modal, entry, SensorData) {
 
+                $scope.reviewTask = true;
+
                 $scope.entry = entry;
                 if (entry.details) {
                     try {
@@ -1527,18 +1529,21 @@ angular.module('app')
                     } catch (ignored) {
 
                     }
+                    if (entry.details.desc && entry.details.desc.indexOf("ROTOR_LOCK") >= 0) {
+                        $scope.reviewTask = false;
+                    }
                 }
 
                 $scope.completeTask = function () {
                     $scope.$close();
                     SensorData.resetStatus($scope.entry.facility);
-
-                    $modal.open({
-                        templateUrl: 'partials/taskreview.html',
-                        controller: 'TaskReviewController',
-                        size: 'lg'
-                    });
-
+                    if ($scope.reviewTask) {
+                        $modal.open({
+                            templateUrl: 'partials/taskreview.html',
+                            controller: 'TaskReviewController',
+                            size: 'lg'
+                        });
+                    }
                 }
             }])
 

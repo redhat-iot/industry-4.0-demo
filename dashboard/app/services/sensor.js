@@ -97,79 +97,79 @@ angular.module('app')
                 var lid = matches[2];
                 var mid = matches[3];
 
-                    Facilities.getFacilities().forEach(function(facility) {
-                        facility.lines.forEach(function(line) {
-                            line.machines.forEach(function(machine) {
+                Facilities.getFacilities().forEach(function (facility) {
+                    facility.lines.forEach(function (line) {
+                        line.machines.forEach(function (machine) {
 
-                                switch (alertObj.type) {
-                                    case 'maintenance':
-                                        if (fid === facility.fid &&
-                                            mid === machine.mid &&
-                                            lid === line.lid) {
-                                            if (facility.status === 'ok' || line.status === 'ok' || machine.status === 'ok') {
-                                                facility.status = 'warning';
-                                                line.status = 'warning';
-                                                machine.status = 'warning';
-                                                machine.statusMsg = alertObj.description;
-                                            }
-                                            alertObj.machine = machine;
-                                            alertObj.line = line;
-                                            alertObj.facility = facility;
-                                            $rootScope.$broadcast("alert", alertObj);
-                                        }
-                                        break;
-                                    case 'error':
-                                        if (fid === facility.fid &&
-                                            mid === machine.mid &&
-                                            lid === line.lid) {
-                                            facility.status = 'error';
-                                            line.status = 'error';
-                                            machine.status = 'error';
-                                            machine.statusMsg = alertObj.description;
-                                            alertObj.machine = machine;
-                                            alertObj.line = line;
-                                            alertObj.facility = facility;
-                                            $rootScope.$broadcast("alert", alertObj);
-                                        }
-                                        break;
-                                    case 'warning':
-                                        if (fid === facility.fid &&
-                                            mid === machine.mid &&
-                                            lid === line.lid) {
+                            switch (alertObj.type) {
+                                case 'maintenance':
+                                    if (fid === facility.fid &&
+                                        mid === machine.mid &&
+                                        lid === line.lid) {
+                                        if (facility.status === 'ok' || line.status === 'ok' || machine.status === 'ok') {
                                             facility.status = 'warning';
                                             line.status = 'warning';
                                             machine.status = 'warning';
                                             machine.statusMsg = alertObj.description;
-                                            alertObj.machine = machine;
-                                            alertObj.line = line;
-                                            alertObj.facility = facility;
-                                            console.log("broadcasting warning");
-                                            $rootScope.$broadcast("alert", alertObj);
                                         }
-                                        break;
-                                    case 'ok':
-                                    default:
-                                        if (fid === facility.fid &&
-                                            mid === machine.mid &&
-                                            lid === line.lid) {
-                                            facility.status = 'ok';
-                                            line.status = 'ok';
-                                            machine.status = 'ok';
-                                            machine.statusMsg = 'ok';
-                                            alertObj.machine = machine;
-                                            alertObj.line = line;
-                                            alertObj.facility = facility;
-                                            $rootScope.$broadcast("alert", alertObj);
-                                        }
-                                }
+                                        alertObj.machine = machine;
+                                        alertObj.line = line;
+                                        alertObj.facility = facility;
+                                        $rootScope.$broadcast("alert", alertObj);
+                                    }
+                                    break;
+                                case 'error':
+                                    if (fid === facility.fid &&
+                                        mid === machine.mid &&
+                                        lid === line.lid) {
+                                        facility.status = 'error';
+                                        line.status = 'error';
+                                        machine.status = 'error';
+                                        machine.statusMsg = alertObj.description;
+                                        alertObj.machine = machine;
+                                        alertObj.line = line;
+                                        alertObj.facility = facility;
+                                        $rootScope.$broadcast("alert", alertObj);
+                                    }
+                                    break;
+                                case 'warning':
+                                    if (fid === facility.fid &&
+                                        mid === machine.mid &&
+                                        lid === line.lid) {
+                                        facility.status = 'warning';
+                                        line.status = 'warning';
+                                        machine.status = 'warning';
+                                        machine.statusMsg = alertObj.description;
+                                        alertObj.machine = machine;
+                                        alertObj.line = line;
+                                        alertObj.facility = facility;
+                                        console.log("broadcasting warning");
+                                        $rootScope.$broadcast("alert", alertObj);
+                                    }
+                                    break;
+                                case 'ok':
+                                default:
+                                    if (fid === facility.fid &&
+                                        mid === machine.mid &&
+                                        lid === line.lid) {
+                                        facility.status = 'ok';
+                                        line.status = 'ok';
+                                        machine.status = 'ok';
+                                        machine.statusMsg = 'ok';
+                                        alertObj.machine = machine;
+                                        alertObj.line = line;
+                                        alertObj.facility = facility;
+                                        $rootScope.$broadcast("alert", alertObj);
+                                    }
+                            }
 
-                            });
                         });
                     });
+                });
 
             }
 
-            $rootScope.$on('alert', function(evt, alertObj) {
+            $rootScope.$on('alert', function (evt, alertObj) {
 
                 if (alertObj.type === 'maintenance') {
                     $modal.open({
@@ -189,7 +189,7 @@ angular.module('app')
                 var destination = message.destinationName;
 
                 if (alertTopicRegex.test(destination)) {
-                    $rootScope.$apply(function() {
+                    $rootScope.$apply(function () {
                         handleAlert(destination, JSON.parse(message.payloadString));
                     })
                 } else {
@@ -233,14 +233,14 @@ angular.module('app')
                 }
             }
 
-            factory.resetStatus = function(facility) {
+            factory.resetStatus = function (facility) {
                 var msg = {
                     id: guid(),
                     timestamp: new Date().getTime(),
                     command: 'reset'
                 };
 
-                Facilities.getFacilities().forEach(function(fac) {
+                Facilities.getFacilities().forEach(function (fac) {
                     if (fac.fid === facility.fid) {
                         fac.status = 'ok';
                     }
@@ -248,10 +248,10 @@ angular.module('app')
 
                 facility.status = 'ok';
 
-                Facilities.getLinesForFacility(facility).forEach(function(line) {
+                Facilities.getLinesForFacility(facility).forEach(function (line) {
                     line.status = 'ok';
                     line.statusMsg = 'ok';
-                    line.machines.forEach(function(machine) {
+                    line.machines.forEach(function (machine) {
                         machine.status = 'ok';
                         machine.statusMsg = 'ok';
                         sendJSONObjectMsg(msg,
@@ -266,9 +266,9 @@ angular.module('app')
                 Facilities.resetStatus(facility);
             };
 
-            $rootScope.$on('resetAll', function() {
+            $rootScope.$on('resetAll', function () {
 
-                Facilities.getFacilities().forEach(function(facility) {
+                Facilities.getFacilities().forEach(function (facility) {
                     factory.resetStatus(facility);
                 });
             });
@@ -285,7 +285,7 @@ angular.module('app')
                 if (attempt > 1) {
                     Notifications.warn("Trouble connecting to broker, will keep trying (reload to re-start the count)");
                 }
-                var brokerHostname = APP_CONFIG.BROKER_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1");
+                var brokerHostname = APP_CONFIG.BROKER_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g, "$1");
                 var brokerPort = APP_CONFIG.BROKER_WS_PORT;
 
                 client = new Paho.MQTT.Client(brokerHostname, Number(brokerPort), "dashboard-ui-client-" + guid());
@@ -447,6 +447,27 @@ angular.module('app')
                     "/machines/" + machine.mid +
                     "/control");
 
+                // TODO remove
+                // fake the error in 2 seconds
+                $timeout(function() {
+                    var rotorLockedMsg = {
+                        "id": guid(),
+                        "description": "Machine Safety Hazard",
+                        "timestamp": new Date().getTime(),
+                        "type": "error",
+                        "details": {
+                            "reason": "Automatic line safety control has halted line due to safety hazard. Immediate maintenance required"
+                        }
+                    };
+
+                    sendJSONObjectMsg(rotorLockedMsg,
+                        APP_CONFIG.CONTROL_TOPIC_PREFIX +
+                        "/facilities/" + facility.fid +
+                        "/lines/" + line.lid +
+                        "/machines/" + machine.mid +
+                        "/alerts");
+
+                }, 3000);
             };
 
             connectClient(1);
