@@ -161,3 +161,9 @@
 .c3-axis-y2-label {
     font-size: 1.5em;
 }
+
+@media (min-width: 1400px) {
+    .modal-fullscreen .modal-lg {
+        width: 95%;
+    }
+}

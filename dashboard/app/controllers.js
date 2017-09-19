@@ -1515,6 +1515,13 @@ angular.module('app')
                     $location.path(loc);
                 }
             }])
+    .controller("ImgPopupController",
+        ['$rootScope', '$scope', '$location', 'filename', 'title',
+            function ($rootScope, $scope, $location, filename, title) {
+
+                $scope.filename = filename;
+                $scope.title = title;
+            }])
 
     .controller("CalEntryController",
         ['$rootScope', '$scope', '$modal', 'entry', 'SensorData',
@@ -1613,8 +1620,8 @@ angular.module('app')
             }])
 
     .controller("HeaderController",
-        ['$rootScope', '$scope', '$window', '$location', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Facilities',
-            function ($rootScope, $scope, $window, $location, $timeout, $http, APP_CONFIG, Notifications, SensorData, Facilities) {
+        ['$rootScope', '$scope', '$window', '$location', '$modal', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Facilities',
+            function ($rootScope, $scope, $window, $location, $modal, $timeout, $http, APP_CONFIG, Notifications, SensorData, Facilities) {
 
                 $scope.predictiveMaintenanceColor = 'orange';
                 $scope.unpredictedErrorColor = 'red';
@@ -1726,5 +1733,22 @@ angular.module('app')
                     SensorData.unpredictedError($scope.selectedFacility, $scope.selectedLine, $scope.selectedMachine);
                 };
 
-            }])
+                $scope.showImage = function(filename, title) {
+                    $modal.open({
+                        templateUrl: 'partials/img-popup.html',
+                        controller: 'ImgPopupController',
+                        windowClass: 'modal-fullscreen',
+                        size: 'lg',
+                        resolve: {
+                            filename: function () {
+                                return filename;
+                            },
+                            title: function() {
+                                return title;
+                            }
+                        }
+                    });
+                }
+
+            }]);
 
