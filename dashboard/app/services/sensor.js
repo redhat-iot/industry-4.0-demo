@@ -446,28 +446,6 @@ angular.module('app')
                     "/lines/" + line.lid +
                     "/machines/" + machine.mid +
                     "/control");
-
-                // TODO remove
-                // fake the error in 2 seconds
-                $timeout(function() {
-                    var rotorLockedMsg = {
-                        "id": guid(),
-                        "description": "Machine Safety Hazard",
-                        "timestamp": new Date().getTime(),
-                        "type": "error",
-                        "details": {
-                            "reason": "Automatic line safety control has halted line due to safety hazard. Immediate maintenance required"
-                        }
-                    };
-
-                    sendJSONObjectMsg(rotorLockedMsg,
-                        APP_CONFIG.CONTROL_TOPIC_PREFIX +
-                        "/facilities/" + facility.fid +
-                        "/lines/" + line.lid +
-                        "/machines/" + machine.mid +
-                        "/alerts");
-
-                }, 3000);
             };
 
             connectClient(1);
