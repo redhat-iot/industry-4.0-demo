@@ -35,7 +35,7 @@ import static com.redhat.iot.proxy.rest.UtilsEndpoint.MS_IN_HOUR;
 @ApplicationScoped
 public class AlertsService implements MqttCallback {
 
-    private static final int MAX_RECONNECT_ATTEMPTS = 100;
+    private static final String ALERTS_TOPIC_SUBSCRIPTION = "+/+/+/facilities/+/lines/+/machines/+/alerts";
     private static final Pattern TOPIC_PATTERN = Pattern.compile("[^/]*/[^/]*/[^/]*/facilities/([^/]*)/lines/([^/]*)/machines/([^/]*)/alerts");
     private MqttClient mqttClient;
 
@@ -44,14 +44,6 @@ public class AlertsService implements MqttCallback {
 
     private static final Logger log = Logger.getLogger(AlertsService.class.getName());
     public AlertsService() {
-
-        // String brokerHost = System.getenv("KAPUA_BROKER_SERVICE_HOST");
-        // String brokerPort = System.getenv("KAPUA_BROKER_SERVICE_PORT_MQTT_TCP");
-
-        // if (brokerHost == null || brokerPort == null) {
-        //     throw new IllegalArgumentException("BROKER_HOSTNAME or BROKER_PORT not set, cannot process alerts");
-        // }
-
 
         MemoryPersistence persistence = new MemoryPersistence();
         String broker = System.getenv("KAPUA_BROKER_PORT");
@@ -102,57 +94,36 @@ public class AlertsService implements MqttCallback {
             return;
         }
 
-        for (int i = 0; i < MAX_RECONNECT_ATTEMPTS; i++) {
-            try {
+        try {
+            MqttConnectOptions connOpts = new MqttConnectOptions();
+            connOpts.setUserName(System.getenv("BROKER_USERNAME"));
+            connOpts.setPassword(System.getenv("BROKER_PASSWORD").toCharArray());
 
+            connOpts.setCleanSession(true);
+            connOpts.setKeepAliveInterval(10);
+            connOpts.setConnectionTimeout(60);
+            connOpts.setAutomaticReconnect(true);
+            log.info("Connecting to broker: " + mqttClient.getServerURI());
+            mqttClient.connect(connOpts);
+            log.info("Connected to broker: " + mqttClient.getServerURI());
 
-                MqttConnectOptions connOpts = new MqttConnectOptions();
-                connOpts.setUserName(System.getenv("BROKER_USERNAME"));
-                connOpts.setPassword(System.getenv("BROKER_PASSWORD").toCharArray());
-
-                connOpts.setCleanSession(true);
-                connOpts.setKeepAliveInterval(10);
-                connOpts.setConnectionTimeout(60);
-                log.info("Attempt " + (i+1) + " of " + MAX_RECONNECT_ATTEMPTS + ": Connecting to broker: " + mqttClient.getServerURI());
-                mqttClient.connect(connOpts);
-                log.info("Connected");
-
-                mqttClient.setCallback(this);
-                log.info("Subscribing");
-                mqttClient.subscribe("+/+/+/facilities/+/lines/+/machines/+/alerts");
-
-                log.info("Subscribed");
-                break;
-            } catch (Exception me) {
-                log.info("Could not connect to " + mqttClient.getServerURI());
-                log.info("msg " + me.getMessage());
-                log.info("loc " + me.getLocalizedMessage());
-                log.info("cause " + me.getCause());
-                log.info("excep " + me);
-                me.printStackTrace();
-            }
-            try {
-                log.info("Waiting for 10s to retry");
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            mqttClient.setCallback(this);
+            log.info("Subscribing to " + ALERTS_TOPIC_SUBSCRIPTION);
+            mqttClient.subscribe(ALERTS_TOPIC_SUBSCRIPTION);
+            log.info("Subscribed to " + ALERTS_TOPIC_SUBSCRIPTION);
+        } catch (Exception me) {
+            log.info("Could not connect to " + mqttClient.getServerURI());
+            log.info("msg: " + me.getMessage());
+            log.info("localized msg: " + me.getLocalizedMessage());
+            log.info("cause: " + me.getCause());
+            log.info("exception: " + me);
+            me.printStackTrace();
         }
     }
 
     @Override
     public void connectionLost(Throwable throwable)  {
         log.info("CONNECTION LOST: " + throwable.getMessage() + " cause: " + throwable.getCause().getMessage());
-        try {
-            if (mqttClient.isConnected()) {
-                log.info("Disconnecting from client");
-                mqttClient.disconnect();
-                log.info("Attempting to reconnect in 5s");
-                Thread.sleep(5000);
-                subscribeToAlerts();
-            }
-        } catch (Exception ignored) {
-        }
     }
 
     private Long getLongObj(JSONObject dic, String key) {
@@ -170,19 +141,6 @@ public class AlertsService implements MqttCallback {
             return dic.getString(key).trim();
         }
     }
-
-//    {
-//		“id”: “D846E916-FA87-4ACE-97A6-D0C91C5116C6”,
-//      “description”: “Maintenance Required”,
-//      “timestamp”: 1503599719963,
-//      “type”: “maintenance”,
-//      “details”: {
-//	        “reason”: “Machine is operating outside nominal values”,
-//	        “start”: 1503599819963,
-//	        “end”: 1503699819963
-//      }
-//    }
-
 
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
