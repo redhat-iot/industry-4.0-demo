@@ -15,6 +15,7 @@
 package com.redhat.iot.proxy.rest;
 
 import com.redhat.iot.proxy.model.*;
+import com.redhat.iot.proxy.service.AlertsService;
 import com.redhat.iot.proxy.service.DGService;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,6 +26,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 import java.util.*;
 
 /**
@@ -40,10 +42,16 @@ public class UtilsEndpoint {
     @Inject
     DGService dgService;
 
+    @Inject
+    AlertsService alertsService;
+
     @GET
     @Path("/health")
-    public String health() {
-        return "ok";
+    public Response health() {
+        if (!alertsService.isConnected()) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Broker disconnected").build();
+        }
+        return Response.ok().build();
     }
 
     @POST

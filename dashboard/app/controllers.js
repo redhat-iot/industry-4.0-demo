@@ -1548,6 +1548,7 @@ angular.module('app')
                         $modal.open({
                             templateUrl: 'partials/taskreview.html',
                             controller: 'TaskReviewController',
+                            windowClass: 'modal-fullscreen',
                             size: 'lg'
                         });
                     }

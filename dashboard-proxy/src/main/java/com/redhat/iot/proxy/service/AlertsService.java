@@ -55,6 +55,10 @@ public class AlertsService implements MqttCallback {
 
     }
 
+    public boolean isConnected() {
+        return mqttClient.isConnected();
+    }
+
     private void addAlert(Alert alert) {
         alerts.add(alert);
     }
