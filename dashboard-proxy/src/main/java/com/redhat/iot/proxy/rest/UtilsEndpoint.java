@@ -17,17 +17,14 @@ package com.redhat.iot.proxy.rest;
 import com.redhat.iot.proxy.model.*;
 import com.redhat.iot.proxy.service.AlertsService;
 import com.redhat.iot.proxy.service.DGService;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A simple REST service which proxies requests to a local datagrid.
@@ -79,87 +76,138 @@ public class UtilsEndpoint {
         }
 
         for (String[] facility : FACILITIES) {
+            populateFacility(facility);
+        }
+    }
 
-            Facility newFacility = new Facility();
-            newFacility.setName(facility[0]);
-            newFacility.setFid(facility[1]);
-            newFacility.setCapacity(Math.round(Math.random() * 10000));
-            newFacility.setLocation(new LatLng(20, -80));
-            newFacility.setAddress(newFacility.getName());
-            newFacility.setUtilization(.90 + (.1 * Math.random()));
+    @POST
+    @Path("/reset/{fid}")
+    public void resetFacility(@PathParam("fid") String fid) {
 
-            List<Line> lines = new ArrayList<>();
+        Map<String, Facility> facilitiesCache = dgService.getFacilities();
+        Map<String, Line> linesCache = dgService.getProductionLines();
+        Map<String, Machine> machinesCache = dgService.getMachines();
+        Map<String, Run> runsCache = dgService.getRuns();
+        Map<String, CalEntry> calendarCache = dgService.getCalendar();
 
-            for (String[] line : LINES) {
-                Line newLine = new Line();
-                newLine.setCurrentFid(newFacility.getFid());
-                lines.add(newLine);
-                newLine.setName(line[0]);
-                newLine.setLid(line[1]);
-                newLine.setDesc("The line");
-                newLine.setStatus("ok");
+        Facility f = facilitiesCache.get(fid);
+        if (f == null) {
+            return;
+        }
 
-                List<Machine> machines = new ArrayList<>();
+        facilitiesCache.remove(fid);
+        for (Line l : f.getLines()) {
+            linesCache.remove(f.getFid() + "/" + l.getLid());
+            for (Machine m : l.getMachines()) {
+                machinesCache.remove(f.getFid() + "/" + l.getLid() + " / " + m.getMid());
+            }
+            runsCache.remove(l.getCurrentRun().getRid());
 
-                for (String[] machine : MACHINES) {
-                    Machine newMachine = new Machine();
-                    machines.add(newMachine);
-                    newMachine.setName(machine[0]);
-                    newMachine.setMid(machine[1]);
-                    newMachine.setStatus("ok");
-                    newMachine.setDesc("The machine");
-                    List<Telemetry> machineTelemetry = new ArrayList<>();
-                    machineTelemetry.add(new Telemetry("A", 55, 15, "Current", "current"));
-                    machineTelemetry.add(new Telemetry("°C", 90, 10, "Temperature", "temp"));
-                    machineTelemetry.add(new Telemetry("db", 40, 30, "Noise", "noise"));
-                    machineTelemetry.add(new Telemetry("rpm", 2000, 1500, "Speed", "speed"));
-                    machineTelemetry.add(new Telemetry("nu", .5, 0.05, "Vibration", "vibration"));
-                    machineTelemetry.add(new Telemetry("V", 250, 200, "Voltage", "voltage"));
-                    newMachine.setTelemetry(machineTelemetry);
-                    newMachine.setCurrentFid(newFacility.getFid());
-                    newMachine.setCurrentLid(newLine.getLid());
-                    newMachine.setType(machine[2]);
-                    machinesCache.put(newFacility.getFid() + "/" + newLine.getLid() + "/" + newMachine.getMid(), newMachine);
+            List<CalEntry> oldEntries = calendarCache.keySet()
+                    .stream().map(calendarCache::get)
+                    .filter(c -> c.getFacility().getFid().equals(fid))
+                    .collect(Collectors.toList());
 
+            oldEntries.forEach(calEntry -> calendarCache.remove(calEntry.getCid()));
 
-                }
+        }
 
-                newLine.setMachines(machines);
+        for (String[] facility : FACILITIES) {
+            if (facility[1].equals(fid)) {
+                populateFacility(facility);
+            }
+        }
 
-                Date now = new Date();
+    }
 
-                Run r = new Run();
-                r.setName(rand(RUNS));
-                r.setCustomer(customerCache.get(rand(COMPANIES)));
-                r.setDesc("Standard Run");
-                newLine.setCurrentRun(r);
-                r.setStatus("ok");
-                r.setStart(new Date(now.getTime() - ((int) (Math.floor((Math.random() * 2.0) * (double) MS_IN_HOUR)))));
-                r.setEnd(new Date(now.getTime() + ((int) (Math.floor((Math.random() * 4.0) * (double) MS_IN_HOUR)))));
+    private void populateFacility(String[] facility) {
 
-                CalEntry runEntry = new CalEntry();
-                runEntry.setTitle(r.getName() + "(" + r.getCustomer().getName() + ")");
-                runEntry.setStart(r.getStart());
-                runEntry.setEnd(r.getEnd());
-                runEntry.setFacility(newFacility);
-                runEntry.setColor(line[2]);
-                runEntry.setType("run");
-                runEntry.setDetails(new JSONObject().put("desc", "The Run").toString());
-                calendarCache.put(UUID.randomUUID().toString(), runEntry);
+        Map<String, Customer> customerCache = dgService.getCustomers();
+        Map<String, Facility> facilitiesCache = dgService.getFacilities();
+        Map<String, Line> linesCache = dgService.getProductionLines();
+        Map<String, Machine> machinesCache = dgService.getMachines();
+        Map<String, Run> runsCache = dgService.getRuns();
+        Map<String, CalEntry> calendarCache = dgService.getCalendar();
 
-                runsCache.put(r.getRid(), r);
+        Facility newFacility = new Facility();
+        newFacility.setName(facility[0]);
+        newFacility.setFid(facility[1]);
+        newFacility.setCapacity(Math.round(Math.random() * 10000));
+        newFacility.setLocation(new LatLng(20, -80));
+        newFacility.setAddress(newFacility.getName());
+        newFacility.setUtilization(.90 + (.1 * Math.random()));
 
-                linesCache.put(newFacility.getFid() + "/" + newLine.getLid(), newLine);
+        List<Line> lines = new ArrayList<>();
+
+        for (String[] line : LINES) {
+            Line newLine = new Line();
+            newLine.setCurrentFid(newFacility.getFid());
+            lines.add(newLine);
+            newLine.setName(line[0]);
+            newLine.setLid(line[1]);
+            newLine.setDesc("The line");
+            newLine.setStatus("ok");
+
+            List<Machine> machines = new ArrayList<>();
+
+            for (String[] machine : MACHINES) {
+                Machine newMachine = new Machine();
+                machines.add(newMachine);
+                newMachine.setName(machine[0]);
+                newMachine.setMid(machine[1]);
+                newMachine.setStatus("ok");
+                newMachine.setDesc("The machine");
+                List<Telemetry> machineTelemetry = new ArrayList<>();
+                machineTelemetry.add(new Telemetry("A", 55, 15, "Current", "current"));
+                machineTelemetry.add(new Telemetry("°C", 90, 10, "Temperature", "temp"));
+                machineTelemetry.add(new Telemetry("db", 40, 30, "Noise", "noise"));
+                machineTelemetry.add(new Telemetry("rpm", 2000, 1500, "Speed", "speed"));
+                machineTelemetry.add(new Telemetry("nu", .5, 0.05, "Vibration", "vibration"));
+                machineTelemetry.add(new Telemetry("V", 250, 200, "Voltage", "voltage"));
+                newMachine.setTelemetry(machineTelemetry);
+                newMachine.setCurrentFid(newFacility.getFid());
+                newMachine.setCurrentLid(newLine.getLid());
+                newMachine.setType(machine[2]);
+                machinesCache.put(newFacility.getFid() + "/" + newLine.getLid() + "/" + newMachine.getMid(), newMachine);
 
 
             }
 
-            newFacility.setLines(lines);
+            newLine.setMachines(machines);
 
-            facilitiesCache.put(newFacility.getFid(), newFacility);
+            Date now = new Date();
+
+            Run r = new Run();
+            r.setName(rand(RUNS));
+            r.setRid(UUID.randomUUID().toString());
+            r.setCustomer(customerCache.get(rand(COMPANIES)));
+            r.setDesc("Standard Run");
+            newLine.setCurrentRun(r);
+            r.setStatus("ok");
+            r.setStart(new Date(now.getTime() - ((int) (Math.floor((Math.random() * 2.0) * (double) MS_IN_HOUR)))));
+            r.setEnd(new Date(now.getTime() + ((int) (Math.floor((Math.random() * 4.0) * (double) MS_IN_HOUR)))));
+
+            CalEntry runCalEntry = new CalEntry();
+            runCalEntry.setCid(UUID.randomUUID().toString());
+            runCalEntry.setTitle(r.getName() + "(" + r.getCustomer().getName() + ")");
+            runCalEntry.setStart(r.getStart());
+            runCalEntry.setEnd(r.getEnd());
+            runCalEntry.setFacility(newFacility);
+            runCalEntry.setColor(line[2]);
+            runCalEntry.setType("run");
+            runCalEntry.setDetails(new JSONObject().put("desc", "The Run").toString());
+            calendarCache.put(runCalEntry.getCid(), runCalEntry);
+
+            runsCache.put(r.getRid(), r);
+
+            linesCache.put(newFacility.getFid() + "/" + newLine.getLid(), newLine);
+
+
         }
 
+        newFacility.setLines(lines);
 
+        facilitiesCache.put(newFacility.getFid(), newFacility);
     }
 
     private String rand(String[] strs) {

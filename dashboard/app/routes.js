@@ -16,16 +16,16 @@
 'use strict';
 
 angular.module('app').config([ '$routeProvider', function($routeProvider) {
-  $routeProvider.when('/', {
+  $routeProvider.when('/ops/:fid?', {
     templateUrl : 'partials/home.html',
     controller : 'HomeController'
-  }).when('/exec', {
+  }).when('/exec/:fid?', {
       templateUrl : 'partials/exec/home.html',
       controller : 'ExecHomeController'
-  }).when('/tech/tasks', {
+  }).when('/tech/tasks/:fid?', {
       templateUrl : 'partials/tech/tasks.html',
       controller : 'TechTasksController'
   }).otherwise({
-    redirectTo : '/'
+    redirectTo : '/ops'
   });
 }]);

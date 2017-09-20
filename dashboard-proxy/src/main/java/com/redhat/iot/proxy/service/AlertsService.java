@@ -250,6 +250,7 @@ public class AlertsService implements MqttCallback {
             Long mEnd = getLongObj(details, "end");
 
             CalEntry calEntry = new CalEntry();
+            calEntry.setCid(UUID.randomUUID().toString());
             calEntry.setStart(new Date(mStart));
             calEntry.setEnd(new Date(mEnd));
             calEntry.setFacility(facility);
@@ -271,7 +272,7 @@ public class AlertsService implements MqttCallback {
                     );
 
             calEntry.setDetails(dets.toString());
-            dgService.getCalendar().put(UUID.randomUUID().toString(), calEntry);
+            dgService.getCalendar().put(calEntry.getCid(), calEntry);
             log.info("Added maintanence event for facility " + facility.getFid());
 
             log.info("temporarily issuing WARNING alert");

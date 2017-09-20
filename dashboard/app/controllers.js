@@ -30,8 +30,8 @@ angular.module('app')
     })
 
     .controller("ExecHomeController",
-        ['$scope', '$http', '$filter', 'Notifications', 'SensorData',
-            function ($scope, $http, $filter, Notifications, SensorData) {
+        ['$scope', '$routeParams',
+            function ($scope, $routeParams) {
 
 
             }])
@@ -271,11 +271,9 @@ angular.module('app')
             }])
 
     .controller("ExecFacilityUtilizationController",
-        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
-            function ($scope, $http, $filter, Notifications, SensorData, Reports) {
+        ['$scope', '$http', '$filter', 'Notifications', 'Facilities',
+            function ($scope, $http, $filter, Notifications, Facilities) {
                 var MS_IN_DAY = 24 * 60 * 60 * 1000;
-
-                $scope.facilities = Reports.getFacilities();
 
                 $scope.config = {
                     units: 'units/mo.'
@@ -299,7 +297,6 @@ angular.module('app')
                 $scope.utilData = {};
 
                 function processFacilityUtilization(facilities) {
-
                     var totalCapacity = 0;
                     var usedCapacity = 0;
                     facilities.forEach(function (facility) {
@@ -329,7 +326,7 @@ angular.module('app')
                     };
                 }
 
-                processFacilityUtilization($scope.facilities);
+                processFacilityUtilization(Facilities.getFacilities());
 
                 $scope.$on('facilities:updated', function (event, facilities) {
                     processFacilityUtilization(facilities);
@@ -338,10 +335,10 @@ angular.module('app')
             }])
 
     .controller("ExecTopFacilitiesController",
-        ['$scope', '$modal', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
-            function ($scope, $modal, $http, $filter, Notifications, SensorData, Reports) {
+        ['$scope', '$modal', 'Facilities',
+            function ($scope, $modal, Facilities) {
 
-                $scope.facilities = Reports.getFacilities();
+                $scope.facilities = Facilities.getFacilities();
                 $scope.data = {};
                 $scope.titles = {};
                 $scope.units = "";
@@ -929,9 +926,10 @@ angular.module('app')
 
 
     .controller("LineListController",
-        ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Facilities',
-            function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Facilities) {
+        ['$routeParams', '$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Facilities',
+            function ($routeParams, $timeout, $rootScope, $scope, $http, Notifications, SensorData, Facilities) {
 
+                $rootScope.autoFid = $routeParams.fid;
                 $scope.selectedLine = null;
                 $scope.selectedFacility = null;
                 $scope.lines = null;
@@ -981,7 +979,11 @@ angular.module('app')
                 $scope.$on('facilities:updated', function (event) {
                     $scope.facilities = Facilities.getFacilities();
                     if (!$scope.selectedFacility) {
-                        $scope.selectFacility($scope.facilities[0]);
+                        var autoSel = getAutoSelectedFacility();
+                        if (!autoSel) {
+                            autoSel = $scope.facilities[0];
+                        }
+                        $scope.selectFacility(autoSel);
                     }
                 });
 
@@ -994,11 +996,33 @@ angular.module('app')
                     });
                 });
 
+                function getAutoSelectedFacility() {
+                    var autoSelectFacility;
+
+                    if ($routeParams.fid) {
+
+                        autoSelectFacility =
+                            $scope.facilities.find(function(fac) {
+                                return fac.fid === $routeParams.fid;
+                            });
+
+                    }
+
+                    if (!autoSelectFacility) {
+                        autoSelectFacility = $scope.facilities[0];
+                    }
+
+                    return autoSelectFacility;
+                }
+
                 $scope.facilities = Facilities.getFacilities();
 
                 var selectedFacility = Facilities.getCurrentFacility();
                 if (!selectedFacility) {
-                    $scope.selectFacility($scope.facilities[0]);
+                    selectedFacility = getAutoSelectedFacility();
+                    if (selectedFacility) {
+                        $scope.selectFacility(selectedFacility);
+                    }
                 } else {
                     $scope.facilities.forEach(function (fac) {
                         if (fac.fid === selectedFacility.fid) {
@@ -1015,8 +1039,8 @@ angular.module('app')
             }])
 
     .controller("TelemetryController",
-        ['$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData', 'APP_CONFIG', 'Facilities',
-            function ($filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData, APP_CONFIG, Facilities) {
+        ['$routeParams', '$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData', 'APP_CONFIG', 'Facilities',
+            function ($routeParams, $filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData, APP_CONFIG, Facilities) {
 
                 var MAX_POINTS = 20;
 
@@ -1136,6 +1160,35 @@ angular.module('app')
                     showTelemetry(autoSelect);
                 }
 
+                function getAutoSelectedFacility() {
+                    var autoSelectFacility;
+
+                    if ($routeParams.fid) {
+
+                        autoSelectFacility =
+                            Facilities.getFacilities().find(function(fac) {
+                                return fac.fid === $routeParams.fid;
+                            });
+
+                    }
+
+                    if (!autoSelectFacility) {
+                        autoSelectFacility = Facilities.getFacilities()[0];
+                    }
+
+                    return autoSelectFacility;
+                }
+
+                var selectedFacility = Facilities.getCurrentFacility();
+                if (!selectedFacility) {
+                    selectedFacility = getAutoSelectedFacility();
+                }
+
+                if (selectedFacility) {
+                    $scope.selectedFacility = selectedFacility;
+                }
+
+
                 $scope.showHistory = function (telemetry) {
 
                     if (!$scope.selectedMachine) {
@@ -1254,8 +1307,8 @@ angular.module('app')
             }])
 
     .controller("FloorplanController",
-        ['$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG", "Facilities",
-            function ($timeout, $scope, $rootScope, $http, Notifications, SensorData, NgMap, APP_CONFIG, Facilities) {
+        ['$routeParams', '$timeout', '$scope', '$rootScope', '$http', 'Notifications', "SensorData", "NgMap", "APP_CONFIG", "Facilities",
+            function ($routeParams, $timeout, $scope, $rootScope, $http, Notifications, SensorData, NgMap, APP_CONFIG, Facilities) {
 
                 $scope.selectedLine = null;
                 $scope.selectedFacility = null;
@@ -1284,13 +1337,36 @@ angular.module('app')
                     $rootScope.$broadcast("lines:selected", line);
                 };
 
-                var autoSelect = Facilities.getCurrentFacility();
-                if (autoSelect) {
-                    $scope.selectedFacility = autoSelect;
-                    $scope.lines = Facilities.getLinesForFacility(autoSelect);
+                function getAutoSelectedFacility() {
+                    var autoSelectFacility;
+
+                    if ($routeParams.fid) {
+
+                        autoSelectFacility =
+                            Facilities.getFacilities().find(function(fac) {
+                                return fac.fid === $routeParams.fid;
+                            });
+
+                    }
+
+                    if (!autoSelectFacility) {
+                        autoSelectFacility = Facilities.getFacilities()[0];
+                    }
+
+                    return autoSelectFacility;
                 }
 
-                autoSelect = Facilities.getCurrentLine();
+                var selectedFacility = Facilities.getCurrentFacility();
+                if (!selectedFacility) {
+                    selectedFacility = getAutoSelectedFacility();
+                }
+
+                if (selectedFacility) {
+                    $scope.selectedFacility = selectedFacility;
+                    $scope.lines = Facilities.getLinesForFacility(selectedFacility);
+                }
+
+                var autoSelect = Facilities.getCurrentLine();
                 if (autoSelect) {
                     $scope.selectedLine = autoSelect;
                 }
@@ -1303,8 +1379,8 @@ angular.module('app')
             }])
 
     .controller("LineDetailsController",
-        ['$rootScope', '$scope', '$interval', '$http', 'Notifications', "SensorData", "Facilities",
-            function ($rootScope, $scope, $interval, $http, Notifications, SensorData, Facilities) {
+        ['$routeParams', '$rootScope', '$scope', '$interval', '$http', 'Notifications', "SensorData", "Facilities",
+            function ($routeParams, $rootScope, $scope, $interval, $http, Notifications, SensorData, Facilities) {
 
                 var MS_IN_DAY = 24 * 60 * 60 * 1000;
                 var intervalTimer = null;
@@ -1500,19 +1576,44 @@ angular.module('app')
                     $scope.selectedLine = autoSelect;
                     showLineDetails(autoSelect);
                 }
-                autoSelect = Facilities.getCurrentFacility();
-                if (autoSelect) {
-                    $scope.selectedFacility = autoSelect;
+                function getAutoSelectedFacility() {
+                    var autoSelectFacility;
+
+                    if ($routeParams.fid) {
+
+                        autoSelectFacility =
+                            Facilities.getFacilities().find(function(fac) {
+                                return fac.fid === $routeParams.fid;
+                            });
+
+                    }
+
+                    if (!autoSelectFacility) {
+                        autoSelectFacility = Facilities.getFacilities()[0];
+                    }
+
+                    return autoSelectFacility;
+                }
+
+                var selectedFacility = Facilities.getCurrentFacility();
+                if (!selectedFacility) {
+                    selectedFacility = getAutoSelectedFacility();
+                }
+
+                if (selectedFacility) {
+                    $scope.selectedFacility = selectedFacility;
                 }
             }])
 
     .controller("TaskReviewController",
-        ['$rootScope', '$scope', '$location',
-            function ($rootScope, $scope, $location) {
+        ['$routeParams', '$rootScope', '$scope', '$location',
+            function ($routeParams, $rootScope, $scope, $location) {
+
+                $scope.autoFid = $routeParams.fid;
 
                 $scope.closeAndOpen = function (loc) {
                     $scope.$close();
-                    $location.path(loc);
+                    $location.path(loc + ($scope.autoFid ? ('/'+ $scope.autoFid) : ''));
                 }
             }])
     .controller("ImgPopupController",
@@ -1524,10 +1625,11 @@ angular.module('app')
             }])
 
     .controller("CalEntryController",
-        ['$rootScope', '$scope', '$modal', 'entry', 'SensorData',
-            function ($rootScope, $scope, $modal, entry, SensorData) {
+        ['$routeParams', '$rootScope', '$scope', '$modal', 'entry', 'SensorData',
+            function ($routeParams, $rootScope, $scope, $modal, entry, SensorData) {
 
                 $scope.reviewTask = true;
+                $scope.autoFid = $routeParams.fid;
 
                 $scope.entry = entry;
                 if (entry.details) {
@@ -1557,8 +1659,8 @@ angular.module('app')
 
 
     .controller("CalendarController",
-        ['$rootScope', '$scope', '$http', '$modal', 'Notifications', "SensorData", "Facilities",
-            function ($rootScope, $scope, $http, $modal, Notifications, SensorData, Facilities) {
+        ['$routeParams', '$rootScope', '$scope', '$http', '$modal', 'Notifications', "SensorData", "Facilities",
+            function ($routeParams, $rootScope, $scope, $http, $modal, Notifications, SensorData, Facilities) {
 
                 $scope.selectedFacility = null;
                 $scope.$on('facilities:selected', function (event, fac) {
@@ -1578,15 +1680,38 @@ angular.module('app')
                     });
                 };
 
-                var autoSelect = Facilities.getCurrentFacility();
-                if (autoSelect) {
-                    $scope.selectedFacility = autoSelect;
+                function getAutoSelectedFacility() {
+                    var autoSelectFacility;
+
+                    if ($routeParams.fid) {
+
+                        autoSelectFacility =
+                            Facilities.getFacilities().find(function(fac) {
+                                return fac.fid === $routeParams.fid;
+                            });
+
+                    }
+
+                    if (!autoSelectFacility) {
+                        autoSelectFacility = Facilities.getFacilities()[0];
+                    }
+
+                    return autoSelectFacility;
+                }
+
+                var selectedFacility = Facilities.getCurrentFacility();
+                if (!selectedFacility) {
+                    selectedFacility = getAutoSelectedFacility();
+                }
+
+                if (selectedFacility) {
+                    $scope.selectedFacility = selectedFacility;
                 }
 
             }])
     .controller("TasklistController",
-        ['$rootScope', '$scope', '$http', '$modal', 'Notifications', "SensorData", "Facilities",
-            function ($rootScope, $scope, $http, $modal, Notifications, SensorData, Facilities) {
+        ['$routeParams', '$rootScope', '$scope', '$http', '$modal', 'Notifications', "SensorData", "Facilities",
+            function ($routeParams, $rootScope, $scope, $http, $modal, Notifications, SensorData, Facilities) {
 
                 $scope.selectedFacility = null;
                 $scope.facilities = Facilities.getFacilities();
@@ -1613,17 +1738,41 @@ angular.module('app')
                     });
                 };
 
-                var autoSelect = Facilities.getCurrentFacility();
-                if (autoSelect) {
-                    $scope.selectedFacility = autoSelect;
+                function getAutoSelectedFacility() {
+                    var autoSelectFacility;
+
+                    if ($routeParams.fid) {
+
+                        autoSelectFacility =
+                            $scope.facilities.find(function(fac) {
+                                return fac.fid === $routeParams.fid;
+                            });
+
+                    }
+
+                    if (!autoSelectFacility) {
+                        autoSelectFacility = $scope.facilities[0];
+                    }
+
+                    return autoSelectFacility;
+                }
+
+                var selectedFacility = Facilities.getCurrentFacility();
+                if (!selectedFacility) {
+                    selectedFacility = getAutoSelectedFacility();
+                }
+
+                if (selectedFacility) {
+                    $scope.selectedFacility = selectedFacility;
                 }
 
             }])
 
     .controller("HeaderController",
-        ['$rootScope', '$scope', '$window', '$location', '$modal', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Facilities',
-            function ($rootScope, $scope, $window, $location, $modal, $timeout, $http, APP_CONFIG, Notifications, SensorData, Facilities) {
+        ['$routeParams', '$rootScope', '$scope', '$window', '$location', '$modal', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Facilities',
+            function ($routeParams, $rootScope, $scope, $window, $location, $modal, $timeout, $http, APP_CONFIG, Notifications, SensorData, Facilities) {
 
+                $scope.autoFid = $rootScope.autoFid;
                 $scope.predictiveMaintenanceColor = 'orange';
                 $scope.unpredictedErrorColor = 'red';
 
@@ -1633,6 +1782,9 @@ angular.module('app')
 
                 $scope.headerTitle = $window.document.title = APP_CONFIG.DASHBOARD_WEB_TITLE;
 
+                $rootScope.$watch('autoFid', function(newVal, oldVal) {
+                    $scope.autoFid = newVal;
+                });
                 $scope.$on('lines:selected', function (evt, line) {
                     $scope.selectedLine = line;
                 });
@@ -1657,6 +1809,10 @@ angular.module('app')
                 $scope.resetAll = function () {
                     var resetUrl = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/utils/resetAll';
 
+                    if (!confirm("Are you sure? This will reset all demo content, for all facilities, potentially interfering with others using this demo instance.")) {
+                        return false;
+                    }
+
                     // reset the machines in all facilities
                     Facilities.getFacilities().forEach(function (fac) {
                         SensorData.resetStatus(fac);
@@ -1666,7 +1822,26 @@ angular.module('app')
                         method: 'POST',
                         url: resetUrl
                     }).then(function (response) {
-                        Notifications.success("Reset successful.");
+                        Notifications.success("Complete Reset successful, reloading page");
+                        location.reload();
+                    }, function err(response) {
+                        Notifications.error("Error resetting. Reload to retry");
+                    });
+
+
+                };
+
+                $scope.resetFacility = function () {
+                    var resetUrl = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/utils/reset/' + $scope.selectedFacility.fid;
+
+                    // reset the machines in the facilities
+                    SensorData.resetStatus($scope.selectedFacility);
+
+                    $http({
+                        method: 'POST',
+                        url: resetUrl
+                    }).then(function (response) {
+                        Notifications.success("Reset of " + $scope.selectedFacility.name + " successful, reloading page");
                         location.reload();
                     }, function err(response) {
                         Notifications.error("Error resetting. Reload to retry");
@@ -1676,8 +1851,14 @@ angular.module('app')
                 };
 
                 function pickDefaults() {
+                    var facAuto = Facilities.getFacilityById($routeParams.fid);
                     var fac1 = Facilities.getFacilityById("facility-1");
-                    var lin1 = fac1.lines.find(function (lin) {
+
+                    if (!facAuto) {
+                        facAuto = fac1;
+                    }
+
+                    var lin1 = facAuto.lines.find(function (lin) {
                         return lin.lid === "line-1";
                     });
                     var mac1 = lin1.machines.find(function (mac) {
@@ -1690,8 +1871,8 @@ angular.module('app')
                         return mac.mid === "machine-3";
                     });
 
-                    if (!$scope.selectedFacility || $scope.selectedFacility.fid !== fac1.fid) {
-                        $rootScope.$broadcast("facilities:selected", fac1);
+                    if (!$scope.selectedFacility || $scope.selectedFacility.fid !== facAuto.fid) {
+                        $rootScope.$broadcast("facilities:selected", facAuto);
                         $rootScope.$broadcast("lines:selected", lin1);
                         $rootScope.$broadcast("machines:selected", mac1);
                     }

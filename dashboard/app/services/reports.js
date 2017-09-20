@@ -22,27 +22,12 @@ angular.module('app')
 
 	var factory = {},
         summaries = [],
-        facilities = [],
-
 		configRestEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api';
 
 
 	factory.getSummaries = function() {
 		return summaries;
 	};
-
-	factory.getShipCount = function() {
-	    var shipCount = 0;
-	    summaries.forEach(function(summary) {
-	        if (summary.name == 'packages') {
-	            shipCount = summary.count;
-            }
-        });
-	    return shipCount;
-    };
-	factory.getFacilities = function() {
-	    return facilities;
-    };
 
 	factory.refresh = function() {
 
@@ -62,24 +47,6 @@ angular.module('app')
         }, function err(response) {
             console.log(JSON.stringify(response));
             Notifications.error("Error fetching Summaries Configuration from [" + response.config.url + "]. Reload to retry");
-        });
-
-        // get  facilities
-        $http({
-            method: 'GET',
-            url: configRestEndpoint + '/facilities'
-        }).then(function (response) {
-            facilities = response.data;
-            if ((facilities == undefined) || (facilities.constructor !== Array)) {
-                Notifications.error("Error fetching Facilities (invalid data). Reload to retry");
-                return;
-            }
-
-            $rootScope.$broadcast('facilities:updated', facilities);
-
-        }, function err(response) {
-            console.log(JSON.stringify(response));
-            Notifications.error("Error fetching Facilities from [" + response.config.url + "]. Reload to retry");
         });
 
     };

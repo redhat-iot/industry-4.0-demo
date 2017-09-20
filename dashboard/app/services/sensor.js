@@ -24,6 +24,7 @@ angular.module('app')
         function ($http, $modal, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Facilities, Notifications, Reports) {
             var factory = {},
                 client = null,
+                currentFacility = null,
                 msgproto = null,
                 listeners = [],
                 telemetryRegex = /[^\/]*\/[^\/]*\/[^\/]*\/facilities\/([^\/]*)\/lines\/([^\/]*)\/machines\/([^\/]*)$/,
@@ -143,7 +144,6 @@ angular.module('app')
                                         alertObj.machine = machine;
                                         alertObj.line = line;
                                         alertObj.facility = facility;
-                                        console.log("broadcasting warning");
                                         $rootScope.$broadcast("alert", alertObj);
                                     }
                                     break;
@@ -273,6 +273,18 @@ angular.module('app')
                 });
             });
 
+            $rootScope.$on("facilities:selected", function(evt, fac) {
+                factory.unsubscribeAll();
+                if (currentFacility) {
+                    var oldTopicName = "+/+/+/facilities/" + currentFacility.fid + "/lines/+/machines/+/alerts";
+                    client.unsubscribe(oldTopicName);
+                }
+                currentFacility = fac;
+                var topicName = "+/+/+/facilities/" + fac.fid + "/lines/+/machines/+/alerts";
+                client.subscribe(topicName);
+            });
+
+
             function connectClient(attempt) {
 
                 var MAX_ATTEMPTS = 100;
@@ -304,8 +316,12 @@ angular.module('app')
                             if (attempt > 1) {
                                 Notifications.success("Connected to the IoT cloud!");
                             }
-                            var topicName = "+/+/+/facilities/+/lines/+/machines/+/alerts";
-                            client.subscribe(topicName);
+                            var cur = Facilities.getCurrentFacility();
+                            if (cur) {
+                                currentFacility = cur;
+                                var topicName = "+/+/+/facilities/" + cur.fid + "/lines/+/machines/+/alerts";
+                                client.subscribe(topicName);
+                            }
                         },
                         userName: APP_CONFIG.BROKER_USERNAME,
                         password: APP_CONFIG.BROKER_PASSWORD,
@@ -446,28 +462,6 @@ angular.module('app')
                     "/lines/" + line.lid +
                     "/machines/" + machine.mid +
                     "/control");
-
-                // TODO remove
-                // fake the error in 2 seconds
-                $timeout(function() {
-                    var rotorLockedMsg = {
-                        "id": guid(),
-                        "description": "Machine Safety Hazard",
-                        "timestamp": new Date().getTime(),
-                        "type": "error",
-                        "details": {
-                            "reason": "Automatic line safety control has halted line due to safety hazard. Immediate maintenance required"
-                        }
-                    };
-
-                    sendJSONObjectMsg(rotorLockedMsg,
-                        APP_CONFIG.CONTROL_TOPIC_PREFIX +
-                        "/facilities/" + facility.fid +
-                        "/lines/" + line.lid +
-                        "/machines/" + machine.mid +
-                        "/alerts");
-
-                }, 3000);
             };
 
             connectClient(1);

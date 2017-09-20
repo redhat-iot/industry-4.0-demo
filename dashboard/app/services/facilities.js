@@ -33,6 +33,7 @@ angular.module('app')
     $rootScope.$on("facilities:selected", function(evt, fac) {
         currentFacility = fac;
         currentLine = currentMachine = null;
+        $rootScope.autoFid = fac.fid;
     });
     $rootScope.$on("machines:selected", function(evt, mac) {
         currentMachine = mac;
@@ -96,7 +97,6 @@ angular.module('app')
             url: configRestEndpoint + "/"
         }).then(function (response) {
             facilities = response.data;
-
             if ((facilities === undefined) || (facilities.constructor !== Array)) {
                 Notifications.error("Error fetching Facilities (invalid data). Reload to retry");
                 return;
@@ -124,7 +124,7 @@ angular.module('app')
                 });
             });
 
-            $rootScope.$broadcast('facilities:updated');
+            $rootScope.$broadcast('facilities:updated', facilities);
 
         }, function err(response) {
             console.log(JSON.stringify(response));

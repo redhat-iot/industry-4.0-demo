@@ -40,7 +40,7 @@
             <a ng-href="" ng-click="unpredictedError();"><span style="color: {{unpredictedErrorColor}};;" title="Simulate Unpredicted Error" class="fa fa-bomb"></span></a>
           </li>
           <li>
-            <a ng-href="" ng-click="resetAll();"><span title="Reset Demo Data" class="fa fa-refresh"></span></a>
+            <a ng-href="" ng-click="resetFacility();"><span title="Reset {{selectedFacility.name}} data" class="fa fa-refresh"></span></a>
           </li>
           <li>
             <a ng-href="#/"><span class="fa fa-industry"></span>&nbsp;23,433 Widgets Produced</a>
@@ -57,15 +57,18 @@
               <li>
                 <a href="" ng-click="logout()"><span class="fa fa-sign-out"></span>&nbsp;Logout</a>
               </li>
+              <li>
+                <a href="" ng-click="resetAll()"><span class="fa fa-exclamation-triangle"></span>&nbsp;Reset All</a>
+              </li>
             </ul>
           </li>
         </ul>
         <ul class="nav navbar-nav navbar-primary">
           <li ng-class="{ active: isActive('/exec')}">
-            <a ng-href="#/exec">Business</a>
+            <a ng-href="#/exec/{{autoFid}}">Business</a>
           </li>
-          <li ng-class="{ active: isActive('/')}">
-            <a ng-href="#/">Operations</a>
+          <li ng-class="{ active: isActive('/ops')}">
+            <a ng-href="#/ops/{{autoFid}}">Operations</a>
           </li>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -74,10 +77,7 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <a ng-href="#/tech/tasks">Task List</a>
-              </li>
-              <li>
-                <a ng-href="#/tech/floorplan">Floor Plan</a>
+                <a ng-href="#/tech/tasks/{{autoFid}}">Task List</a>
               </li>
             </ul>
           </li>

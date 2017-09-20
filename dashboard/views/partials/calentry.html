@@ -29,7 +29,7 @@
         <ul ng-if="entry.details.links">
             <li ng-repeat="link in entry.details.links"><a href="{{link.link}}">{{link.name}}</a></li>
         </ul>
-        <a ng-if="entry.type === 'maintenance'" ng-click="$close()" ng-href="#/tech/tasks">Technician Dashboard</a>&nbsp;<icon ng-if="entry.type === 'maintenance'" class="fa fa-arrow-circle-right"></icon>
+        <a ng-if="entry.type === 'maintenance'" ng-click="$close()" ng-href="#/tech/tasks/{{autoFid}}">Technician Dashboard</a>&nbsp;<icon ng-if="entry.type === 'maintenance'" class="fa fa-arrow-circle-right"></icon>
     </div>
 
 </div>

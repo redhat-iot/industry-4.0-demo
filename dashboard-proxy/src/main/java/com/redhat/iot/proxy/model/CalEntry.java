@@ -22,6 +22,7 @@ import java.util.Date;
 @XmlRootElement(name="calEntry")
 public class CalEntry implements Serializable {
 
+    private String cid;
     private Facility facility;
     private String title;
     private Date start;
@@ -32,6 +33,14 @@ public class CalEntry implements Serializable {
 
     public CalEntry() {
 
+    }
+
+    public String getCid() {
+        return cid;
+    }
+
+    public void setCid(String cid) {
+        this.cid = cid;
     }
 
     public String getType() {
