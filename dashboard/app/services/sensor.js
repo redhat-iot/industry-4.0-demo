@@ -278,10 +278,12 @@ angular.module('app')
                 if (currentFacility) {
                     var oldTopicName = "+/+/+/facilities/" + currentFacility.fid + "/lines/+/machines/+/alerts";
                     client.unsubscribe(oldTopicName);
+                    console.log("unsubscribed from " + oldTopicName);
                 }
                 currentFacility = fac;
                 var topicName = "+/+/+/facilities/" + fac.fid + "/lines/+/machines/+/alerts";
                 client.subscribe(topicName);
+                console.log("subscribed to " + topicName);
             });
 
 

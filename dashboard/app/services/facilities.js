@@ -17,7 +17,8 @@
 
 angular.module('app')
 
-.factory('Facilities', ['$rootScope', '$location', '$http', '$q', 'APP_CONFIG', 'Notifications', function($rootScope, $location, $http, $q, APP_CONFIG, Notifications) {
+.factory('Facilities', ['$route', '$rootScope', '$location', '$http', '$q', 'APP_CONFIG', 'Notifications',
+    function($route, $rootScope, $location, $http, $q, APP_CONFIG, Notifications) {
 
 	var factory = {},
 		facilities = [],
@@ -34,6 +35,7 @@ angular.module('app')
         currentFacility = fac;
         currentLine = currentMachine = null;
         $rootScope.autoFid = fac.fid;
+        $route.updateParams({'fid': fac.fid});
     });
     $rootScope.$on("machines:selected", function(evt, mac) {
         currentMachine = mac;

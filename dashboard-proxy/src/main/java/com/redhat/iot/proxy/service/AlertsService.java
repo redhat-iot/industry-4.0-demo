@@ -126,8 +126,14 @@ public class AlertsService implements MqttCallback {
     }
 
     @Override
-    public void connectionLost(Throwable throwable)  {
+    public void connectionLost(Throwable throwable) {
         log.info("CONNECTION LOST: " + throwable.getMessage() + " cause: " + throwable.getCause().getMessage());
+        try {
+            mqttClient.disconnectForcibly();
+        } catch (MqttException ex) {
+            log.info("Cannot disconnect: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     private Long getLongObj(JSONObject dic, String key) {
@@ -194,7 +200,13 @@ public class AlertsService implements MqttCallback {
             return;
         }
 
-        JSONObject j = new JSONObject(payload);
+        JSONObject j;
+        try {
+            j = new JSONObject(payload);
+        } catch (Exception ex) {
+            log.info("Unable to parse payload: " + ex.getMessage() + ", ignoring alert");
+            return;
+        }
 
         Long dateObj = getLongObj(j, "timestamp");
         if (dateObj == null) {
