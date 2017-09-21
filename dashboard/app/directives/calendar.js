@@ -110,6 +110,18 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
 
 
                 });
+
+                scope.$on('facilities:reset', function (evt, facility) {
+                    // reset non-run cal entry color
+                    $('#fullcalendar').fullCalendar('clientEvents').forEach(function(evt) {
+                        if (evt.type === 'maintenance' && evt.facility.fid === facility.fid) {
+                            evt.color = 'lightgray';
+                            evt.title = 'COMPLETED: ' + evt.title;
+                            $('#fullcalendar').fullCalendar('updateEvent', evt);
+                        }
+                    })
+                });
+
             }
         }
     }]);

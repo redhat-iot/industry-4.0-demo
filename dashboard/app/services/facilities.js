@@ -88,6 +88,7 @@ angular.module('app')
         }, function err(response) {
             console.log(JSON.stringify(response));
         });
+        $rootScope.$broadcast('facilities:reset', facility);
 
     };
 

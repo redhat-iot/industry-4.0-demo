@@ -137,8 +137,17 @@ public class FacilitiesEndpoint {
                 dgService.getMachines().put(fid + "/" + line.getLid() + "/" + machine.getMid(), machine);
             });
         });
-
         dgService.getFacilities().put(fid, facility);
+
+        Map<String, CalEntry> calendarCache = dgService.getCalendar();
+        calendarCache.keySet().stream().map(calendarCache::get)
+                .forEach(calEntry -> {
+                    if (calEntry.getFacility().getFid().equals(fid) && !calEntry.getType().equals("run")) {
+                        calEntry.setColor("lightgray");
+                        calEntry.setTitle("COMPLETED: " + calEntry.getTitle());
+                        calendarCache.replace(calEntry.getCid(), calEntry);
+                    }
+                });
 
 
     }
