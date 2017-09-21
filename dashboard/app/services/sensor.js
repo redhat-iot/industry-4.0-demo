@@ -24,6 +24,7 @@ angular.module('app')
         function ($http, $modal, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Facilities, Notifications, Reports) {
             var factory = {},
                 client = null,
+                connected = false,
                 currentFacility = null,
                 msgproto = null,
                 listeners = [],
@@ -50,11 +51,13 @@ angular.module('app')
                 if (document[hidden]) {
                     listeners.forEach(function (listener) {
                         client.unsubscribe(listener.topic);
+                        console.log("unsubscribed from " + listener.topic);
                     });
                 } else {
                     // doc played
                     listeners.forEach(function (listener) {
                         client.subscribe(listener.topic);
+                        console.log("subscribed to " + listener.topic);
                     });
                 }
             }
@@ -68,6 +71,7 @@ angular.module('app')
             }
 
             function onConnectionLost(responseObject) {
+                connected = false;
                 if (responseObject.errorCode !== 0) {
                     console.log("onConnectionLost:" + responseObject.errorMessage);
                     Notifications.warn("Lost connection to broker, attempting to reconnect (" + responseObject.errorMessage);
@@ -79,6 +83,7 @@ angular.module('app')
             function sendJSONObjectMsg(jsonObj, topic) {
                 var message = new Paho.MQTT.Message(JSON.stringify(jsonObj));
                 message.destinationName = topic;
+                console.log("sending JSON to " + topic + ": " + JSON.stringify(jsonObj));
                 client.send(message);
 
             }
@@ -277,13 +282,17 @@ angular.module('app')
                 factory.unsubscribeAll();
                 if (currentFacility) {
                     var oldTopicName = "+/+/+/facilities/" + currentFacility.fid + "/lines/+/machines/+/alerts";
-                    client.unsubscribe(oldTopicName);
-                    console.log("unsubscribed from " + oldTopicName);
+                    if (connected) {
+                        client.unsubscribe(oldTopicName);
+                        console.log("unsubscribed from " + oldTopicName);
+                    }
                 }
                 currentFacility = fac;
                 var topicName = "+/+/+/facilities/" + fac.fid + "/lines/+/machines/+/alerts";
-                client.subscribe(topicName);
-                console.log("subscribed to " + topicName);
+                if (connected) {
+                    client.subscribe(topicName);
+                    console.log("subscribed to " + topicName);
+                }
             });
 
 
@@ -315,6 +324,7 @@ angular.module('app')
                     client.connect({
                         onSuccess: function () {
                             console.log("Connected to broker");
+                            connected = true;
                             if (attempt > 1) {
                                 Notifications.success("Connected to the IoT cloud!");
                             }
@@ -323,6 +333,8 @@ angular.module('app')
                                 currentFacility = cur;
                                 var topicName = "+/+/+/facilities/" + cur.fid + "/lines/+/machines/+/alerts";
                                 client.subscribe(topicName);
+                                console.log("subscribed to " + topicName);
+                                factory.subscribeAll();
                             }
                         },
                         userName: APP_CONFIG.BROKER_USERNAME,
@@ -378,9 +390,17 @@ angular.module('app')
             factory.unsubscribeAll = function () {
                 listeners.forEach(function (listener) {
                     client.unsubscribe(listener.topic);
+                    console.log("unsubscribed from " + listener.topic);
                 });
 
                 listeners = [];
+            };
+
+            factory.subscribeAll = function () {
+                listeners.forEach(function (listener) {
+                    client.subscribe(listener.topic);
+                    console.log("subscribed to " + listener.topic);
+                });
             };
 
             factory.getRecentData = function (machine, telemetry, cb) {
