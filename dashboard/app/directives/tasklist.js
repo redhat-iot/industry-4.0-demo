@@ -44,7 +44,7 @@ angular.module('app').directive('tasklist', ['APP_CONFIG', '$location',
                         contentHeight: 600,
                         nowIndicator: true,
                         allDaySlot: false,
-						weekends: false,
+						weekends: true,
 						navLinks: true,
 						timezone: 'local',
 						header: {
