@@ -21,6 +21,8 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.component.mqtt.MQTTConfiguration;
+import org.apache.camel.language.Bean;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;

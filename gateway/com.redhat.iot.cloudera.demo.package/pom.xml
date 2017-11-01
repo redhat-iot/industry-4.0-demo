@@ -43,11 +43,118 @@
                             <artifactId>camel-csv</artifactId>
                             <version>2.17.2</version>
                         </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.apache.camel</groupId>
+                            <artifactId>camel-mqtt</artifactId>
+                            <version>2.17.2</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.apache.camel</groupId>
+                            <artifactId>camel-protobuf</artifactId>
+                            <version>2.17.2</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.fusesource.mqtt-client</groupId>
+                            <artifactId>mqtt-client</artifactId>
+                            <version>1.14</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.fusesource.hawtbuf</groupId>
+                            <artifactId>hawtbuf</artifactId>
+                            <version>1.11</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.fusesource.hawtdispatch</groupId>
+                            <artifactId>hawtdispatch</artifactId>
+                            <version>1.22</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.fusesource.hawtdispatch</groupId>
+                            <artifactId>hawtdispatch-transport</artifactId>
+                            <version>1.22</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.google.protobuf</groupId>
+                            <artifactId>protobuf-java</artifactId>
+                            <version>2.6.1</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.google.guava</groupId>
+                            <artifactId>guava</artifactId>
+                            <version>20.0</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.apache.servicemix.bundles</groupId>
+                            <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
+                            <version>3.12.1.GA_3</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.apache.commons</groupId>
+                            <artifactId>commons-math3</artifactId>
+                            <version>3.6.1</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.sun.xml.bind</groupId>
+                            <artifactId>jaxb-core</artifactId>
+                            <version>2.2.11</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.sun.xml.bind</groupId>
+                            <artifactId>jaxb-impl</artifactId>
+                            <version>2.2.11</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>joda-time</groupId>
+                            <artifactId>joda-time</artifactId>
+                            <version>2.9.9</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.redhat.iot.jpmml</groupId>
+                            <artifactId>com.redhat.iot.jpmml.evaluator</artifactId>
+                            <version>1.3.7</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.eclipse.persistence</groupId>
+                            <artifactId>org.eclipse.persistence.core</artifactId>
+                            <version>2.6.5</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.google.code.gson</groupId>
+                            <artifactId>gson</artifactId>
+                            <version>2.8.1</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.apache.servicemix.bundles</groupId>
+                            <artifactId>org.apache.servicemix.bundles.jaxp-ri</artifactId>
+                            <version>1.4.5_1</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.apache.servicemix.bundles</groupId>
+                            <artifactId>org.apache.servicemix.bundles.xerces</artifactId>
+                            <version>2.9.1_3</version>
+                        </additionalDependency>
+
+
 <!--
                         <additionalDependency>
-                            <groupId>com.redhat.iot.demo</groupId>
-                            <artifactId>com.redhat.iot.demo.simulator</artifactId>
-                            <version>${project.version}</version>
+                            <groupId>org.apache.camel</groupId>
+                            <artifactId>camel-jsonpath</artifactId>
+                            <version>2.17.2</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.jayway.jsonpath</groupId>
+                            <artifactId>json-path</artifactId>
+                            <version>2.1.0</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>net.minidev</groupId>
+                            <artifactId>json-smart</artifactId>
+                            <version>2.2.1</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>net.minidev</groupId>
+                            <artifactId>accessors-smart</artifactId>
+                            <version>1.1</version>
                         </additionalDependency>
 -->
                         <additionalDependency>
@@ -55,13 +162,6 @@
                             <artifactId>com.redhat.iot.cloudera.demo.simulator</artifactId>
                             <version>${project.version}</version>
                         </additionalDependency>
-<!--
-                        <additionalDependency>
-                            <groupId>com.redhat.iot.demo</groupId>
-                            <artifactId>com.redhat.iot.demo.camel</artifactId>
-                            <version>${project.version}</version>
-                        </additionalDependency>
--->
                     </additionalDependencies>
                 </configuration>
             </plugin>

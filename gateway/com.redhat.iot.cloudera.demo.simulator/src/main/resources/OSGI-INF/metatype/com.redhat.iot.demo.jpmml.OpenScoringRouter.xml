@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0" localization="en_us">
+    <OCD id="com.redhat.iot.demo.jpmml.OpenScoringRouter"
+         name="Demo - PMML Evaluator" description="Configurable Camel-based Sensor Simulator">
+        
+        <Icon resource="OSGI-INF/redhat-iot.png" size="32" />
+
+      <AD id="enabled"
+          name="Enable service"
+          description="If the service is enabled it will poll files at the location below and publish data"
+          type="Boolean"
+          cardinality="1"
+          required="true"
+          default="false"
+      />
+
+      <AD id="pmml.file"
+          name="PMML Local Model"
+          description="The path and filename spec for polling normal files (http://camel.apache.org/file2.html)"
+          type="String"
+          cardinality="0"
+          required="false"
+          default="/tmp/data/pmml/StateClassifier.xml"
+      />
+
+      <AD id="topic.prefix"
+          name="Topic prefix to publish messages"
+          description="The top level topic to publish your messages to"
+          type="String"
+          cardinality="0"
+          required="true"
+          default="cloudera-demo/facilities/facility-1/lines/line-1/machines"
+      />
+
+
+
+    </OCD>
+
+    <Designate pid="com.redhat.iot.demo.jpmml.OpenScoringRouter">
+        <Object ocdref="com.redhat.iot.demo.jpmml.OpenScoringRouter"/>
+    </Designate>
+</MetaData>

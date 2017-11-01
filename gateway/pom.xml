@@ -18,6 +18,7 @@
   </repositories>
 
   <modules>
+    <module>com.redhat.iot.jpmml.bundle</module>
     <module>com.redhat.iot.cloudera.demo.simulator</module>
     <module>com.redhat.iot.cloudera.demo.package</module>
   </modules>

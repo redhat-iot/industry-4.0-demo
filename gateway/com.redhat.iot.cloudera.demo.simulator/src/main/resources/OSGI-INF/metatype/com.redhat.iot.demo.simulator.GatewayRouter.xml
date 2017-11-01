@@ -11,16 +11,34 @@
           type="Boolean"
           cardinality="1"
           required="true"
-          default="true"
+          default="false"
       />
 
-      <AD id="filespec"
-          name="Camel file consumer spec"
-          description="The path and filename spec for polling files (http://camel.apache.org/file2.html)"
+      <AD id="filespec.normal"
+          name="Normal State Files (Camel file consumer spec)"
+          description="The path spec for polling normal files (http://camel.apache.org/file2.html)"
           type="String"
           cardinality="0"
           required="false"
-          default="file:/tmp/data/normal?noop=true&amp;idempotent=false&amp;include=.*.csv"
+          default="file:/tmp/data/normal"
+      />
+
+      <AD id="filespec.bad"
+          name="Bad Power Supply Files (Camel file consumer spec)"
+          description="The path spec for polling bad data files (http://camel.apache.org/file2.html)"
+          type="String"
+          cardinality="0"
+          required="false"
+          default="file:/tmp/data/bad/"
+      />
+
+      <AD id="filespec.options"
+          name="Camel File component query options"
+          description="The filespec options for polling files (http://camel.apache.org/file2.html)"
+          type="String"
+          cardinality="0"
+          required="false"
+          default="noop=true&amp;idempotent=false&amp;readLock=markerFile&amp;readLockDeleteOrphanLockFiles=true"
       />
 
       <AD id="cloudService"
@@ -49,8 +67,6 @@
           required="true"
           default="1000"
       />
-
-      <!--default="file:/vagrant/files//?fileName=Sensortag0.csv&delete=false"-->
 
     </OCD>
 

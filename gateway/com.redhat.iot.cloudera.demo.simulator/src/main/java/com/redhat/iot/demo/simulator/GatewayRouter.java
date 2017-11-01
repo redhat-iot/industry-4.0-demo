@@ -1,8 +1,6 @@
 package com.redhat.iot.demo.simulator;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
+import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.csv.CsvDataFormat;
 import org.eclipse.kura.camel.cloud.KuraCloudComponent;
@@ -19,6 +17,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +33,17 @@ public class GatewayRouter implements ConfigurableComponent {
 
     private static String KURA = "cloud:";
     private static String TOPIC = "simulator-test/assets";
+    private static Map<String, String> machineState;
+    private static Processor kuraProcessor = new KuraProcessor();
+    private Map<String, Object> properties = null;
+
+    static
+    {
+        machineState = new HashMap<>();
+        machineState.put("machine-1", "normal");
+        machineState.put("machine-2", "normal");
+        machineState.put("machine-3", "normal");
+    }
 
 
     /**
@@ -51,6 +62,8 @@ public class GatewayRouter implements ConfigurableComponent {
 
     public void start(final Map<String, Object> properties) throws Exception {
         logger.info("Start: {}", properties);
+
+        this.properties = properties;
 
         // create new filter and instance
 
@@ -152,59 +165,199 @@ public class GatewayRouter implements ConfigurableComponent {
             return NO_ROUTES;
         }
 
-//        final int maxTemp = asInt(properties, "temperature.max", 20);
-
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(asString(properties, "filespec")).threads(12) //Poll for file and delete when finished
-                        .split().tokenize("\\n").streaming() //Process each line of the file separately, and stream to keep memory usage down
+
+                // Normal Data
+                from(asString(properties, "filespec.normal") + "?include=.*.csv&" + asString(properties, "filespec.options")) //.threads(4) //Poll for file and delete when finished
+                        .routeId("normal")
+                        .split().tokenize("\\n")//.streaming() //Process each line of the file separately, and stream to keep memory usage down
+                        .setHeader("demo.machine", simple("${file:name.noext}"))
+                        .process(exchange -> exchange.getIn().setHeader("demo.machineState", machineState.get(exchange.getIn().getHeader("demo.machine"))))
                         .delay(asLong(properties, "interval")).asyncDelayed() //Delay 1 second between processing lines
-                        .log("Sending ${header.CamelSplitIndex} of ${header.CamelSplitSize}")
-                        .unmarshal(new CsvDataFormat()
-                                .setIgnoreEmptyLines(true)
-                                .setUseMaps(true)
-                                .setCommentMarker('#')
-                                .setHeader(new String[]{"timestamp", "motorid", "speed", "voltage",
-                                        "current", "temp", "noise", "vibration"}))
-                        .process(new Processor() {
-                            @Override
-                            public void process(Exchange exchange) throws Exception {
-                                KuraPayload payload = new KuraPayload();
-                                List<Map> metrics = (List<Map>) exchange.getIn().getBody();
-                                Map<String, String> map =  metrics.get(0); //Each line of the file produces a map of name/value pairs, but we only get one line at a time due to the splitter above
-                                for (Map.Entry<String, String> entry : map.entrySet()) {
-                                    if (!entry.getKey().equalsIgnoreCase("motorid")) {
-                                        payload.addMetric(entry.getKey(), Double.parseDouble(entry.getValue()));
-                                    }
-                                }
+                        .choice()
+                            .when(header("demo.machineState").isEqualTo("normal"))
+                                .unmarshal(new CsvDataFormat()
+                                    .setIgnoreEmptyLines(true)
+                                    .setUseMaps(true)
+                                    .setCommentMarker('#')
+                                    .setHeader(new String[]{"timestamp", "motorid", "speed", "voltage",
+                                            "current", "temp", "noise", "vibration"}))
+                                .process(kuraProcessor)
+                                .toD("cloud:" + asString(properties, "topic.prefix") + "/${file:name.noext}");
 
-                                exchange.getIn().setBody(payload);
-                            }
-                        })
-                        .log("Sending CSV record")
-                        .toD("cloud:" + asString(properties, "topic.prefix") + "/${file:name.noext}");
 
-                //                        .to(KURA + TOPIC);
+/*
+                // Bad Power
+                from(asString(properties, "filespec.bad_power")).noAutoStartup()//.threads(12) //Poll for file and delete when finished
+                        .routeId("bad_power")
+                        .split().tokenize("\\n")//.streaming() //Process each line of the file separately, and stream to keep memory usage down
+                        .setHeader("demo.machine", simple("${file:name.noext}"))
+                        .process(exchange -> exchange.getIn().setHeader("demo.machineState", machineState.get(exchange.getIn().getHeader("demo.machine"))))
+                        .delay(asLong(properties, "interval")).asyncDelayed() //Delay 1 second between processing lines
+                        .choice()
+                            .when(header("demo.machineState").isEqualTo("simulate_maintenance_required"))
+                                .unmarshal(new CsvDataFormat()
+                                    .setIgnoreEmptyLines(true)
+                                    .setUseMaps(true)
+                                    .setCommentMarker('#')
+                                    .setHeader(new String[]{"timestamp", "motorid", "speed", "voltage",
+                                            "current", "temp", "noise", "vibration"}))
+                                .process(kuraProcessor)
+                                .toD("cloud:" + asString(properties, "topic.prefix") + "/${file:name.noext}");
+*/
+
+
+/*
+                // Bad Rotor Locked Data
+                from(asString(properties, "filespec.bad_rotor_locked")).noAutoStartup()//.threads(12) //Poll for file
+                        .routeId("bad_rotor_locked")
+                        .split().tokenize("\\n")//.streaming()
+                        .setHeader("demo.machine", simple("${file:name.noext}"))
+                        .process(exchange -> exchange.getIn().setHeader("demo.machineState", machineState.get(exchange.getIn().getHeader("demo.machine"))))
+                        .delay(asLong(properties, "interval")).asyncDelayed() //Delay 1 second between processing lines
+                            .choice()
+                                .when(header("demo.machineState").isEqualTo("simulate_safety_hazard"))
+                                    .unmarshal(new CsvDataFormat()
+                                        .setIgnoreEmptyLines(true)
+                                        .setUseMaps(true)
+                                        .setCommentMarker('#')
+                                        .setHeader(new String[]{"timestamp", "motorid", "speed", "voltage",
+                                                "current", "temp", "noise", "vibration"}))
+                                    .process(kuraProcessor)
+                                    .toD("cloud:" + asString(properties, "topic.prefix") + "/${file:name.noext}");
+*/
+
 
                 // Control messages
-                from("cloud:cloudera-demo/facilities/facility-1/lines/line-1/machines/+/control")
-                        .process(new Processor() {
-                            @Override
-                            public void process(Exchange exchange) throws Exception {
-                                log.info("Exchange is: " + ((KuraPayload)exchange.getIn().getBody()).getBody());
-                           }
-                        })
-                    .log("Expression value for body: ${body}")
-                .to("log:Notification?showAll=true&multiline=true");
+                from("mqtt:control?host=tcp://broker-redhat-iot.apps.cloudera-iot-demo.rhiot.org:31883&subscribeTopicName=Red-Hat/+/" + asString(properties, "topic.prefix") + "/+/control&userName=demo-gw2&password=RedHat123")
+                    .routeId("control")
+                        .process(exchange -> {
+                            String control = exchange.getIn().getBody(String.class);
+                            String machine = getMachineFromTopic((String)exchange.getIn().getHeader("CamelMQTTSubscribeTopic"));
+                            String facility = getFacilityFromTopic((String)exchange.getIn().getHeader("CamelMQTTSubscribeTopic"));
+                            exchange.getIn().setHeader("demo.machine", machine);
+                            exchange.getIn().setHeader("demo.facility", facility);
+                            if (control.contains("reset")) {
+                                machineState.put(machine, "normal");
+//                                if (!machineState.containsValue("bad_power")) {
+                                    exchange.getContext().stopRoute(machine + "bad_power");
+//                                }
+//                                if (!machineState.containsValue("bad_rotor_locked")) {
+                                    exchange.getContext().stopRoute(machine + "bad_rotor_locked");
+//                                }
+                                logger.info(machine + " now in State 1: Reset to Normal");
+                                exchange.getIn().setHeader("sendOK", machine);
+                            } else if (control.contains("simulate_maintenance_required")) {
+                                machineState.put(machine, "bad_power");
+                                ServiceStatus status = exchange.getContext().getRouteStatus(machine + "bad_power");
+                                if (null != status && (status == ServiceStatus.Suspended || status == ServiceStatus.Suspending)) {
+                                    exchange.getContext().resumeRoute(machine + "bad_power");
+                                } else if (null != status && (status == ServiceStatus.Stopped || status == ServiceStatus.Stopping)){
+                                    exchange.getContext().startRoute(machine + "bad_power");
+//                                    exchange.getContext().startRoute(machine + "bad_power");
+                                } else {
+                                    exchange.getContext().addRoutes(new BadDataRoutebuilder(machine, "bad_power"));
+                                }
+                                logger.info(machine + " now in State 2: Maintenance Required");
+                            } else if (control.contains("simulate_safety_hazard")) {
+                                logger.info("Route state is: " + exchange.getContext().getRouteStatus(machine + "bad_rotor_locked"));
+                                machineState.put(machine, "bad_rotor_locked");
+                                ServiceStatus status = exchange.getContext().getRouteStatus(machine + "bad_rotor_locked");
+                                if (null != status && (status == ServiceStatus.Suspended || status == ServiceStatus.Suspending)) {
+                                    exchange.getContext().resumeRoute(machine + "bad_rotor_locked");
+                                } else if (null != status && (status == ServiceStatus.Stopped || status == ServiceStatus.Stopping)){
+                                    exchange.getContext().startRoute(machine + "bad_rotor_locked");
+                                } else {
+                                    exchange.getContext().addRoutes(new BadDataRoutebuilder(machine, "bad_rotor_locked"));
+                                }
+                                logger.info(machine + " now in State 3: Emergency Shutdown");
+                            } else {
+                                logger.info("Could not recognize control command");
+                            }
 
+                        })
+                .choice()
+                    .when(header("sendOK").isNotNull())
+                        .setBody(simple("{\"machine\": \"D846E916-FA87-4ACE-97A6-D0C91C5116C6\",\"description\": \"Everything is OK\",\"timestamp\": 1503599719963,\"type\": \"ok\",\"details\": {\"reason\": \"The machine has recovered.\"}}"))
+                        .setHeader("CamelMQTTPublishTopic", simple("Red-Hat/cldr-demo-gw/cloudera-demo/facilities/${in.header[demo.facility]}/lines/line-1/machines/${in.header[demo.machine]}/alerts"))
+                        .to("log:Control?showAll=true&multiline=true")
+                        .to("mqtt:okalert?host=tcp://broker-redhat-iot.apps.cloudera-iot-demo.rhiot.org:31883&userName=demo-gw2&password=RedHat123&version=3.1.1&qualityOfService=AtMostOnce");
+//                .to("log:Control?showAll=true&multiline=true");
             }
         };
     }
 
-
-    private static String getDeviceAddressFromTopic(String in) {
-        return in.substring(in.lastIndexOf("/") + 1);
+    private static String getMachineFromTopic(String in) {
+        int begin = in.indexOf("machines") + 9;
+        int end = in.indexOf("/", begin);
+        return in.substring(begin, end);
     }
 
+    private static String getFacilityFromTopic(String in) {
+        int begin = in.indexOf("facilities") + 11;
+        int end = in.indexOf("/", begin);
+        return in.substring(begin, end);
+    }
+
+    private static class KuraProcessor implements Processor {
+
+        @Override
+        public void process(Exchange exchange) {
+            KuraPayload payload = new KuraPayload();
+            payload.setTimestamp(new Date());
+            List<Map> metrics = (List<Map>) exchange.getIn().getBody();
+            Map<String, String> map =  metrics.get(0); //Each line of the file produces a map of name/value pairs, but we only get one line at a time due to the splitter above
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (!entry.getKey().equalsIgnoreCase("motorid")) {
+                    payload.addMetric(entry.getKey(), Double.parseDouble(entry.getValue()));
+                }
+            }
+
+            exchange.getIn().setBody(payload);
+        }
+    }
+
+    public class BadDataRoutebuilder extends RouteBuilder {
+
+        private final String machine;
+        private String mode;
+
+        public BadDataRoutebuilder(String machine, String mode) {
+            this.machine = machine;
+            this.mode = mode;
+        }
+
+        public void configure() {
+            // Bad Rotor Locked Data
+            from(asString(properties, "filespec.bad") + mode + "?include=" + machine + ".csv&" + asString(properties, "filespec.options")) //.noAutoStartup()//.threads(12) //Poll for file
+                    .routeId(this.machine + this.mode)
+                    .split().tokenize("\\n")//.streaming()
+                    .setHeader("demo.machine", simple("${file:name.noext}"))
+                    .process(exchange -> exchange.getIn().setHeader("demo.machineState", machineState.get(exchange.getIn().getHeader("demo.machine"))))
+                    .delay(asLong(properties, "interval")).asyncDelayed() //Delay 1 second between processing lines
+                    .choice()
+                    .when(header("demo.machineState").isEqualTo(mode))
+                    .unmarshal(new CsvDataFormat()
+                            .setIgnoreEmptyLines(true)
+                            .setUseMaps(true)
+                            .setCommentMarker('#')
+                            .setHeader(new String[]{"timestamp", "motorid", "speed", "voltage",
+                                    "current", "temp", "noise", "vibration"}))
+                    .process(kuraProcessor)
+                    .toD("cloud:" + asString(properties, "topic.prefix") + "/${file:name.noext}");
+        }
+    }
+
+
+/*
+    private static class ControlMessageProcessor implements Processor {
+
+        @Override
+        public void process(Exchange exchange) throws Exception {
+            if exchange.getContext().route
+        }
+    }
+*/
 }
