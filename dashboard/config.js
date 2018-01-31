@@ -18,7 +18,7 @@ var config =
     BROKER_HOSTNAME: process.env.BROKER_HOSTNAME + '-' + process.env.OPENSHIFT_BUILD_NAMESPACE,
     BROKER_WS_PORT: process.env.BROKER_WS_PORT || 80,
     BROKER_USERNAME: process.env.BROKER_USERNAME || "demo-gw2",
-    BROKER_PASSWORD: process.env.BROKER_PASSWORD || "RedHat123",
+    BROKER_PASSWORD: process.env.BROKER_PASSWORD || "RedHat123!@#",
 
     // hostname/port for DG proxy (no username/password required for demo)
     DASHBOARD_PROXY_HOSTNAME: process.env.DASHBOARD_PROXY_SERVICE + '-' + process.env.OPENSHIFT_BUILD_NAMESPACE,

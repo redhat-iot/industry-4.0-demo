@@ -47,7 +47,7 @@ parameters:
   required: true
 - description: OpenShift load-balanced MQ Broker hostname
   name: BROKER_HOSTNAME
-  value: "broker"
+  value: "ec-broker-ws"
   required: true
 - description: OpenShift load-balanced MQ Broker port
   name: BROKER_PORT
