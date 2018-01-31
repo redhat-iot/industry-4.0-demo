@@ -43,7 +43,7 @@ parameters:
   required: true
 - description: MQ Broker password
   name: BROKER_PASSWORD
-  value: "RedHat123"
+  value: "RedHat123!@#"
   required: true
 - description: OpenShift load-balanced MQ Broker hostname
   name: BROKER_HOSTNAME
