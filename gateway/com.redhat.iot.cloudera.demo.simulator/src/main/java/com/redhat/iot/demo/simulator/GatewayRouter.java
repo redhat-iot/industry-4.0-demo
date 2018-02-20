@@ -231,7 +231,7 @@ public class GatewayRouter implements ConfigurableComponent {
 
 
                 // Control messages
-                from("mqtt:control?host=tcp://broker-redhat-iot.apps.cloudera-iot-demo.rhiot.org:31883&subscribeTopicName=Red-Hat/+/" + asString(properties, "topic.prefix") + "/+/control&userName=demo-gw2&password=RedHat123")
+                from("mqtt:control?host=tcp://ec-broker-mqtt.redhat-iot.svc:1883&subscribeTopicName=Red-Hat/+/" + asString(properties, "topic.prefix") + "/+/control&userName=demo-gw2&password=RedHat123!@#")
                     .routeId("control")
                         .process(exchange -> {
                             String control = exchange.getIn().getBody(String.class);
@@ -283,7 +283,7 @@ public class GatewayRouter implements ConfigurableComponent {
                         .setBody(simple("{\"machine\": \"D846E916-FA87-4ACE-97A6-D0C91C5116C6\",\"description\": \"Everything is OK\",\"timestamp\": 1503599719963,\"type\": \"ok\",\"details\": {\"reason\": \"The machine has recovered.\"}}"))
                         .setHeader("CamelMQTTPublishTopic", simple("Red-Hat/cldr-demo-gw/cloudera-demo/facilities/${in.header[demo.facility]}/lines/line-1/machines/${in.header[demo.machine]}/alerts"))
                         .to("log:Control?showAll=true&multiline=true")
-                        .to("mqtt:okalert?host=tcp://broker-redhat-iot.apps.cloudera-iot-demo.rhiot.org:31883&userName=demo-gw2&password=RedHat123&version=3.1.1&qualityOfService=AtMostOnce");
+                        .to("mqtt:okalert?host=tcp://ec-broker-mqtt.redhat-iot.svc:1883&userName=demo-gw2&password=RedHat123!@#&version=3.1.1&qualityOfService=AtMostOnce");
 //                .to("log:Control?showAll=true&multiline=true");
             }
         };

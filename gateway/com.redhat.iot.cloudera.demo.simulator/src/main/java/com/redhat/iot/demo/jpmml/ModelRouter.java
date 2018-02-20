@@ -1,33 +1,22 @@
 package com.redhat.iot.demo.jpmml;
 
-import com.redhat.iot.demo.simulator.GatewayRouter;
-import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
-import org.apache.camel.ServiceStatus;
+import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.csv.CsvDataFormat;
-import org.apache.camel.model.dataformat.ProtobufDataFormat;
-import org.dmg.pmml.PMML;
 import org.eclipse.kura.camel.cloud.KuraCloudComponent;
 import org.eclipse.kura.camel.component.Configuration;
 import org.eclipse.kura.camel.runner.CamelRunner;
 import org.eclipse.kura.camel.runner.ServiceConsumer;
 import org.eclipse.kura.cloud.CloudService;
 import org.eclipse.kura.configuration.ConfigurableComponent;
-import org.eclipse.kura.core.message.protobuf.KuraPayloadProto;
 import org.eclipse.kura.message.KuraPayload;
-import org.jpmml.model.PMMLUtil;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
-import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,13 +27,15 @@ import static org.eclipse.kura.camel.component.Configuration.*;
 /**
  * Example of the Kura Camel application.
  */
-public class OpenScoringRouter implements ConfigurableComponent {
+public class ModelRouter implements ConfigurableComponent {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScoringRouter.class);
+    private static final Logger logger = LoggerFactory.getLogger(ModelRouter.class);
 
     private static String KURA = "cloud:";
     private static String TOPIC = "simulator-test/assets";
     private static Map<String, String> machineState;
+    private static Processor kuraProcessor = new KuraProcessor();
+    private Map<String, Object> properties = null;
 
     static
     {
@@ -71,6 +62,8 @@ public class OpenScoringRouter implements ConfigurableComponent {
 
     public void start(final Map<String, Object> properties) throws Exception {
         logger.info("Start: {}", properties);
+
+        this.properties = properties;
 
         // create new filter and instance
 
@@ -119,7 +112,7 @@ public class OpenScoringRouter implements ConfigurableComponent {
     }
 
     private CamelRunner createCamelRunner(final String fullFilter) throws InvalidSyntaxException {
-        final BundleContext ctx = FrameworkUtil.getBundle(OpenScoringRouter.class).getBundleContext();
+        final BundleContext ctx = FrameworkUtil.getBundle(ModelRouter.class).getBundleContext();
 
         this.cloudServiceFilter = fullFilter;
 
@@ -168,53 +161,53 @@ public class OpenScoringRouter implements ConfigurableComponent {
      */
     protected RouteBuilder fromProperties(final Map<String, Object> properties) {
 
-        File file = new File(asString(properties, "pmml.file"));
-        PMML pmml = null;
-
-        try (InputStream is = new FileInputStream(file)) {
-            pmml = PMMLUtil.unmarshal(is);
-
-        } catch (FileNotFoundException fnf) {
-            fnf.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (SAXException sae) {
-            sae.printStackTrace();
-        } catch (JAXBException jae) {
-            jae.printStackTrace();
-        }
-
         if (!asBoolean(properties, "enabled")) {
             return NO_ROUTES;
         }
 
-        PMML finalPmml = pmml;
+        // Totally disable until we figure out if this is even needed
+        return NO_ROUTES;
+
+/*
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("mqtt:control?host=tcp://ec-broker-mqtt.redhat-iot.svc:1883&subscribeTopicName=Red-Hat/+/" + asString(properties, "topic.prefix") + "/+&userName=demo-gw2&password=RedHat123!@#")
-                        .routeId("openscoring")
-                        .unmarshal().gzip()
-                        .unmarshal().protobuf(KuraPayloadProto.KuraPayload.getDefaultInstance())
-                        .process(new DemoIdProcessor())
-                        .process(new PmmlProcessor(finalPmml))
-                        .choice()
-//                            .when(header("demo.modenumber").isEqualTo(0))
-//                                .log("MODE NUMBER 0: ALL IS GOOD")
-                            .when(header("demo.modenumber").isEqualTo(2))
-                                .setHeader("CamelMQTTPublishTopic", simple("Red-Hat/cldr-demo-gw/cloudera-demo/facilities/${in.header[demo.facility]}/lines/line-1/machines/${in.header[demo.machine]}/alerts"))
-                                .log("MODE NUMBER 2: SubTopic=${in.header[CamelMQTTPublishTopic]} Machine=${in.header[demo.machine]} Facility=${in.header[demo.facility]}")
-                                .to("mqtt:alert?host=tcp://ec-broker-mqtt.redhat-iot.svc:1883&userName=demo-gw2&password=RedHat123!@#&version=3.1.1&qualityOfService=AtMostOnce")
-                        .end();
+
+                // This needs to be converted to MQTT
+                from("kafka:model?brokers=34.212.173.140:9092&groupId=kapua_test")
+                        .to("log:model")
+                        .process(exchange -> {
+                            System.out.println("FIRST" + "\n");
+
+                            String messageKey = "";
+                            if (exchange.getIn() != null) {
+                                Message message = exchange.getIn();
+                                Integer partitionId = (Integer) message
+                                        .getHeader(KafkaConstants.PARTITION);
+                                String topicName = (String) message
+                                        .getHeader(KafkaConstants.TOPIC);
+                                if (message.getHeader(KafkaConstants.KEY) != null)
+                                    messageKey = (String) message
+                                            .getHeader(KafkaConstants.KEY);
+                                Object data = message.getBody();
+
+                                System.out.println("topicName :: "
+                                        + topicName + " partitionId :: "
+                                        + partitionId + " messageKey :: "
+                                        + messageKey + " message :: "
+                                        + data + "\n");
+                            }
+                        }).to("log:model");
+
             }
         };
-
+*/
     }
 
     private static String getMachineFromTopic(String in) {
         int begin = in.indexOf("machines") + 9;
-//        int end = in.indexOf("/", begin);
-        return in.substring(begin);
+        int end = in.indexOf("/", begin);
+        return in.substring(begin, end);
     }
 
     private static String getFacilityFromTopic(String in) {
@@ -223,12 +216,63 @@ public class OpenScoringRouter implements ConfigurableComponent {
         return in.substring(begin, end);
     }
 
-    private static class DemoIdProcessor implements Processor {
+    private static class KuraProcessor implements Processor {
 
-        @Override public void process(Exchange exchange) throws Exception {
-            exchange.getIn().setHeader("demo.machine", getMachineFromTopic((String)exchange.getIn().getHeader("CamelMQTTSubscribeTopic")));
-            exchange.getIn().setHeader("demo.facility", getFacilityFromTopic((String)exchange.getIn().getHeader("CamelMQTTSubscribeTopic")));
+        @Override
+        public void process(Exchange exchange) {
+            KuraPayload payload = new KuraPayload();
+            payload.setTimestamp(new Date());
+            List<Map> metrics = (List<Map>) exchange.getIn().getBody();
+            Map<String, String> map =  metrics.get(0); //Each line of the file produces a map of name/value pairs, but we only get one line at a time due to the splitter above
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (!entry.getKey().equalsIgnoreCase("motorid")) {
+                    payload.addMetric(entry.getKey(), Double.parseDouble(entry.getValue()));
+                }
+            }
+
+            exchange.getIn().setBody(payload);
         }
     }
 
+    public class BadDataRoutebuilder extends RouteBuilder {
+
+        private final String machine;
+        private String mode;
+
+        public BadDataRoutebuilder(String machine, String mode) {
+            this.machine = machine;
+            this.mode = mode;
+        }
+
+        public void configure() {
+            // Bad Rotor Locked Data
+            from(asString(properties, "filespec.bad") + mode + "?include=" + machine + ".csv&" + asString(properties, "filespec.options")) //.noAutoStartup()//.threads(12) //Poll for file
+                    .routeId(this.machine + this.mode)
+                    .split().tokenize("\\n")//.streaming()
+                    .setHeader("demo.machine", simple("${file:name.noext}"))
+                    .process(exchange -> exchange.getIn().setHeader("demo.machineState", machineState.get(exchange.getIn().getHeader("demo.machine"))))
+                    .delay(asLong(properties, "interval")).asyncDelayed() //Delay 1 second between processing lines
+                    .choice()
+                    .when(header("demo.machineState").isEqualTo(mode))
+                    .unmarshal(new CsvDataFormat()
+                            .setIgnoreEmptyLines(true)
+                            .setUseMaps(true)
+                            .setCommentMarker('#')
+                            .setHeader(new String[]{"timestamp", "motorid", "speed", "voltage",
+                                    "current", "temp", "noise", "vibration"}))
+                    .process(kuraProcessor)
+                    .toD("cloud:" + asString(properties, "topic.prefix") + "/${file:name.noext}");
+        }
+    }
+
+
+/*
+    private static class ControlMessageProcessor implements Processor {
+
+        @Override
+        public void process(Exchange exchange) throws Exception {
+            if exchange.getContext().route
+        }
+    }
+*/
 }

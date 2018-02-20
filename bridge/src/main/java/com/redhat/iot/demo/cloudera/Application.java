@@ -21,8 +21,6 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.component.mqtt.MQTTConfiguration;
-import org.apache.camel.language.Bean;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
@@ -39,8 +37,8 @@ public class Application extends RouteBuilder {
     public void configure() throws Exception {
 
         // Incoming from MQTT
-        from("mqtt:incoming?host=tcp://broker-redhat-iot.apps.cloudera-iot-demo.rhiot.org:31883&subscribeTopicName=Red-Hat/+/cloudera-demo/facilities/+/lines/+/machines/+&userName=demo-gw2&password=RedHat123")
-            .process(new Processor() {
+        from("mqtt:incoming?host=tcp://ec-broker-mqtt.redhat-iot.svc:1883&subscribeTopicName=Red-Hat/+/cloudera-demo/facilities/+/lines/+/machines/+&userName=demogw&password=RedHat123!@#")
+                .process(new Processor() {
                 @Override
                 public void process(Exchange exchange)
                         throws Exception {
@@ -50,13 +48,28 @@ public class Application extends RouteBuilder {
                     }
                 }
             })
-            // Outgoing to Kafka
         .to("kafka:ingest?brokers=34.208.144.34:9092&serializerClass=org.apache.kafka.common.serialization.ByteArraySerializer");
 
+        // Dev Kit Gateways (PLC via Modbus and Eurotech Sensor Panel)
+        from("mqtt:incoming?host=tcp://ec-broker-mqtt.redhat-iot.svc:1883&subscribeTopicName=Red-Hat/+/W1/A1/#&userName=demogw&password=RedHat123!@#")
+                .process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange)
+                            throws Exception {
+                        if (exchange.getIn() != null) {
+                            Message message = exchange.getIn();
+                            message.setHeader(KafkaConstants.KEY, message.getHeader(MQTTConfiguration.MQTT_SUBSCRIBE_TOPIC));
+                        }
+                    }
+                })
+        .to("kafka:telemetry?brokers=34.212.173.140:9092&serializerClass=org.apache.kafka.common.serialization.ByteArraySerializer");
+
         // Monitoring Kafka topic, for testing only
-/*
-        from("kafka:ingest?brokers=34.208.144.34:9092&groupId=kapua_bridge")
+        from("kafka:model?brokers=34.212.173.140:9092&groupId=kapua_test")
+        .to("log:model")
                 .process(exchange -> {
+                    System.out.println("FIRST" + "\n");
+
                     String messageKey = "";
                     if (exchange.getIn() != null) {
                         Message message = exchange.getIn();
@@ -75,7 +88,7 @@ public class Application extends RouteBuilder {
                                 + messageKey + " message :: "
                                 + data + "\n");
                     }
-                }).to("log:input");
-*/
+        // Need to transfer this to MQTT so that gateways can pick it up without Kafka client
+        }).to("log:model");
     }
 }

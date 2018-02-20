@@ -46,7 +46,7 @@ public class AlertsService implements MqttCallback {
     public AlertsService() {
 
         MemoryPersistence persistence = new MemoryPersistence();
-        String broker = System.getenv("KAPUA_BROKER_PORT");
+        String broker = System.getenv("EC_BROKER_MQTT_PORT");
         try {
             mqttClient = new MqttClient(broker, "dashboard-proxy-" + UUID.randomUUID().toString(), persistence);
         } catch (MqttException e) {

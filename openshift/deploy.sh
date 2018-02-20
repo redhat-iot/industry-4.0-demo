@@ -17,7 +17,7 @@ set -e
 . common.sh
 
 OPENSHIFT_PROJECT_NAME=${OPENSHIFT_PROJECT_NAME:=redhat-iot}
-IMAGE_VERSION=${IMAGE_VERSION:=2017-04-08}
+IMAGE_VERSION=${IMAGE_VERSION:=0.3.2}
 
 # print error and exit when necessary
 
