@@ -11,6 +11,5 @@ out/
 *.iml
 .idea
 workspace
-data
 logs/
 tmp/
