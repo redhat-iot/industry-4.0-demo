@@ -1773,10 +1773,18 @@ angular.module('app')
             function ($routeParams, $rootScope, $scope, $window, $location, $modal, $timeout, $http, APP_CONFIG, Notifications, SensorData, Facilities) {
 
                 $scope.autoFid = $rootScope.autoFid;
-                $scope.predictiveMaintenanceColor = 'orange';
-                $scope.unpredictedErrorColor = 'red';
+              $scope.predictiveMaintenanceColor = 'orange';
+              $scope.unpredictedErrorColor = 'red';
 
-                $scope.selectedFacility = null;
+              $scope.modemLightColorOff = 'gray';
+              $scope.modemLightColorOn = 'lightgreen';
+              $scope.modemLightColorOnWarn = 'yellow';
+              $scope.gatewayActivityLightColor = $scope.modemLightColorOff;
+              $scope.cloudActivityLightColor = $scope.modemLightColorOff;
+
+              $scope.unpredictedErrorColor = 'red';
+
+              $scope.selectedFacility = null;
                 $scope.selectedLine = null;
                 $scope.selectedMachine = null;
 
@@ -1794,6 +1802,18 @@ angular.module('app')
                 $scope.$on('machines:selected', function (evt, mac) {
                     $scope.selectedMachine = mac;
                 });
+              $scope.$on('activity:gateway', function (evt, obj) {
+                $scope.gatewayActivityLightColor = (obj && obj.type === "warning") ? $scope.modemLightColorOnWarn : $scope.modemLightColorOn;
+                $timeout(function() {
+                  $scope.gatewayActivityLightColor = $scope.modemLightColorOff;
+                }, obj.duration || 400);
+              });
+              $scope.$on('activity:cloud', function (evt, obj) {
+                $scope.cloudActivityLightColor = (obj && obj.type === "warning") ? $scope.modemLightColorOnWarn : $scope.modemLightColorOn;
+                $timeout(function() {
+                  $scope.cloudActivityLightColor = $scope.modemLightColorOff;
+                }, obj.duration || 2000);
+              });
 
                 $scope.userInfo = {
                     fullName: "Mary Q. Operator"
