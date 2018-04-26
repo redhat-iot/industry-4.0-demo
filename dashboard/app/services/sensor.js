@@ -80,6 +80,12 @@ angular.module('app')
         if (responseObject.errorCode !== 0) {
           console.log("onConnectionLost:" + responseObject.errorMessage);
           $rootScope.$broadcast("activity:gateway", {type: "warning", duration: 5000});
+          // start sim for listening machines
+          listeners.forEach(function(listener) {
+            if (listener.objType === 'machines') {
+              startSim(listener.machine.currentFid, listener.machine.currentLid, listener.machine.mid);
+            }
+          });
           connectClient(1);
 
         }
@@ -88,7 +94,6 @@ angular.module('app')
       function sendJSONObjectMsg(jsonObj, topic) {
         var message = new Paho.MQTT.Message(JSON.stringify(jsonObj));
         message.destinationName = topic;
-        console.log("sending JSON to " + topic + ": " + JSON.stringify(jsonObj));
         client.send(message);
 
       }
