@@ -31,7 +31,9 @@ angular.module('app')
         telemetryRegex = /[^\/]*\/[^\/]*\/[^\/]*\/facilities\/([^\/]*)\/lines\/([^\/]*)\/machines\/([^\/]*)$/,
         alertTopicRegex = /[^\/]*\/[^\/]*\/[^\/]*\/facilities\/([^\/]*)\/lines\/([^\/]*)\/machines\/([^\/]*)\/alerts$/,
         simTimers = [],
-        simStates = [];
+        simStates = [],
+        simFailInProgress = false,
+        simFallbackTimer = undefined;
 
       // Set the name of the hidden property and the change event for visibility
       var hidden, visibilityChange;
@@ -100,6 +102,12 @@ angular.module('app')
 
       function handleAlert(destination, alertObj) {
         console.log("recieved alert on topic: " + destination + " -- " + JSON.stringify(alertObj));
+        if (simFailInProgress && !alertObj.sim) {
+          // ignore real alerts if simulated failure was triggered while disconnected
+          // and then real alerts starts coming in
+          return;
+        }
+
         var matches = alertTopicRegex.exec(destination);
         var fid = matches[1];
         var lid = matches[2];
@@ -111,6 +119,11 @@ angular.module('app')
 
               switch (alertObj.type) {
                 case 'maintenance':
+                  // if we are waiting to initiate a simulation and we get a real alert, cancel simulation!
+                  if (!alertObj.sim && simFallbackTimer) {
+                    $timeout.cancel(simFallbackTimer);
+                    simFallbackTimer = undefined;
+                  }
                   if (fid === facility.fid &&
                     mid === machine.mid &&
                     lid === line.lid) {
@@ -123,10 +136,18 @@ angular.module('app')
                     alertObj.machine = machine;
                     alertObj.line = line;
                     alertObj.facility = facility;
-                    $rootScope.$broadcast("alert", alertObj);
+                    // wait a few seconds for dramatic effect
+                    $timeout(function() {
+                      $rootScope.$broadcast("alert", alertObj);
+                    }, 2000);
                   }
                   break;
                 case 'error':
+                  // if we are waiting to initiate a simulation and we get a real alert, cancel simulation!
+                  if (!alertObj.sim && simFallbackTimer) {
+                    $timeout.cancel(simFallbackTimer);
+                    simFallbackTimer = undefined;
+                  }
                   if (fid === facility.fid &&
                     mid === machine.mid &&
                     lid === line.lid) {
@@ -137,10 +158,18 @@ angular.module('app')
                     alertObj.machine = machine;
                     alertObj.line = line;
                     alertObj.facility = facility;
-                    $rootScope.$broadcast("alert", alertObj);
+                    // wait a few seconds for dramatic effect
+                    $timeout(function() {
+                      $rootScope.$broadcast("alert", alertObj);
+                    }, 2000);
                   }
                   break;
                 case 'warning':
+                  // if we are waiting to initiate a simulation and we get a real alert, cancel simulation!
+                  if (!alertObj.sim && simFallbackTimer) {
+                    $timeout.cancel(simFallbackTimer);
+                    simFallbackTimer = undefined;
+                  }
                   if (fid === facility.fid &&
                     mid === machine.mid &&
                     lid === line.lid) {
@@ -156,6 +185,11 @@ angular.module('app')
                   break;
                 case 'ok':
                 default:
+                  // if we are waiting to initiate a simulation and we get a real alert, cancel simulation!
+                  if (!alertObj.sim && simFallbackTimer) {
+                    $timeout.cancel(simFallbackTimer);
+                    simFallbackTimer = undefined;
+                  }
                   if (fid === facility.fid &&
                     mid === machine.mid &&
                     lid === line.lid) {
@@ -178,7 +212,7 @@ angular.module('app')
 
       $rootScope.$on('alert', function (evt, alertObj) {
 
-        if (alertObj.type === 'maintenance') {
+        if (alertObj.type === 'maintenance' || alertObj.type === 'error') {
           $modal.open({
             templateUrl: 'partials/alert.html',
             controller: 'AlertController',
@@ -214,6 +248,14 @@ angular.module('app')
 
           var data = [];
 
+          var isSimData = decoded.metric.find(function(el) {
+            return (el.name === 'sim')
+          });
+
+          if (simFailInProgress && !isSimData) {
+            // ignore unsimulated data when simulated failure is in progress
+            return;
+          }
           decoded.metric.forEach(function (decodedMetric) {
             targetObj.telemetry.forEach(function (objTel) {
               var telName = objTel.name;
@@ -271,12 +313,49 @@ angular.module('app')
           line.machines.forEach(function (machine) {
             machine.status = 'ok';
             machine.statusMsg = 'ok';
-            sendJSONObjectMsg(msg,
-              APP_CONFIG.CONTROL_TOPIC_PREFIX +
-              "/facilities/" + facility.fid +
-              "/lines/" + line.lid +
-              "/machines/" + machine.mid +
-              "/control");
+            try {
+              sendJSONObjectMsg(msg,
+                APP_CONFIG.CONTROL_TOPIC_PREFIX +
+                "/facilities/" + facility.fid +
+                "/lines/" + line.lid +
+                "/machines/" + machine.mid +
+                "/control");
+            } catch (err) {
+              console.log("Error sending control message to reset machine, ignoring. " + err);
+            }
+
+            if (simFailInProgress) {
+              // reset simulator to good data and tell proxy
+              factory.setSimState(0, facility.fid, line.lid, machine.mid);
+              var simAlertEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' +
+                $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/utils/simulator/alert/' + facility.fid + '/' + line.lid + '/' + machine.mid;
+              var simAlertControl = {
+                id: guid(),
+                timestamp: new Date().getTime(),
+                type: 'ok',
+                description: "Everything OK"
+              };
+
+              $http({
+                method: 'POST',
+                url: simAlertEndpoint,
+                data: simAlertControl
+              }).then(function () {
+                console.log("ok alert sent successfully to proxy");
+              }, function err(response) {
+                console.log("error sending ok alert to proxy: " + JSON.stringify(response));
+              });
+
+              simFailInProgress = false;
+              if (connected) {
+                stopSimAll();
+                if (simFallbackTimer) {
+                  $timeout.cancel(simFallbackTimer);
+                  simFallbackTimer = undefined;
+                }
+              }
+
+            }
           });
         });
 
@@ -515,33 +594,170 @@ angular.module('app')
 
       factory.predictiveMaintenance = function (facility, line, machine) {
 
+        if (!connected) {
+          simFailInProgress = true;
+          predictiveMaintenanceSim(facility, line, machine);
+          return;
+        }
+
         var msg = {
           id: guid(),
           timestamp: new Date().getTime(),
           command: 'simulate_maintenance_required'
         };
-        sendJSONObjectMsg(msg,
-          APP_CONFIG.CONTROL_TOPIC_PREFIX +
-          "/facilities/" + facility.fid +
-          "/lines/" + line.lid +
-          "/machines/" + machine.mid +
-          "/control");
+        try {
 
+          sendJSONObjectMsg(msg,
+            APP_CONFIG.CONTROL_TOPIC_PREFIX +
+            "/facilities/" + facility.fid +
+            "/lines/" + line.lid +
+            "/machines/" + machine.mid +
+            "/control");
+        } catch (err) {
+          console.log("error starting predictive maintenance demo: " + err);
+        }
+
+        // start fallback timer to handle case where alerts just arent working for whatever reason
+        $timeout(function() {
+          simFailInProgress = true;
+          startSim(facility.fid, line.lid, machine.mid);
+          predictiveMaintenanceSim(facility, line, machine);
+        }, 10000);
       };
 
+      function predictiveMaintenanceSim(facility, line, machine) {
+
+        $timeout(function() {
+          // switch telemetry
+          factory.setSimState(1, facility.fid, line.lid, machine.mid);
+          $timeout(function() {
+            // send alert
+            var alertObj = {
+              sim: true,
+              id: guid(),
+              timestamp: new Date().getTime(),
+              type: 'maintenance',
+              description: "Maintenance Alert: Bad Power Supply",
+              details: {
+                reason: "Bad Power Supply Detected.",
+                start: new Date().getTime() + (4 * 60 * 60 * 1000),
+                end: new Date().getTime() + (5 * 60 * 60 * 1000)
+              }
+            };
+
+            handleAlert('x/y/z/facilities/' + facility.fid + '/lines/' + line.lid + '/machines/' + machine.mid + '/alerts',
+              alertObj);
+
+            var simAlertEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' +
+              $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/utils/simulator/alert/' + facility.fid + '/' + line.lid + '/' + machine.mid;
+            var simAlertControl = {
+              id: guid(),
+              timestamp: new Date().getTime(),
+              type: 'maintenance',
+              description: "Maintenance Alert: Bad Power Supply",
+              details: JSON.stringify({
+                reason: "Bad Power Supply Detected.",
+                start: new Date().getTime() + (4 * 60 * 60 * 1000),
+                end: new Date().getTime() + (5 * 60 * 60 * 1000)
+              })
+            };
+
+
+            $http({
+              method: 'POST',
+              url: simAlertEndpoint,
+              data: simAlertControl
+            }).then(function () {
+              console.log("alert sent successfully to proxy");
+            }, function err(response) {
+              console.log("error sending alert to proxy: " + JSON.stringify(response));
+            });
+
+
+          }, 10000);
+        }, 2000);
+      }
+
       factory.unpredictedError = function (facility, line, machine) {
+
+        if (!connected) {
+          simFailInProgress = true;
+          unpredictedErrorSim(facility, line, machine);
+          return;
+        }
         var msg = {
           id: guid(),
           timestamp: new Date().getTime(),
           command: 'simulate_safety_hazard'
         };
-        sendJSONObjectMsg(msg,
-          APP_CONFIG.CONTROL_TOPIC_PREFIX +
-          "/facilities/" + facility.fid +
-          "/lines/" + line.lid +
-          "/machines/" + machine.mid +
-          "/control");
+        try {
+          sendJSONObjectMsg(msg,
+            APP_CONFIG.CONTROL_TOPIC_PREFIX +
+            "/facilities/" + facility.fid +
+            "/lines/" + line.lid +
+            "/machines/" + machine.mid +
+            "/control");
+        } catch (err) {
+          console.log("error starting predictive maintenance demo: " + err);
+        }
+        // start fallback timer to handle case where alerts just arent working for whatever reason
+        $timeout(function() {
+          simFailInProgress = true;
+          startSim(facility.fid, line.lid, machine.mid);
+          unpredictedErrorSim(facility, line, machine);
+        }, 10000);
       };
+
+      function unpredictedErrorSim(facility, line, machine) {
+          // switch telemetry to rotor locked immediately
+          factory.setSimState(2, facility.fid, line.lid, machine.mid);
+          $timeout(function() {
+            // send alert
+            var alertObj = {
+              sim: true,
+              id: guid(),
+              timestamp: new Date().getTime(),
+              type: 'error',
+              description: "Maintenance Safety Hazard",
+              details: {
+                reason: "Automatic safety control has halted line due to safety hazard. Immediate maintenance required.",
+                start: new Date().getTime(),
+                end: new Date().getTime() + (1 * 60 * 60 * 1000)
+              }
+            };
+
+            handleAlert('x/y/z/facilities/' + facility.fid + '/lines/' + line.lid + '/machines/' + machine.mid + '/alerts',
+              alertObj);
+
+            var simAlertEndpoint = "http://" + APP_CONFIG.DASHBOARD_PROXY_HOSTNAME + '.' +
+              $location.host().replace(/^.*?\.(.*)/g, "$1") + '/api/utils/simulator/alert/' + facility.fid + '/' + line.lid + '/' + machine.mid;
+            var simAlertControl = {
+              id: guid(),
+              timestamp: new Date().getTime(),
+              type: 'error',
+              description: "Maintenance Safety Hazard",
+              details: JSON.stringify({
+                reason: "Automatic safety control has halted line due to safety hazard. Immediate maintenance required.",
+                start: new Date().getTime(),
+                end: new Date().getTime() + (1 * 60 * 60 * 1000)
+              })
+            };
+
+
+            $http({
+              method: 'POST',
+              url: simAlertEndpoint,
+              data: simAlertControl
+            }).then(function () {
+              console.log("error alert sent successfully to proxy");
+            }, function err(response) {
+              console.log("error sending error alert to proxy: " + JSON.stringify(response));
+            });
+
+
+          }, 5000);
+
+      }
 
       // Simulator
 
@@ -610,7 +826,7 @@ angular.module('app')
         var stateObj = getSimState(fid, lid, mid);
 
         if (!stateObj) {
-          simStates.push({tid: tid, state: newState});
+          simStates.push({tid: fid + '/' + lid + '/' + mid, state: newState});
         } else {
           stateObj.state = newState;
         }
@@ -840,23 +1056,6 @@ angular.module('app')
       var dataCursors = [okDataCursor, badPowerDataCursor, rotorLockedCursor];
 
       var genPoint = function(fid, lid, mid) {
-
-        /*
-          decoded.metric.forEach(function (decodedMetric) {
-            targetObj.telemetry.forEach(function (objTel) {
-              var telName = objTel.name;
-              var telMetricName = objTel.metricName;
-              var value = decodedMetric.doubleValue;
-              if (telMetricName === decodedMetric.name) {
-                data.push({
-                  name: telName,
-                  value: value,
-                  timestamp: new Date()
-                });
-              }
-            });
-          });
-         */
         var state = 0;
         var stateObj = getSimState(fid, lid, mid);
         if (stateObj) {
@@ -867,7 +1066,11 @@ angular.module('app')
           state = 0;
         }
         var obj = {
+          sim: true,
           metric: [
+            { name: "sim",
+              boolValue: true
+            },
             {
               name: "speed",
               doubleValue: dataSets[state][dataCursors[state]][2]

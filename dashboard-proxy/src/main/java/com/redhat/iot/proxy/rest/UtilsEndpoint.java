@@ -17,6 +17,7 @@ package com.redhat.iot.proxy.rest;
 import com.redhat.iot.proxy.model.*;
 import com.redhat.iot.proxy.service.AlertsService;
 import com.redhat.iot.proxy.service.DGService;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
@@ -45,10 +46,33 @@ public class UtilsEndpoint {
     @GET
     @Path("/health")
     public Response health() {
-        if (!alertsService.isConnected()) {
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Broker disconnected").build();
-        }
+//        if (!alertsService.isConnected()) {
+//            return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Broker disconnected").build();
+//        }
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/simulator/alert/{fid}/{lid}/{mid}")
+    @Consumes({"application/json"})
+    public void simulatorAlert(ControlMessage msg,
+                               @PathParam("fid") String fid,
+                               @PathParam("lid") String lid,
+                               @PathParam("mid") String mid) throws Exception {
+
+        String topic = "x/y/z/facilities/" + fid + "/lines/" + lid + "/machines/" + mid + "/alerts";
+
+        JSONObject payload = new JSONObject();
+
+        payload.put("timestamp", msg.getTimestamp());
+        payload.put("id", msg.getId());
+        payload.put("type", msg.getType());
+        payload.put("description", msg.getDescription());
+        payload.put("details", new JSONObject(msg.getDetails()));
+
+        MqttMessage mqttMessage = new MqttMessage(payload.toString().getBytes());
+
+        alertsService.messageArrived(topic, mqttMessage);
     }
 
     @POST

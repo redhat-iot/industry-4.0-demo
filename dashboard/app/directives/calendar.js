@@ -35,7 +35,7 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
                 // handleAlert: {"id":"foo","description":"the dest","timestamp":1503599719963,"type":"maintenance","details":{"reason":"the reason","start":1503599719963,"end":1503599719963}}
 
                 scope.$on('alert', function (evt, alert) {
-                    if (alert.type === 'maintenance' && alert.facility.fid === scope.selectedFacility.fid) {
+                    if ((alert.type === 'maintenance' || alert.type === 'error') && alert.facility.fid === scope.selectedFacility.fid) {
                         $('#fullcalendar').fullCalendar('addEventSource',
                             {
                                 events: [
@@ -114,7 +114,7 @@ angular.module('app').directive('calendar', ['APP_CONFIG', '$location',
                 scope.$on('facilities:reset', function (evt, facility) {
                     // reset non-run cal entry color
                     $('#fullcalendar').fullCalendar('clientEvents').forEach(function(evt) {
-                        if (evt.type === 'maintenance' && evt.facility.fid === facility.fid) {
+                        if ((evt.type === 'maintenance' || evt.type === 'error') && evt.facility.fid === facility.fid) {
                             evt.color = 'lightgray';
                             evt.title = 'COMPLETED: ' + evt.title;
                             $('#fullcalendar').fullCalendar('updateEvent', evt);
