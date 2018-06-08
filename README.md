@@ -1,2 +1,0 @@
-# cloudera-iot-demo
-TBD
