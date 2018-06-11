@@ -1,0 +1,103 @@
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+
+= Lab Environment & Resources
+
+== Lab Environment
+This lab utilizes Red Hat Product Demo System (RHPDS) to provision the lab environment.
+RHPDS  uses Red Hat CloudForms to deploy infrastructure needed for our lab. +
+
+The infrastructure consists of 5 VMs as well as the overall network configuration. Red Hat OpenShift Container Platform 3.9 has already been deployed for this lab.
+
+OpenShift environment for this lab consists of the following systems:
+
+[cols="3",options="header"]
+|=======
+|Hostname              |Internal IP    |Description
+|`bastion.example.com` |`192.168.0.5`  | Bastion host
+|`master.example.com`  |`192.168.0.10` | Master
+|`node01.example.com`  |`192.168.0.11` | Node 01
+|`node02.example.com`  |`192.168.0.12` | Node 02
+|`node03.example.com`  |`192.168.0.13` | Node 03
+|=======
+
+=== Access Your Lab Environment
+
+*Request an OPENTLC Account* +
+Get access to filling the form at: https://account.opentlc.com/account/requestAccessForm.php
+
+*Set Password* +
+After you have been notified by email that your account has been created, set your password using the temporary password provided in the email at: https://account.opentlc.com/account/setPasswordForm.php
+
+IMPORTANT: Your username will be your Red Hat email address with "@" replaced by "-"
+(E.g if your Red Hat email address is jdoe@redhat.com, your login will be jdoe-redhat.com)
+
+=== Provision Your Demo Environment
+
+Log in to the link:https://rhpds.redhat.com/[Red Hat Product Demo System] with your provided credentials.
+
+image::RHPDS-Login.png[RHPDS Login]
+
+WARNING: If you have problems with access to the lab environment, send an email to internal-enablement@redhat.com.
+
+Go to Services → Catalogs
+
+image::add_image.png[Choose Catalog]
+
+Under Service Catalog → xxx, select Industry 4.0 Demo
+
+On the right pane, click Order.
+
+image::RHPDS-OrderLab.png[Order Demo]
+
+Review the information about lifecycle of the lab environment and how to extend it. Check box to confirm, click Submit
+
+image::add_image.png[Start Demo]
+
+NOTE: It takes ~xx minutes for demo to be provisioned and become accessible. You can get real-time status of the demo environment at https://www.opentlc.com/rhpds-status
+
+You will be getting an email with information about how to access the demo environment.
+
+The email will also provide the unique GUID needed to access the lab environment.
+
+== Access Lab environment
+
+Interaction with the environment will be facilitated using several mechanisms listed below:
+
+=== OpenShift Web Console
+
+OpenShift features a rich user interface for managing resources on the platform.
+
+Open a web browser and navigate to the following location
+
+link:https://infranode-<GUID>.generic.opentlc.com:8443[https://infranode-<GUID>.generic.opentlc.com:8443]
+
+A warning will appear stating that insecure certificates are being utilized. Ignore the certificate warning and continue on to the login page.
+
+Once again, use the following credentials at the login page
+
+User: *admin* +
+Password: *r3dh4t1!*
+
+The OpenShift catalog should be shown upon successful authentication
+
+image::ocp-catalog.png[OpenShift Catalog]
+
+== Lab Resources
+
+The primary source of content for this lab is the industry 4.0 demo project repository.
+
+*Project location:* link:https://github.com/redhat-iot/cloudera-iot-demo[https://github.com/redhat-iot/cloudera-iot-demo]
+
+The repository contains the following resources:
+
+* *Bridge* (`imqtt-to-kafka-bridge`): Bridge between MQTT and Kafka, implemented using Camel MQTT and Kafka components. MQTT Topic names are mapped as message keys in Kafka.
+* *Dashboard* (`dashboard`): Dashboard is an Angular.js app running on a Node.js runtime, along with JBoss Data Grid and a Data Grid proxy component that properly handles browser-based REST requests and relays to JBoss Data Grid via the Hotrod protocol.
+* *IoT Data* (`iot_data`): Dataset of machine runtime
+* *Gateway* (`gateway`): xxx
+* *OpenShift* (`openshift-templates`): Templates for deploying the following applications on OpenShift: dashboard, kapua, xxx
+* *Simulator* (`software-sensor-simulator`): Simulated software sensor generating IoT Data
+
+[.text-center]
+image:icons/icon-previous.png[align=left, width=128, link=iot_usecase.html] image:icons/icon-home.png[align="center",width=128, link=lab_content.html] image:icons/icon-next.png[align="right"width=128, link=lab_1.html]
