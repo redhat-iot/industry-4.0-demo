@@ -2,6 +2,17 @@
 :icons: font
 :source-highlighter: prettify
 
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+endif::[]
+
 = Lab Environment & Resources
 
 == Lab Environment
@@ -49,7 +60,7 @@ Under Service Catalog → xxx, select Industry 4.0 Demo
 
 On the right pane, click Order.
 
-image::RHPDS-OrderLab.png[Order Demo]
+image::Add-image.png[Order Demo]
 
 Review the information about lifecycle of the lab environment and how to extend it. Check box to confirm, click Submit
 
@@ -99,5 +110,6 @@ The repository contains the following resources:
 * *OpenShift* (`openshift-templates`): Templates for deploying the following applications on OpenShift: dashboard, kapua, xxx
 * *Simulator* (`software-sensor-simulator`): Simulated software sensor generating IoT Data
 
+[
 [.text-center]
-image:icons/icon-previous.png[align=left, width=128, link=iot_usecase.html] image:icons/icon-home.png[align="center",width=128, link=lab_content.html] image:icons/icon-next.png[align="right"width=128, link=lab_1.html]
+image:icons/icon-home.png[align="center",width=128, link=introduction.html]

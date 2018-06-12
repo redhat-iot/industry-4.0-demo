@@ -1,0 +1,39 @@
+= Industry 4.0 End-to-End Demo
+Chris Custine <ccustine@redhat.com>, James Falkner <jfalkner@redhat.com>, Ishu Verma <iverma@redhat.com>
+:homepage: https://github.com/redhat-iot/industry4.0-demo
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+endif::[]
+
+== Overview
+The Internet of Things creates new challenges for enterprises, related to both technology and business. Red Hat, Eurotech, and Cloudera have combined strengths and integrated technologies to deliver the first end-to-end, open source IoT architecture that addresses enterprise IoT needs. This makes it easier for organizations to adopt a validated, modular, flexible architecture that is built to be open, interoperable, and cost effective.
+
+
+The architecture  delivers the capability to:
+
+* Manage connected things
+* Control and manage the flow of data from device to the cloud
+* Analyze data for insights and machine learning
+* Integrate, develop, and deploy IoT applications
+
+This enterprise-ready, open, and interoperable, the architecture is validated, integrated, and tested by Red Hat, Eurotech, and Cloudera and is modular in design to provide flexibility in configuration and implementation.
+
+image::architecture+with+ML.png[end-to-end architecture]
+
+=== Demo Setup
+This document provides step instructions on how setup this demo on Red Hat OpenShift Container Platform.
+
+
+[.text-center]
+image:icons/icon-home.png[align="center",width=128, link=introduction.html] image:icons/icon-next.png[align="right"width=128, link=demo_setup.html]
