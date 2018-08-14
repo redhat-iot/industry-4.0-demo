@@ -30,19 +30,19 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.redhat.iot.proxy.rest.UtilsEndpoint.MS_IN_HOUR;
-
 @ApplicationScoped
-public class AlertsService implements MqttCallback {
+public class AlertsService implements MqttCallbackExtended {
 
     private static final String ALERTS_TOPIC_SUBSCRIPTION = "+/+/+/facilities/+/lines/+/machines/+/alerts";
     private static final Pattern TOPIC_PATTERN = Pattern.compile("[^/]*/[^/]*/[^/]*/facilities/([^/]*)/lines/([^/]*)/machines/([^/]*)/alerts");
     private MqttClient mqttClient;
-
+    private long lastOk = 0;
     final private List<Alert> alerts = Collections.synchronizedList(new ArrayList<>());
-    @Inject DGService dgService;
+    @Inject
+    DGService dgService;
 
     private static final Logger log = Logger.getLogger(AlertsService.class.getName());
+
     public AlertsService() {
 
         MemoryPersistence persistence = new MemoryPersistence();
@@ -108,13 +108,10 @@ public class AlertsService implements MqttCallback {
             connOpts.setConnectionTimeout(60);
             connOpts.setAutomaticReconnect(true);
             log.info("Connecting to broker: " + mqttClient.getServerURI());
+            mqttClient.setCallback(this);
             mqttClient.connect(connOpts);
             log.info("Connected to broker: " + mqttClient.getServerURI());
 
-            mqttClient.setCallback(this);
-            log.info("Subscribing to " + ALERTS_TOPIC_SUBSCRIPTION);
-            mqttClient.subscribe(ALERTS_TOPIC_SUBSCRIPTION);
-            log.info("Subscribed to " + ALERTS_TOPIC_SUBSCRIPTION);
         } catch (Exception me) {
             log.info("Could not connect to " + mqttClient.getServerURI());
             log.info("msg: " + me.getMessage());
@@ -128,12 +125,12 @@ public class AlertsService implements MqttCallback {
     @Override
     public void connectionLost(Throwable throwable) {
         log.info("CONNECTION LOST: " + throwable.getMessage() + " cause: " + throwable.getCause().getMessage());
-        try {
-            mqttClient.disconnectForcibly();
-        } catch (MqttException ex) {
-            log.info("Cannot disconnect: " + ex.getMessage());
-            ex.printStackTrace();
-        }
+//        try {
+//            mqttClient.reconnect();
+//        } catch (MqttException ex) {
+//            log.info("Cannot disconnect/reconnect: " + ex.getMessage());
+//            ex.printStackTrace();
+//        }
     }
 
     private Long getLongObj(JSONObject dic, String key) {
@@ -227,6 +224,7 @@ public class AlertsService implements MqttCallback {
 
         log.info("machine:" + machine.getMid() + " line:" + line.getLid() + " facility: " + facility.getFid());
         if ("ok".equalsIgnoreCase(type)) {
+            lastOk = new Date().getTime();
             log.info("OK alert received - Returning to normal");
             line.setStatus("ok");
             dgService.getProductionLines().put(fid + "/" + lid, line);
@@ -237,6 +235,16 @@ public class AlertsService implements MqttCallback {
             dgService.getFacilities().put(fid, facility);
         } else if ("warning".equalsIgnoreCase(type)) {
             log.info("WARNING alert received");
+            if (new Date().getTime() < (lastOk + 5000)) {
+                // ignore warnings for some time after last OK
+                log.info("ignoring alerts for 5 seconds since last OK");
+                return;
+            }
+            if (!"ok".equalsIgnoreCase(machine.getStatus())) {
+                // ignore warnings for machine already in warning state
+                log.info("Ignoring warning for machine already not in OK state");
+                return;
+            }
             line.setStatus("warning");
             dgService.getProductionLines().put(fid + "/" + lid, line);
             machine.setStatus("warning");
@@ -247,6 +255,16 @@ public class AlertsService implements MqttCallback {
 
         } else if ("error".equalsIgnoreCase(type)) {
             log.info("ERROR alert received");
+            if (new Date().getTime() < (lastOk + 5000)) {
+                // ignore warnings for some time after last OK
+                log.info("ignoring alerts for 5 seconds since last OK");
+                return;
+            }
+            if (!"ok".equalsIgnoreCase(machine.getStatus())) {
+                // ignore error for machine already in error
+                log.info("Ignoring error for machine already not in OK state");
+                return;
+            }
             line.setStatus("error");
             dgService.getProductionLines().put(fid + "/" + lid, line);
             machine.setStatus("error");
@@ -256,40 +274,61 @@ public class AlertsService implements MqttCallback {
             dgService.getFacilities().put(fid, facility);
 
             log.info("MAINTENANCE alert added for error");
-            String reason = getStringObj(details, "reason");
-            Long mStart = getLongObj(details, "start");
-            Long mEnd = getLongObj(details, "end");
+            try {
 
-            CalEntry calEntry = new CalEntry();
-            calEntry.setCid(UUID.randomUUID().toString());
-            calEntry.setStart(new Date(mStart));
-            calEntry.setEnd(new Date(mEnd));
-            calEntry.setFacility(facility);
-            calEntry.setTitle("Line Maintenance: " + line.getLid());
-            calEntry.setColor("red");
-            calEntry.setType("maintenance");
-            JSONObject dets = new JSONObject()
-                    .put("desc", reason)
-                    .put("links",
-                            new JSONArray()
-                                    .put(
-                                            new JSONObject()
-                                                    .put("name", "Installation Manual")
-                                                    .put("link", "http://www.redhat.com"))
-                                    .put(
-                                            new JSONObject()
-                                                    .put("name", "Repair Manual")
-                                                    .put("link", "http://developers.redhat.com"))
-                    );
+                String reason = getStringObj(details, "reason");
+                Long mStart = getLongObj(details, "start");
+                Long mEnd = getLongObj(details, "end");
 
-            calEntry.setDetails(dets.toString());
-            dgService.getCalendar().put(calEntry.getCid(), calEntry);
-            log.info("Added maintanence error event for facility " + facility.getFid());
+                CalEntry calEntry = new CalEntry();
+                calEntry.setCid(UUID.randomUUID().toString());
+                if (mStart == null) {
+                    mStart = new Date().getTime();
+                }
+                if (mEnd == null) {
+                    mEnd = new Date().getTime() + (1 * 60 * 60 * 1000);
+                }
+                calEntry.setStart(new Date(mStart));
+                calEntry.setEnd(new Date(mEnd));
+                calEntry.setFacility(facility);
+                calEntry.setTitle("Line Maintenance: " + line.getLid());
+                calEntry.setColor("red");
+                calEntry.setType("maintenance");
+                JSONObject dets = new JSONObject()
+                        .put("desc", reason)
+                        .put("links",
+                                new JSONArray()
+                                        .put(
+                                                new JSONObject()
+                                                        .put("name", "Installation Manual")
+                                                        .put("link", "http://www.redhat.com"))
+                                        .put(
+                                                new JSONObject()
+                                                        .put("name", "Repair Manual")
+                                                        .put("link", "http://developers.redhat.com"))
+                        );
 
+                calEntry.setDetails(dets.toString());
+                dgService.getCalendar().put(calEntry.getCid(), calEntry);
+                log.info("Added maintanence error event for facility " + facility.getFid());
+            } catch (Exception ex) {
+                log.info("Caught exception trying to add calendar entry for maintaence error: ");
+                ex.printStackTrace();
+            }
 
 
         } else if ("maintenance".equalsIgnoreCase(type)) {
             log.info("MAINTENANCE alert received");
+            if (new Date().getTime() < (lastOk + 5000)) {
+                // ignore warnings for some time after last OK
+                log.info("ignoring alerts for 5 seconds since last OK");
+                return;
+            }
+            if (!"ok".equalsIgnoreCase(machine.getStatus())) {
+                // ignore warnings for machine already in warning state
+                log.info("Ignoring maintenance request for machine not in OK state");
+                return;
+            }
             String reason = getStringObj(details, "reason");
             Long mStart = getLongObj(details, "start");
             Long mEnd = getLongObj(details, "end");
@@ -340,6 +379,19 @@ public class AlertsService implements MqttCallback {
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
         log.fine("DELIVERY COMPLETE?");
 
+    }
+
+    @Override
+    public void connectComplete(boolean b, String s) {
+        log.info("Connect complete: reconnect? " + b + " serverURI: " + s);
+        log.info("Subscribing to " + ALERTS_TOPIC_SUBSCRIPTION);
+        try {
+            mqttClient.subscribe(ALERTS_TOPIC_SUBSCRIPTION);
+        } catch (MqttException e) {
+            log.warning("cannot subscribe");
+            e.printStackTrace();
+        }
+        log.info("Subscribed to " + ALERTS_TOPIC_SUBSCRIPTION);
     }
 }
 

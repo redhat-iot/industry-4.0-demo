@@ -33,7 +33,8 @@ angular.module('app')
         simTimers = [],
         simStates = [],
         simFailInProgress = false,
-        simFallbackTimer = undefined;
+        simFallbackTimer = undefined,
+        ignoreAlerts = false;
 
       // Set the name of the hidden property and the change event for visibility
       var hidden, visibilityChange;
@@ -102,7 +103,20 @@ angular.module('app')
 
       function handleAlert(destination, alertObj) {
         console.log("recieved alert on topic: " + destination + " -- " + JSON.stringify(alertObj));
+        if (ignoreAlerts) {
+          if (alertObj.type === 'ok') {
+            // stop ignoring alerts after a while
+            console.log("will start showing alerts in about 10s");
+            $timeout(function() {
+              ignoreAlerts = false;
+            }, 10000);
+          }
+          console.log("ignoring alerts until all clear is sent");
+          return;
+        }
         if (simFailInProgress && !alertObj.sim) {
+          console.log("ignoring real alert; frontend sim already triggered");
+
           // ignore real alerts if simulated failure was triggered while disconnected
           // and then real alerts starts coming in
           return;
@@ -123,6 +137,7 @@ angular.module('app')
                   if (!alertObj.sim && simFallbackTimer) {
                     $timeout.cancel(simFallbackTimer);
                     simFallbackTimer = undefined;
+                    console.log("received real alert; cancelling frontend sim");
                   }
                   if (fid === facility.fid &&
                     mid === machine.mid &&
@@ -137,6 +152,7 @@ angular.module('app')
                     alertObj.line = line;
                     alertObj.facility = facility;
                     // wait a few seconds for dramatic effect
+                    ignoreAlerts = true;
                     $timeout(function() {
                       $rootScope.$broadcast("alert", alertObj);
                     }, 2000);
@@ -147,6 +163,7 @@ angular.module('app')
                   if (!alertObj.sim && simFallbackTimer) {
                     $timeout.cancel(simFallbackTimer);
                     simFallbackTimer = undefined;
+                    console.log("received real alert; cancelling frontend sim");
                   }
                   if (fid === facility.fid &&
                     mid === machine.mid &&
@@ -159,6 +176,7 @@ angular.module('app')
                     alertObj.line = line;
                     alertObj.facility = facility;
                     // wait a few seconds for dramatic effect
+                    ignoreAlerts = true;
                     $timeout(function() {
                       $rootScope.$broadcast("alert", alertObj);
                     }, 2000);
@@ -169,6 +187,7 @@ angular.module('app')
                   if (!alertObj.sim && simFallbackTimer) {
                     $timeout.cancel(simFallbackTimer);
                     simFallbackTimer = undefined;
+                    console.log("received real alert; cancelling frontend sim");
                   }
                   if (fid === facility.fid &&
                     mid === machine.mid &&
@@ -189,6 +208,7 @@ angular.module('app')
                   if (!alertObj.sim && simFallbackTimer) {
                     $timeout.cancel(simFallbackTimer);
                     simFallbackTimer = undefined;
+                    console.log("received real alert; cancelling frontend sim");
                   }
                   if (fid === facility.fid &&
                     mid === machine.mid &&
@@ -213,6 +233,13 @@ angular.module('app')
       $rootScope.$on('alert', function (evt, alertObj) {
 
         if (alertObj.type === 'maintenance' || alertObj.type === 'error') {
+
+          if (alertObj.type === 'error' && !alertObj.details.start) {
+              alertObj.details.start = new Date().getTime();
+              alertObj.details.end = new Date().getTime() + (1 * 60 * 60 * 1000);
+          }
+
+          // ignore multiple popups
           $modal.open({
             templateUrl: 'partials/alert.html',
             controller: 'AlertController',
@@ -333,7 +360,10 @@ angular.module('app')
                 id: guid(),
                 timestamp: new Date().getTime(),
                 type: 'ok',
-                description: "Everything OK"
+                description: "Everything OK",
+                details: JSON.stringify({
+                  reason: "Problem corrected."
+                })
               };
 
               $http({
@@ -618,7 +648,7 @@ angular.module('app')
         }
 
         // start fallback timer to handle case where alerts just arent working for whatever reason
-        $timeout(function() {
+        simFallbackTimer = $timeout(function() {
           simFailInProgress = true;
           startSim(facility.fid, line.lid, machine.mid);
           predictiveMaintenanceSim(facility, line, machine);
@@ -701,7 +731,7 @@ angular.module('app')
           console.log("error starting predictive maintenance demo: " + err);
         }
         // start fallback timer to handle case where alerts just arent working for whatever reason
-        $timeout(function() {
+        simFallbackTimer = $timeout(function() {
           simFailInProgress = true;
           startSim(facility.fid, line.lid, machine.mid);
           unpredictedErrorSim(facility, line, machine);
@@ -710,6 +740,7 @@ angular.module('app')
 
       function unpredictedErrorSim(facility, line, machine) {
           // switch telemetry to rotor locked immediately
+        console.log("Starting UNpredicted error simulator");
           factory.setSimState(2, facility.fid, line.lid, machine.mid);
           $timeout(function() {
             // send alert
