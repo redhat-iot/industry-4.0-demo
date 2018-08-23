@@ -15,7 +15,7 @@ endif::[]
 
 = Demo for Business Audience
 
-== Storyboards for business Audience #1
+== Storyboards for Business Audience #2
 
 image::Industry-4.0-demo-SA-training-21.jpg[Business-Storyboard-2]
 

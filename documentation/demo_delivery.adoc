@@ -22,5 +22,7 @@ Here is the workflow of the demo:
 
 image::IoT-Demo-Workflow.png[Solution overview-4]
 
+Storyboards are provided to help tailor the messaging for the business or technical personas.
+
 [.text-center]
-image:icons/icon-previous.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=demo_content.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=demo_content.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]
