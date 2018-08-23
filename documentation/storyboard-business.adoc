@@ -1,0 +1,50 @@
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+endif::[]
+
+= Demo for Business Audience
+
+== What will business audience get out of this demo
+
+image::Industry-4.0-demo-SA-training-18.jpg[Solution overview-18]
+
+
+=== Storyboards for business Audience
+
+image::Industry-4.0-demo-SA-training-19.jpg[Solution overview-19]
+
+image::Industry-4.0-demo-SA-training-20.jpg[Solution overview-20]
+
+image::Industry-4.0-demo-SA-training-21.jpg[Solution overview-21]
+
+image::Industry-4.0-demo-SA-training-22.jpg[Solution overview-22]
+
+image::Industry-4.0-demo-SA-training-24.jpg[Solution overview-24]
+
+image::Industry-4.0-demo-SA-training-23.jpg[Solution overview-23]
+
+image::Industry-4.0-demo-SA-training-25.jpg[Solution overview-25]
+
+image::Industry-4.0-demo-SA-training-26.jpg[Solution overview-26]
+
+image::Industry-4.0-demo-SA-training-27.jpg[Solution overview-27]
+
+image::Industry-4.0-demo-SA-training-28.jpg[Solution overview-28]
+
+image::Industry-4.0-demo-SA-training-29.jpg[Solution overview-29]
+
+image::Industry-4.0-demo-SA-training-30.jpg[Solution overview-30]
+
+[.text-center]
+image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=demo_content.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]

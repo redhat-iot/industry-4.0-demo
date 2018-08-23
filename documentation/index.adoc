@@ -27,13 +27,21 @@ The architecture  delivers the capability to:
 * Analyze data for insights and machine learning
 * Integrate, develop, and deploy IoT applications
 
-This enterprise-ready, open, and interoperable, the architecture is validated, integrated, and tested by Red Hat, Eurotech, and Cloudera and is modular in design to provide flexibility in configuration and implementation.
-
-image::architecture+with+ML.png[end-to-end architecture]
-
-=== Demo Setup
-This document provides step instructions on how setup this demo on Red Hat OpenShift Container Platform.
-
+.Demo Contents
+****
+* link:solution-overview.html[*Solution Overview*]
+* link:demo_delivery.html[*Delivering the Demo*]
+* link:storyboard-business.html[*Storyboard for Business Audience*]
+  - link:storyboard-business-1.html#_actions[*Storyboard 1*]
+  - link:storyboard-business-2.html#_actions[*Storyboard 2*]
+  - link:storyboard-business-3.html#_actions[*Storyboard 3*]
+  - link:storyboard-business-3.html#_actions[*Storyboard 4*]
+  - link:storyboard-business-3.html#_actions[*Storyboard 5*]
+* link:storyboard-technical.html[*Storyboard for Technical Audience*]
+* link:demo_setup.html[*Setting up Demo*]
+* link:conclusion.html[*Conclusion*]
+* link:advance_lab.html[*Extra Labs*]
+****
 
 [.text-center]
 image:icons/icon-home.png[align="center",width=128, link=introduction.html] image:icons/icon-next.png[align="right"width=128, link=demo_setup.html]
