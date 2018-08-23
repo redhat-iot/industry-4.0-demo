@@ -1,0 +1,26 @@
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+endif::[]
+
+= Delivering the Demo
+
+== Adapting the demo for your Audience
+
+Depending on your audience, you can focus on different aspects of the demo. The following script provides walkthrough for two personas: Business User/Executive and Architect.
+Here is the workflow of the demo:
+
+image::IoT-Demo-Workflow.png[Solution overview-4]
+
+[.text-center]
+image:icons/icon-previous.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=demo_content.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]
