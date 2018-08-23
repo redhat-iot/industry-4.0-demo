@@ -32,6 +32,7 @@ The architecture  delivers the capability to:
 * link:solution-overview.html[*Solution Overview*]
 * link:demo_delivery.html[*Delivering the Demo*]
 * link:storyboard-business.html[*Storyboard for Business Audience*]
+  - link:storyboard-business-0.html#_actions[*Storyboard 0*]
   - link:storyboard-business-1.html#_actions[*Storyboard 1*]
   - link:storyboard-business-2.html#_actions[*Storyboard 2*]
   - link:storyboard-business-3.html#_actions[*Storyboard 3*]

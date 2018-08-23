@@ -15,11 +15,11 @@ endif::[]
 
 = Demo for Business Audience
 
-== Storyboards for business Audience #1
+== Storyboards for Business Audience #1
 
-image::Industry-4.0-demo-SA-training-20.jpg[Solution overview-20]
+image::Industry-4.0-demo-SA-training-20.jpg[Business-Storyboard-1]
 
-image::business-screen-1.png[Solution overview-22]
+image::business-screen-1.png[Dashboard-business-1]
 
 [.text-center]
 image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=demo_content.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]
