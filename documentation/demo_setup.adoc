@@ -93,11 +93,6 @@ A warning will appear stating that insecure certificates are being utilized. Ign
 
 image::OpenShift-Console-Login.png[OpenShift Login]
 
-Once again, use the following credentials at the login page
-
-User: *admin* +
-Password: *r3dh4t1!*
-
 The OpenShift catalog should be shown upon successful authentication
 
 image::OpenShift-Console-LoggedIn.png[OpenShift Catalog]
@@ -114,18 +109,17 @@ To Do: Add instructions for Dashboard app once its deployed
 
 The primary source of content for this lab is the industry 4.0 demo project repository.
 
-*Project location:* link:https://github.com/redhat-iot/cloudera-iot-demo[https://github.com/redhat-iot/cloudera-iot-demo]
+*Project location:* link:https://github.com/redhat-iot/industry-4.0-demo[https://github.com/redhat-iot/industry-4.0-demo]
 
 The repository contains the following resources:
 
-* *Bridge* (`imqtt-to-kafka-bridge`): Bridge between MQTT and Kafka, implemented using Camel MQTT and Kafka components. MQTT Topic names are mapped as message keys in Kafka.
 * *Dashboard* (`dashboard`): Dashboard is an Angular.js app running on a Node.js runtime, along with JBoss Data Grid and a Data Grid proxy component that properly handles browser-based REST requests and relays to JBoss Data Grid via the Hotrod protocol.
+* *Gateway* (`gateway`): Device connectivity, edge processing and machine learning execution. Contains JBOSS AMQ and JBOSS Fuse.
+* *Bridge* (`imqtt-to-kafka-bridge`): Bridge between MQTT and Kafka, implemented using Camel MQTT and Kafka components. MQTT Topic names are mapped as message keys in Kafka.
+* *OpenShift* (`openshift`): Templates for deploying the following applications on OpenShift: dashboard, EC/kapua
 * *IoT Data* (`iot_data`): Dataset of machine runtime
-* *Gateway* (`gateway`): xxx
-* *OpenShift* (`openshift-templates`): Templates for deploying the following applications on OpenShift: dashboard, kapua, xxx
-* *Simulator* (`software-sensor-simulator`): Simulated software sensor generating IoT Data
+* *Simulator* (`simulator`): Simulated software sensor generating IoT Data
 
 [
 [.text-center]
-image:icons/icon-home.png[align="center",width=128, link=introduction.html]
-image:icons/icon-previous.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=demo_content.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=demo_delivery.html]

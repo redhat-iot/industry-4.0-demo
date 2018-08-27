@@ -19,26 +19,7 @@ endif::[]
 
 image::Industry-4.0-demo-SA-training-31.jpg[Technical-Storyboard-31]
 
-
-=== Storyboards for Technical Audience
-
-image::Industry-4.0-demo-SA-training-33.jpg[Technical-Storyboard-33]
-
-image::Industry-4.0-demo-SA-training-34.jpg[Technical-Storyboard-34]
-
-image::Industry-4.0-demo-SA-training-35.jpg[Technical-Storyboard-35]
-
-image::Industry-4.0-demo-SA-training-36.jpg[Technical-Storyboard-36]
-
-image::Industry-4.0-demo-SA-training-37.jpg[Technical-Storyboard-37]
-
-image::Industry-4.0-demo-SA-training-38.jpg[Technical-Storyboard-38]
-
-image::Industry-4.0-demo-SA-training-39.jpg[Technical-Storyboard-39]
-
-image::Industry-4.0-demo-SA-training-40.jpg[Technical-Storyboard-40]
-
-image::Industry-4.0-demo-SA-training-41.jpg[Technical-Storyboard-41]
+TIP: Storyboards provide guidance to highlight the main aspects of the demo, feel free to pick the storyboards that will appeal to your audience
 
 [.text-center]
-image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=demo_content.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-business-9.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-technical-1.html]

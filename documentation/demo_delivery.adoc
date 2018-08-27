@@ -24,5 +24,7 @@ image::IoT-Demo-Workflow.png[Solution overview-4]
 
 Storyboards are provided to help tailor the messaging for the business or technical personas.
 
+TIP: Storyboards provide guidance to highlight the main aspects of the demo, feel free to pick the storyboards that will appeal to your audience
+
 [.text-center]
-image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=demo_content.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=demo_setup.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-business.html]

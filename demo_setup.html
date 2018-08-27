@@ -618,13 +618,6 @@ It takes a few minutes for demo to be provisioned and become accessible. You can
 </div>
 </div>
 <div class="paragraph">
-<p>Once again, use the following credentials at the login page</p>
-</div>
-<div class="paragraph">
-<p>User: <strong>admin</strong><br>
-Password: <strong>r3dh4t1!</strong></p>
-</div>
-<div class="paragraph">
 <p>The OpenShift catalog should be shown upon successful authentication</p>
 </div>
 <div class="imageblock">
@@ -656,7 +649,7 @@ Password: <strong>r3dh4t1!</strong></p>
 <p>The primary source of content for this lab is the industry 4.0 demo project repository.</p>
 </div>
 <div class="paragraph">
-<p><strong>Project location:</strong> <a href="https://github.com/redhat-iot/cloudera-iot-demo">https://github.com/redhat-iot/cloudera-iot-demo</a></p>
+<p><strong>Project location:</strong> <a href="https://github.com/redhat-iot/industry-4.0-demo">https://github.com/redhat-iot/industry-4.0-demo</a></p>
 </div>
 <div class="paragraph">
 <p>The repository contains the following resources:</p>
@@ -664,22 +657,22 @@ Password: <strong>r3dh4t1!</strong></p>
 <div class="ulist">
 <ul>
 <li>
+<p><strong>Dashboard</strong> (<code>dashboard</code>): Dashboard is an Angular.js app running on a Node.js runtime, along with JBoss Data Grid and a Data Grid proxy component that properly handles browser-based REST requests and relays to JBoss Data Grid via the Hotrod protocol.</p>
+</li>
+<li>
+<p><strong>Gateway</strong> (<code>gateway</code>): Device connectivity, edge processing and machine learning execution. Contains JBOSS AMQ and JBOSS Fuse.</p>
+</li>
+<li>
 <p><strong>Bridge</strong> (<code>imqtt-to-kafka-bridge</code>): Bridge between MQTT and Kafka, implemented using Camel MQTT and Kafka components. MQTT Topic names are mapped as message keys in Kafka.</p>
 </li>
 <li>
-<p><strong>Dashboard</strong> (<code>dashboard</code>): Dashboard is an Angular.js app running on a Node.js runtime, along with JBoss Data Grid and a Data Grid proxy component that properly handles browser-based REST requests and relays to JBoss Data Grid via the Hotrod protocol.</p>
+<p><strong>OpenShift</strong> (<code>openshift</code>): Templates for deploying the following applications on OpenShift: dashboard, EC/kapua</p>
 </li>
 <li>
 <p><strong>IoT Data</strong> (<code>iot_data</code>): Dataset of machine runtime</p>
 </li>
 <li>
-<p><strong>Gateway</strong> (<code>gateway</code>): xxx</p>
-</li>
-<li>
-<p><strong>OpenShift</strong> (<code>openshift-templates</code>): Templates for deploying the following applications on OpenShift: dashboard, kapua, xxx</p>
-</li>
-<li>
-<p><strong>Simulator</strong> (<code>software-sensor-simulator</code>): Simulated software sensor generating IoT Data</p>
+<p><strong>Simulator</strong> (<code>simulator</code>): Simulated software sensor generating IoT Data</p>
 </li>
 </ul>
 </div>
@@ -687,15 +680,14 @@ Password: <strong>r3dh4t1!</strong></p>
 <p>[</p>
 </div>
 <div class="paragraph text-center">
-<p><span class="image"><a class="image" href="introduction.html"><img src="images/icons/icon-home.png" alt="icon home" width="128"></a></span>
-<span class="image"><a class="image" href="index.html"><img src="images/icons/icon-previous.png" alt="icon previous" width="128"></a></span> <span class="image"><a class="image" href="demo_content.html"><img src="images/icons/icon-home.png" alt="icon home" width="128"></a></span> <span class="image"><a class="image" href="solution-overview.html"><img src="images/icons/icon-next.png" alt="icon next" width="128"></a></span></p>
+<p><span class="image"><a class="image" href="index.html"><img src="images/icons/icon-previous-new.png" alt="icon previous new" width="128"></a></span> <span class="image"><a class="image" href="index.html"><img src="images/icons/icon-home.png" alt="icon home" width="128"></a></span> <span class="image"><a class="image" href="demo_delivery.html"><img src="images/icons/icon-next.png" alt="icon next" width="128"></a></span></p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-08-16 22:14:39 MST
+Last updated 2018-08-27 10:08:42 MST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
