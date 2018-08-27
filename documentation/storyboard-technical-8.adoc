@@ -22,5 +22,5 @@ image::Industry-4.0-demo-SA-training-39.jpg[Technical-Storyboard-8]
 image::technical-screen-8.png[Dashboard-technical-8]
 
 
-[[.text-center]
+[.text-center]
 image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-technical-7.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=faq.html]

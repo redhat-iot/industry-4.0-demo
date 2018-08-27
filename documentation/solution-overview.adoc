@@ -51,4 +51,4 @@ image::Industry-4.0-demo-SA-training-10.jpg[Solution overview-10]
 image::Industry-4.0-demo-SA-training-11.jpg[Solution overview-11]
 
 [.text-center]
-image:icons/icon-previous.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=solution-overview.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=demo_setup.html]

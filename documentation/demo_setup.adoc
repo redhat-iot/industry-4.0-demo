@@ -120,6 +120,5 @@ The repository contains the following resources:
 * *IoT Data* (`iot_data`): Dataset of machine runtime
 * *Simulator* (`simulator`): Simulated software sensor generating IoT Data
 
-[
 [.text-center]
 image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=demo_delivery.html]
