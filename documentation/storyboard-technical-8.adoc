@@ -1,0 +1,26 @@
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+endif::[]
+
+= Demo for Technical Audience
+
+== Storyboards for Technical Audience #8
+
+image::Industry-4.0-demo-SA-training-39.jpg[Technical-Storyboard-8]
+
+image::technical-screen-8.png[Dashboard-technical-8]
+
+
+[[.text-center]
+image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-technical-7.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=faq.html]
