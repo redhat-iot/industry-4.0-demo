@@ -21,5 +21,5 @@ image::Industry-4.0-demo-SA-training-28.jpg[Business-Storyboard-9]
 
 image::business-screen-9.png[Dashboard-business-9]
 
-.text-center]
+[.text-center]
 image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-business-8.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-technical.html]

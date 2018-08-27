@@ -23,5 +23,5 @@ image::technical-screen-3a.png[Dashboard-technical-3a]
 image::technical-screen-3b.png[Dashboard-technical-3b]
 
 
-[[.text-center]
+[.text-center]
 image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-technical-2.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-technical-4.html]
