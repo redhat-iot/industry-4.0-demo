@@ -20,8 +20,14 @@ endif::[]
 image::Industry-4.0-demo-SA-training-22.jpg[Business-Storyboard-3]
 
 image::business-screen-3a.png[Dashboard-business-3a]
-image::business-screen-3b.png[Dashboard-business-3b]
 
+''''
+
+image::business-screen-3b.png[Dashboard-business-3b]
+''''
+
+image::business-screen-3c.png[Dashboard-business-3c]
+''''
 
 [.text-center]
-image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-business-2.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-business-4.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-business-2.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-business-5.html]
