@@ -18,11 +18,15 @@ endif::[]
 == Storyboards for Business Audience #6
 
 image::Industry-4.0-demo-SA-training-25.jpg[Business-Storyboard-6]
-
+''''
 image::business-screen-6a.png[Dashboard-business-6a]
+''''
 image::business-screen-6b.png[Dashboard-business-6b]
+''''
 image::business-screen-6c.png[Dashboard-business-6c]
-
+''''
+image::business-screen-6d.png[Dashboard-business-6d]
+''''
 
 [.text-center]
-image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-business-5.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-business-7.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-business-4.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-business-8.html]
