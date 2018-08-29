@@ -1,0 +1,27 @@
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+endif::[]
+
+= FAQ
+
+== Troubleshooting the demo
+
+1. xxx
+2. yyy
+3. zzz
+
+TIP: Blah
+
+[.text-center]
+image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-technical-10.html] image:icons/icon-home.png[align="center",width=128, link=index.html]
