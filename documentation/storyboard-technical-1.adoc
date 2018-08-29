@@ -22,4 +22,4 @@ image::Industry-4.0-demo-SA-training-33.jpg[Technical-Storyboard-1]
 image::technical-screen-1.png[Dashboard-technical-1]
 
 [.text-center]
-image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-technical.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-technical-2.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-technical-0.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-technical-2.html]

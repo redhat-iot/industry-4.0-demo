@@ -29,4 +29,4 @@ image::business-screen-6d.png[Dashboard-business-6d]
 ''''
 
 [.text-center]
-image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-business-4.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-business-8.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-business-4.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-business-7.html]
