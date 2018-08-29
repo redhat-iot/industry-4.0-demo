@@ -19,8 +19,9 @@ endif::[]
 
 image::Industry-4.0-demo-SA-training-40.jpg[Technical-Storyboard-9]
 
-image::technical-screen-11.png[Dashboard-technical-9]
-
+image::technical-screen-9a.png[Dashboard-technical-9a]
+image::technical-screen-9b.png[Dashboard-technical-9b]
+image::technical-screen-9c.png[Dashboard-technical-9c]
 
 [.text-center]
 image:icons/icon-previous-new.png[align=left, width=128, link=storyboard-technical-8.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=storyboard-technical-10.html]
