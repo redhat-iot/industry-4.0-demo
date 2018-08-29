@@ -53,6 +53,8 @@ The architecture  delivers the capability to:
   - link:storyboard-technical-6.html#_actions[*Storyboard 6*]
   - link:storyboard-technical-7.html#_actions[*Storyboard 7*]
   - link:storyboard-technical-8.html#_actions[*Storyboard 8*]
+  - link:storyboard-technical-9.html#_actions[*Storyboard 9*]
+  - link:storyboard-technical-10.html#_actions[*Storyboard 10*]
 * link:faq.html[*FAQ*]
 ****
 
