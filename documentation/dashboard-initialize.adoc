@@ -1,0 +1,38 @@
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+endif::[]
+
+= Initialize Demo
+
+== Access the Dashboard App
+Dashboard app provides the single pane of glass visibility to various stakeholders in the factory (Business, Operations, Technician)
+
+Click on the route for Dashboard app to access the App
+
+image::dashboard-route.png[Access Dashboard App]
+
+When the Dashboard app is used for the first time, it needs to be initialized. Click on `Initialize the system`
+
+image::dashboard-initialize.png[Initialize the System]
+
+Select `OK` to reset the demo content
+
+image::dashboard-reset.png[Reset Demo]
+
+Dashboard should now display data from different facilities
+
+image::dashboard-start.png[Dashboard View]
+
+[.text-center]
+image:icons/icon-previous-new.png[align=left, width=128, link=demo_setup.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=demo_delivery.html]
