@@ -94,9 +94,8 @@ click on the project IoT-Demo in the right panel
 
 The deployed project resources can now be seen in the OpenShift Console
 
-image::OpenShift-Console-Project.png[Demo Project]
+image::OpenShift-Console-Project-new.png[Demo Project]
 
-To Do: Add instructions for Dashboard app once its deployed
 
 == Demo Resources
 
@@ -114,4 +113,4 @@ The repository contains the following resources:
 * *Simulator* (`simulator`): Simulated software sensor generating IoT Data
 
 [.text-center]
-image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=demo_delivery.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=solution-overview.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=dashboard-initialize.html]
