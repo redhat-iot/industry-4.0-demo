@@ -54,18 +54,18 @@ WARNING: If you have problems with access to the lab environment, send an email 
 
 Click on the drop-down right beside your name, you should see a list of groups that your user belongs to:
 
-image::RHPDS-Change-Group.png[Order Demo]
+image::RHPDS-Choose-Catalog-new.png[Choose Catalog]
 
-Choose the group "rhpds-iot-dev"
+Choose the group "rhpds-iot-prod"
 
 
 Go to Services → Catalogs
 
-image::RHPDS-Choose-Catalog.png[Choose Catalog]
+image::service-catalog.png[Catalog]
 
-Under Service Catalog , Click Order for DEV-IOT Enterprise 4.0 Demo
+Under Service Catalog , Click Order for IOT Enterprise 4.0 Demo
 
-image::RHPDS-Choose-Demo.png[Order Demo]
+image::RHPDS-Choose-Demo-new.png[Order Demo]
 
 Review the information about lifecycle of the lab environment and how to extend it. Check box to confirm, click Submit
 
