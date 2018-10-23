@@ -15,40 +15,43 @@ endif::[]
 
 = Solution Overview
 
-== Addressing enterprise IoT needs
+== Characteristics of IoT Architecture
+image::Industry-4.0-demo-SA-training-3.jpg[Solution overview-3]
+
+=== Key Functionalities
+image::Industry-4.0-demo-SA-training-4-new.jpg[Solution overview-4-new]
+
+=== Addressing enterprise IoT needs
 Today the businesses are looking to integrate IoT operating technology,  data management, analytics, and applications in an
 open end-to-end IoT architecture
 
-image::Industry-4.0-demo-SA-training-4.jpg[Solution overview-4]
+image::Industry-4.0-demo-SA-training-4.jpg[Solution overview-5]
 
-=== Industry 4.0 Demo
+=== Open end-to-end IoT Architecture
 
-Using the multi-tier IoT architecture, Industry 4.0 demo addresses the needs of businesses by integrating operating technology,  data management, analytics, and applications in an
-open end-to-end IoT architecture
+image::Industry-4.0-demo-SA-training11-new.jpg[Solution overview-11-new]
 
-image::Industry-4.0-demo-SA-training-5.jpg[Solution overview-5]
+=== Open Source, Open Standards, Flexible Deployment
 
-=== Industry 4.0 Use case
+image::Industry-4.0-demo-SA-training14-new.jpg[Solution overview-14-new]
 
-image::Industry-4.0-demo-SA-training-7.jpg[Solution overview-7]
+=== Value Proposition
 
-=== Solution and Benefits
+Here are some of the benefits of this solution:
 
-Here are some of the benefits of this Industry 4.0 solution:
+image::Industry-4.0-demo-SA-training-16-new.jpg[Solution overview-16-new]
 
-image::Industry-4.0-demo-SA-training-8.jpg[Solution overview-8]
+=== Technical Overview - Functional
 
-=== Demo Architecture
+image::Industry-4.0-demo-SA-training-17-new.jpg[Solution overview-17-new]
 
-image::Industry-4.0-demo-SA-training-9.jpg[Solution overview-9]
+=== Technical Overview - Products
 
-=== Demo Architecture with Products
+image::Industry-4.0-demo-SA-training-18-new.jpg[Solution overview-18-new]
 
-image::Industry-4.0-demo-SA-training-10.jpg[Solution overview-10]
+=== Technical Overview - Projects
 
-=== Demo Architecture with Upstream Projects
-
-image::Industry-4.0-demo-SA-training-11.jpg[Solution overview-11]
+image::Industry-4.0-demo-SA-training-19-new.jpg[Solution overview-19-new]
 
 [.text-center]
 image:icons/icon-previous-new.png[align=left, width=128, link=index.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=demo_setup.html]
