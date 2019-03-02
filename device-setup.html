@@ -5,8 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.7">
-<meta name="author" content="Chris Custine &lt;ccustine@redhat.com&gt;, David Bericat &lt;david.bericat@redhat.com&gt;, James Falkner &lt;jfalkner@redhat.com&gt;, Ishu Verma &lt;iverma@redhat.com&gt;">
-<title>Industry 4.0 End-to-End Demo</title>
+<title>Setting up Gateway Devices on Everyware Cloud</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -434,150 +433,114 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Industry 4.0 End-to-End Demo</h1>
-<div class="details">
-<span id="author" class="author">Chris Custine &lt;ccustine@redhat.com&gt;, David Bericat &lt;david.bericat@redhat.com&gt;, James Falkner &lt;jfalkner@redhat.com&gt;, Ishu Verma &lt;iverma@redhat.com&gt;</span><br>
-</div>
+<h1>Setting up Gateway Devices on Everyware Cloud</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_overview">Overview</h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Internet of Things creates new challenges for enterprises, related to both technology and business. Red Hat, Eurotech, and Cloudera have combined strengths and integrated technologies to deliver the first end-to-end, open source IoT architecture that addresses enterprise IoT needs. This makes it easier for organizations to adopt a validated, modular, flexible architecture that is built to be open, interoperable, and cost effective.</p>
+<p>In order to demonstrate device services in Everyware Cloud (EC), gateway devices must be registered in the Everyware Cloud console. The following instructions describe how to register gateway devices with EC:</p>
 </div>
-<div class="paragraph">
-<p>The architecture  delivers the capability to:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Manage connected things</p>
-</li>
-<li>
-<p>Control and manage the flow of data from device to the cloud</p>
-</li>
-<li>
-<p>Analyze data for insights and machine learning</p>
-</li>
-<li>
-<p>Integrate, develop, and deploy IoT applications</p>
-</li>
-</ul>
 </div>
-<div class="sidebarblock">
+<div class="sect1">
+<h2 id="_configure_everyware_cloud_ec">Configure Everyware Cloud (EC)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_create_users_and_child_accounts">Create Users and Child Accounts</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log in to ec-console with ec-sys/ec-password (or whatever admin credentials you have set up).</p>
+</li>
+<li>
+<p>Add a child account to use. "Child Accounts" &#8594; "Add". Take note of the "Account Name" because you will need this for registering gateways.</p>
+</li>
+<li>
+<p>Select the newly created Child Account in the top pane and click the Settings tab in the bottom pane.</p>
+</li>
+<li>
+<p>Select each service and select the "infinite*" setting and then "Save" for each of the following services: VpnConnectionService, AccountService, GroupService, DeviceRegistryService, TagService, UserService, and JobService.</p>
+</li>
+<li>
+<p>In the top right corner of the page click "Everyware Cloud Sysadmin @ec-sys" then "Switch to Account", and select the new Child Account that you created.</p>
+</li>
+<li>
+<p>Add users by clicking "Users" menu, then "Add".</p>
+</li>
+<li>
+<p>For each user that you create, select them in the top pane, and then assign a role by clicking on the "Role" tab in the bottom pane, then "Add". Select from the applicable roles.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configure_everyware_software_framework_esf">Configure Everyware Software Framework (ESF)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_configure_cloud_services_in_esf">Configure Cloud Services in ESF</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log in to ESF Console (credentials sent via email)</p>
+</li>
+<li>
+<p>Click "Cloud Services" in left side menu.</p>
+</li>
+<li>
+<p>Under "DataService" tab, change connect.auto-on-startup to true then "Apply".</p>
+</li>
+<li>
+<p>Under "MqttDataService", change the following values:</p>
+<div class="listingblock">
 <div class="content">
-<div class="title">Demo Contents</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="solution-overview.html"><strong>Solution Overview</strong></a></p>
-</li>
-<li>
-<p><a href="demo_setup.html"><strong>Setting up the Demo</strong></a></p>
-</li>
-<li>
-<p><a href="dashboard-initialize.html"><strong>Initialize the Dashboard App</strong></a></p>
-</li>
-<li>
-<p><a href="device-setup.html"><strong>Set up Gateway Devices on Everyware Cloud</strong></a></p>
-</li>
-<li>
-<p><a href="demo_delivery.html"><strong>Delivering the Demo</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business.html"><strong>Storyboard for Business Audience</strong></a></p>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="storyboard-business-0.html#_actions"><strong>Storyboard 0</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-1.html#_actions"><strong>Storyboard 1</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-2.html#_actions"><strong>Storyboard 2</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-3.html#_actions"><strong>Storyboard 3</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-5.html#_actions"><strong>Storyboard 5</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-4.html#_actions"><strong>Storyboard 4</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-6.html#_actions"><strong>Storyboard 6</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-8.html#_actions"><strong>Storyboard 8</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-9.html#_actions"><strong>Storyboard 9</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-10.html#_actions"><strong>Storyboard 10</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-business-11.html#_actions"><strong>Storyboard 11</strong></a></p>
-</li>
-</ul>
+<pre class="prettyprint highlight"><code class="language-ruby" data-lang="ruby">broker-url = mqtt://ec-broker-mqtt.&lt;project_name&gt;.svc.cluster.local:1883/
+topic.context.account-name = &lt;Child Account Name created in EC&gt;
+username = &lt;gateway username created in EC&gt;
+password = &lt;password from EC&gt;</code></pre>
+</div>
 </div>
 </li>
 <li>
-<p><a href="storyboard-technical.html"><strong>Storyboard for Technical Audience</strong></a></p>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="storyboard-technical-0.html#_actions"><strong>Storyboard 0</strong></a></p>
+<p>Click "Apply"</p>
 </li>
 <li>
-<p><a href="storyboard-technical-1.html#_actions"><strong>Storyboard 1</strong></a></p>
+<p>Click "Connect"</p>
 </li>
 <li>
-<p><a href="storyboard-technical-2.html#_actions"><strong>Storyboard 2</strong></a></p>
+<p>Click on the "Status" at top of left side menu and verify "Service Status" shows CONNECTED.</p>
 </li>
-<li>
-<p><a href="storyboard-technical-3.html#_actions"><strong>Storyboard 3</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-technical-5.html#_actions"><strong>Storyboard 5</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-technical-6.html#_actions"><strong>Storyboard 6</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-technical-7.html#_actions"><strong>Storyboard 7</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-technical-8.html#_actions"><strong>Storyboard 8</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-technical-9.html#_actions"><strong>Storyboard 9</strong></a></p>
-</li>
-<li>
-<p><a href="storyboard-technical-10.html#_actions"><strong>Storyboard 10</strong></a></p>
-</li>
-</ul>
+</ol>
 </div>
-</li>
-<li>
-<p><a href="faq.html"><strong>FAQ</strong></a></p>
-</li>
-</ul>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The broker-url parameter above assumes the gateway is a virtual gateway running in a pod. If you are configuring a physical gateway, you would use port 31883 along with the public IP address or host name:
+</td>
+</tr>
+</table>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-ruby" data-lang="ruby">broker-url = mqtt://&lt;node's public IP address&gt;:31883/</code></pre>
 </div>
 </div>
 <div class="paragraph text-center">
-<p><span class="image"><a class="image" href="index.html"><img src="images/icons/icon-home.png" alt="icon home" width="128"></a></span> <span class="image"><a class="image" href="solution-overview.html"><img src="images/icons/icon-next.png" alt="icon next" width="128"></a></span></p>
+<p><span class="image"><a class="image" href="dashboard-initialize.html"><img src="images/icons/icon-previous-new.png" alt="icon previous new" width="128"></a></span> <span class="image"><a class="image" href="index.html"><img src="images/icons/icon-home.png" alt="icon home" width="128"></a></span> <span class="image"><a class="image" href="demo_delivery.html"><img src="images/icons/icon-next.png" alt="icon next" width="128"></a></span></p>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-03-01 17:39:16 MST
+Last updated 2019-03-01 17:34:12 MST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
