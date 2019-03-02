@@ -1,0 +1,64 @@
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images
+:icons: font
+:source-highlighter: prettify
+endif::[]
+
+= Set up Gateway Devices on Everyware Cloud
+
+In order to demonstrate device services in Everyware Cloud (EC), gateway devices must be registered in the Everyware Cloud console. The following instructions describe how to register gateway devices with EC:
+
+== Configure Everyware Cloud (EC)
+
+=== Create Users and Child Accounts
+
+1. Log in to ec-console with ec-sys/ec-password (or whatever admin credentials you have set up).
+2. Add a child account to use. "Child Accounts" -> "Add". Take note of the "Account Name" because you will need this for registering gateways.
+3. Select the newly created Child Account in the top pane and click the Settings tab in the bottom pane.
+4. Select each service and select the "infinite*" setting and then "Save" for each of the following services: VpnConnectionService, AccountService, GroupService, DeviceRegistryService, TagService, UserService, and JobService.
+5. In the top right corner of the page click "Everyware Cloud Sysadmin @ec-sys" then "Switch to Account", and select the new Child Account that you created.
+6. Add users by clicking "Users" menu, then "Add".
+7. For each user that you create, select them in the top pane, and then assign a role by clicking on the "Role" tab in the bottom pane, then "Add". Select from the applicable roles.
+
+
+== Configure Everyware Software Framework (ESF)
+
+=== Configure Cloud Services in ESF
+
+1. Log in to ESF Console (credentials sent via email)
+2.  Click "Cloud Services" in left side menu.
+3. Under "DataService" tab, change connect.auto-on-startup to true then "Apply".
+4. Under "MqttDataService", change the following values:
++
+[source,ruby,indent=0]
+----
+broker-url = mqtt://ec-broker-mqtt.<project_name>.svc.cluster.local:1883/
+topic.context.account-name = <Child Account Name created in EC>
+username = <gateway username created in EC>
+password = <password from EC>
+----
++
+5. Click "Apply"
+
+6. Click "Connect"
+
+7. Click on the "Status" at top of left side menu and verify "Service Status" shows CONNECTED.
+
+NOTE: The broker-url parameter above assumes the gateway is a virtual gateway running in a pod. If you are configuring a physical gateway, you would use port 31883 along with the public IP address or host name:
+
+[source,ruby,indent=0]
+----
+broker-url = mqtt://<node's public IP address>:31883/
+----
+
+[.text-center]
+image:icons/icon-previous-new.png[align=left, width=128, link=dashboard-initialize.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=demo_delivery.html]
