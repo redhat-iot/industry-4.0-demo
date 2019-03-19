@@ -61,4 +61,4 @@ broker-url = mqtt://<node's public IP address>:31883/
 ----
 
 [.text-center]
-image:icons/icon-previous-new.png[align=left, width=128, link=dashboard-initialize.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=demo_delivery.html]
+image:icons/icon-previous-new.png[align=left, width=128, link=demo_setup.html] image:icons/icon-home.png[align="center",width=128, link=index.html] image:icons/icon-next.png[align="right"width=128, link=dashboard-initialize.html]

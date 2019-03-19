@@ -31,8 +31,8 @@ The architecture  delivers the capability to:
 ****
 * link:solution-overview.html[*Solution Overview*]
 * link:demo_setup.html[*Setting up the Demo*]
-* link:dashboard-initialize.html[*Initialize the Dashboard App*]
 * link:device-setup.html[*Set up Gateway Devices on Everyware Cloud*]
+* link:dashboard-initialize.html[*Initialize the Dashboard App*]
 * link:demo_delivery.html[*Delivering the Demo*]
 * link:storyboard-business.html[*Storyboard for Business Audience*]
   - link:storyboard-business-0.html#_actions[*Storyboard 0*]
